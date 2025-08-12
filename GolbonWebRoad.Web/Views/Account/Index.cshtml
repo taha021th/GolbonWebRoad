@@ -1,0 +1,54 @@
+﻿@model IEnumerable<GolbonWebRoad.Application.Dtos.OrderDto>
+@{
+    ViewData["Title"] = "حساب کاربری من";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>در این بخش می‌توانید تاریخچه سفارشات خود را مشاهده کنید.</p>
+<hr />
+
+@if (Model.Any())
+{
+    <h3>تاریخچه سفارشات</h3>
+    @foreach (var order in Model)
+    {
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>شماره سفارش: @order.Id</strong>
+                <span class="float-start">تاریخ: @order.OrderDate.ToShortDateString()</span>
+            </div>
+            <div class="card-body">
+                <p><strong>وضعیت:</strong> @order.OrderStatus</p>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>محصول</th>
+                            <th>تعداد</th>
+                            <th>قیمت واحد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in order.OrderItems)
+                        {
+                            <tr>
+                                <td>@item.Product.Name</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.Price.ToString("N0") تومان</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <strong>جمع کل: @order.TotalAmount.ToString("N0") تومان</strong>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-info">
+        شما تاکنون هیچ سفارشی ثبت نکرده‌اید.
+    </div>
+}

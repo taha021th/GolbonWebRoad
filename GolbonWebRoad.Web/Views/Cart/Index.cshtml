@@ -1,0 +1,59 @@
+﻿@model List<GolbonWebRoad.Application.Dtos.CartItemDto>
+@{
+    ViewData["Title"] = "سبد خرید شما";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    decimal cartTotal = Model.Sum(item => item.Price * item.Quantity);
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>محصول</th>
+                <th></th>
+                <th>قیمت واحد</th>
+                <th>تعداد</th>
+                <th>قیمت کل</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/images/placeholder.png" : item.ImageUrl)" style="width: 80px;" />
+                    </td>
+                    <td>@item.ProductName</td>
+                    <td>@item.Price.ToString("N0") تومان</td>
+                    <td>@item.Quantity</td>
+                    <td>@((item.Price * item.Quantity).ToString("N0")) تومان</td>
+                    <td>
+                        <a asp-action="RemoveFromCart" asp-route-productId="@item.ProductId" class="btn btn-sm btn-danger">حذف</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" class="text-end"><strong>جمع کل:</strong></td>
+                <td colspan="2"><strong>@cartTotal.ToString("N0") تومان</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="text-center">
+        <a href="#" class="btn btn-primary">ادامه خرید</a>
+        <a asp-controller="Checkout" asp-action="Index" class="btn btn-success">نهایی کردن سفارش</a>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        سبد خرید شما خالی است.
+    </div>
+}
+

@@ -1,0 +1,26 @@
+﻿@model IEnumerable<GolbonWebRoad.Application.Dtos.ProductDto>
+@{
+    ViewData["Title"] = "صفحه اصلی";
+}
+
+<div class="text-center">
+    <h1 class="display-4">به فروشگاه ما خوش آمدید</h1>
+    <p>جدیدترین محصولات ما را در زیر مشاهده کنید.</p>
+</div>
+
+<div class="row mt-5">
+    @foreach (var product in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/placeholder.png" : product.ImageUrl)" class="card-img-top" style="height: 250px; object-fit: cover;" alt="@product.Name">
+                <div class="card-body">
+                    <h5 class="card-title">@product.Name</h5>
+                    <p class="card-text">@product.Description.Substring(0, Math.Min(product.Description.Length, 100))...</p>
+                    <p class="card-text font-weight-bold">@product.Price.ToString("N0") تومان</p>
+                    <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-primary">مشاهده جزئیات</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

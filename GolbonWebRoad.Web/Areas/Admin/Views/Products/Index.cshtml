@@ -1,0 +1,47 @@
+﻿@model IEnumerable<GolbonWebRoad.Application.Dtos.ProductDto>
+
+@{
+    ViewData["Title"] = "مدیریت محصولات";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">ایجاد محصول جدید</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>تصویر</th>
+            <th>نام</th>
+            <th>قیمت</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px;" />
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @item.Price.ToString("N0") تومان
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">ویرایش</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">جزئیات</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">حذف</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
