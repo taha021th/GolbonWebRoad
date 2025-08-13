@@ -36,15 +36,7 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(
-    options =>
-    {
-        options.IdleTimeout=TimeSpan.FromMinutes(30);
-        options.Cookie.HttpOnly=true;
-        options.Cookie.IsEssential=true;
-    }
-    );
+
 var app = builder.Build();
 
 // 3. اضافه کردن میدل‌ور Serilog برای ثبت اطلاعات درخواست‌های HTTP

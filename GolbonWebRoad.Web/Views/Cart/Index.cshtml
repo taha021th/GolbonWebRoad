@@ -1,59 +1,98 @@
-﻿@model List<GolbonWebRoad.Application.Dtos.CartItemDto>
+﻿@using GolbonWebRoad.Application.Dtos
+@model List<CartItemDto>
 @{
-    ViewData["Title"] = "سبد خرید شما";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    decimal cartTotal = Model.Sum(item => item.Price * item.Quantity);
+    ViewData["Title"] = "سبد خرید";
+    // Calculate the total price
+    decimal totalPrice = Model.Sum(item => item.Product.Price * item.Quantity);
 }
 
-<h1>@ViewData["Title"]</h1>
-
-@if (Model.Any())
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>محصول</th>
-                <th></th>
-                <th>قیمت واحد</th>
-                <th>تعداد</th>
-                <th>قیمت کل</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/images/placeholder.png" : item.ImageUrl)" style="width: 80px;" />
-                    </td>
-                    <td>@item.ProductName</td>
-                    <td>@item.Price.ToString("N0") تومان</td>
-                    <td>@item.Quantity</td>
-                    <td>@((item.Price * item.Quantity).ToString("N0")) تومان</td>
-                    <td>
-                        <a asp-action="RemoveFromCart" asp-route-productId="@item.ProductId" class="btn btn-sm btn-danger">حذف</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="4" class="text-end"><strong>جمع کل:</strong></td>
-                <td colspan="2"><strong>@cartTotal.ToString("N0") تومان</strong></td>
-            </tr>
-        </tfoot>
-    </table>
-
-    <div class="text-center">
-        <a href="#" class="btn btn-primary">ادامه خرید</a>
-        <a asp-controller="Checkout" asp-action="Index" class="btn btn-success">نهایی کردن سفارش</a>
+<div class="bg-gray-100 py-10">
+    <div class="container mx-auto px-4">
+        <h1 class="text-3xl font-bold text-center">سبد خرید شما</h1>
     </div>
-}
-else
-{
-    <div class="alert alert-info">
-        سبد خرید شما خالی است.
-    </div>
-}
+</div>
 
+<div class="container mx-auto px-4 py-12">
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-md">
+                <div class="p-4 border-b">
+                    <h2 class="text-xl font-semibold">@Model.Count() آیتم در سبد شما</h2>
+                </div>
+                <div class="p-4 space-y-4">
+                    @foreach (var item in Model)
+                    {
+                        <div class="flex flex-col sm:flex-row gap-4 items-center border-b pb-4">
+                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.ProductId" class="flex items-center gap-4 flex-1">
+                                <img src="@(string.IsNullOrEmpty(item.Product.ImageUrl) ? "https://placehold.co/400x400/EEE/31343C?text=Aura" : item.Product.ImageUrl)"
+                                     alt="@item.Product.Name"
+                                     class="w-24 h-24 object-cover rounded-md" />
+                                <div>
+                                    <p class="font-semibold text-lg hover:text-indigo-600 transition">@item.Product.Name</p>
+                                    <p class="text-gray-500 text-sm">@item.Product.Price.ToString("N0") تومان</p>
+                                </div>
+                            </a>
+
+                            <div class="flex items-center border rounded-md h-12">
+                                <button class="w-12 h-full text-xl text-gray-500 hover:bg-gray-100 transition rounded-r-md">+</button>
+                                <input type="text" value="@item.Quantity" class="w-14 h-full text-center text-lg font-semibold border-l border-r outline-none" readonly />
+                                <button class="w-12 h-full text-xl text-gray-500 hover:bg-gray-100 transition rounded-l-md">-</button>
+                            </div>
+
+                            <div class="flex flex-col items-end gap-2">
+                                <p class="font-bold text-lg text-indigo-700">@((item.Product.Price * item.Quantity).ToString("N0")) تومان</p>
+                                <a asp-controller="Cart" asp-action="RemoveFromCart" asp-route-id="@item.ProductId" class="text-red-500 hover:text-red-700 transition text-sm">
+                                    حذف
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <aside class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md h-fit sticky top-24">
+                <h3 class="text-xl font-bold mb-6 border-b pb-4">خلاصه سفارش</h3>
+                <div class="space-y-4 text-gray-700">
+                    <div class="flex justify-between">
+                        <span>جمع کل محصولات</span>
+                        <span>@totalPrice.ToString("N0") تومان</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>هزینه ارسال</span>
+                        <span class="text-green-600">رایگان</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-xl border-t pt-4">
+                        <span>مبلغ قابل پرداخت</span>
+                        <span>@totalPrice.ToString("N0") تومان</span>
+                    </div>
+                </div>
+
+                <form asp-controller="Cart" asp-action="PlaceOrder" method="post" class="mt-8">
+                    <button type="submit" class="w-full block text-center bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition shadow-md">
+                        ثبت نهایی و پرداخت
+                    </button>
+                </form>
+
+                <a asp-controller="Products" asp-action="Index" class="w-full block text-center text-indigo-600 mt-4">
+                    بازگشت به فروشگاه
+                </a>
+            </aside>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-20">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h2 class="mt-4 text-2xl font-semibold text-gray-800">سبد خرید شما خالی است!</h2>
+            <p class="mt-2 text-gray-500">نگران نباشید، می‌توانید از بین محصولات شگفت‌انگیز ما انتخاب کنید.</p>
+            <a asp-controller="Products" asp-action="Index" class="mt-6 inline-block bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition">
+                مشاهده محصولات
+            </a>
+        </div>
+    }
+</div>

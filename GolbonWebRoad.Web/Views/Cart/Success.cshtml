@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "سفارش شما ثبت شد";
+}
+
+<div class="text-center py-20">
+    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-20 w-20 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+    </svg>
+    <h1 class="mt-4 text-3xl font-bold text-gray-800">سفارش شما با موفقیت ثبت شد!</h1>
+    <p class="mt-2 text-gray-600">از خرید شما متشکریم. تیم ما به زودی سفارش شما را آماده خواهد کرد.</p>
+    <p class="mt-2 text-gray-600">شماره پیگیری سفارش شما: <span class="font-bold text-indigo-700">@ViewBag.OrderId</span></p>
+    <div class="mt-8">
+        <a asp-controller="Home" asp-action="Index" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition">
+            بازگشت به صفحه اصلی
+        </a>
+    </div>
+</div>

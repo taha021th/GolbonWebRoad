@@ -3,44 +3,104 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - فروشگاه من</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <title>@ViewData["Title"] - فروشگاه Aura</title>
+
+    <!--<script src="https://cdn.tailwindcss.com"></script>-->
+    <link rel="stylesheet" href="~/css/output.css" />
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+        }
+    </style>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">فروشگاه من</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">خانه</a>
-                        </li>
-                    </ul>
-                    <partial name="_LoginPartial" />
+<body class="bg-gray-50 text-gray-700">
+
+    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a asp-controller="Home" asp-action="Index" class="text-2xl font-bold text-indigo-700">
+                    Aura
+                </a>
+
+                <div class="hidden md:flex items-center space-x-8 space-x-reverse font-semibold">
+                    <a asp-controller="Home" asp-action="Index" class="hover:text-indigo-600 transition-colors">خانه</a>
+                    <a asp-controller="Products" asp-action="Index" class="hover:text-indigo-600 transition-colors">محصولات</a>
+                    <a href="#" class="hover:text-indigo-600 transition-colors">درباره ما</a>
+                    <a href="#" class="hover:text-indigo-600 transition-colors">تماس با ما</a>
+                </div>
+
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <button class="hidden md:block hover:text-indigo-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </button>
+                    <a asp-controller="Account" asp-action="Index" class="hover:text-indigo-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    </a>
+                    <a asp-controller="Cart" asp-action="Index" class="relative hover:text-indigo-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">3</span>
+                    </a>
+                    <button class="md:hidden hover:text-indigo-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                    </button>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 1403 - فروشگاه من
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12">
+        <div class="container mx-auto px-4 py-10">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-1">
+                    <h3 class="text-xl font-bold mb-4">فروشگاه Aura</h3>
+                    <p class="text-gray-400">
+                        ما بهترین محصولات را با بالاترین کیفیت برای شما فراهم می‌کنیم تا تجربه‌ای بی‌نظیر از خرید آنلاین داشته باشید.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="font-bold mb-4">لینک‌های سریع</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-indigo-400 transition">سوالات متداول</a></li>
+                        <li><a href="#" class="hover:text-indigo-400 transition">سیاست حریم خصوصی</a></li>
+                        <li><a href="#" class="hover:text-indigo-400 transition">شرایط استفاده</a></li>
+                        <li><a href="#" class="hover:text-indigo-400 transition">پیگیری سفارشات</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="font-bold mb-4">تماس با ما</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><p>آدرس: تهران، خیابان اصلی، پلاک ۱۲۳</p></li>
+                        <li><p>ایمیل: support@aura.com</p></li>
+                        <li><p>تلفن: ۰۲۱-۱۲۳۴۵۶۷۸</p></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="font-bold mb-4">عضویت در خبرنامه</h3>
+                    <p class="text-gray-400 mb-4">از آخرین تخفیف‌ها و محصولات جدید ما باخبر شوید.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="ایمیل شما" class="w-full rounded-r-md border-0 p-2 text-gray-800 outline-none" />
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-l-md transition">عضویت</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-gray-700 text-center text-gray-500">
+                <p>&copy; @DateTime.Now.Year - تمامی حقوق برای فروشگاه Aura محفوظ است.</p>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

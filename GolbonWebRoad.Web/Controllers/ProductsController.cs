@@ -11,8 +11,17 @@ namespace GolbonWebRoad.Web.Controllers
         {
             _mediator=mediator;
         }
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Index()
         {
+            var products = await _mediator.Send(new GetProductsQuery());
+            return View(products);
+        }
+        public async Task<IActionResult> Detail(int id)
+        {
+            if (id==0)
+            {
+                return NotFound();
+            }
 
             var product = await _mediator.Send(new GetProductByIdQuery { Id=id });
             if (product==null)
