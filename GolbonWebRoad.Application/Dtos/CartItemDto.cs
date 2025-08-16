@@ -1,4 +1,6 @@
-﻿namespace GolbonWebRoad.Application.Dtos
+﻿using GolbonWebRoad.Application.Dtos.Products;
+
+namespace GolbonWebRoad.Application.Dtos
 {
     public class CartItemDto
     {

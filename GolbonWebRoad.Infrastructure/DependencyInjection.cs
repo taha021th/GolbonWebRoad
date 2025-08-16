@@ -16,6 +16,10 @@ namespace GolbonWebRoad.Infrastructure
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
 
+            var connectionString = configuration.GetConnectionString("GolbonWebRoadShopDbConnection");
+            services.AddDbContext<GolbonWebRoadDbContext>(options =>
+                options.UseNpgsql(connectionString)
+            );
             services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
@@ -25,14 +29,12 @@ namespace GolbonWebRoad.Infrastructure
             .AddDefaultUI()
             .AddDefaultTokenProviders();
 
-            var connectionString = configuration.GetConnectionString("GolbonWebRoadShopDbConnection");
-            services.AddDbContext<GolbonWebRoadDbContext>(options =>
-                options.UseNpgsql(connectionString)
-            );
+
             // اضافه کردن سرویس‌های Identity
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IFileStorageService, FileStorageService>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
             return services;
 
         }

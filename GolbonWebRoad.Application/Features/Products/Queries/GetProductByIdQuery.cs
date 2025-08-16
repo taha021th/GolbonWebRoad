@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using GolbonWebRoad.Application.Dtos;
+using GolbonWebRoad.Application.Dtos.Products;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 
@@ -8,6 +8,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
     public class GetProductByIdQuery : IRequest<ProductDto>
     {
         public int Id { get; set; }
+        public bool? JoinCategory { get; set; }
     }
 
     public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, ProductDto>
@@ -21,7 +22,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
         }
         public async Task<ProductDto> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
-            var product = await _productRepository.GetByIdAsync(request.Id);
+            var product = await _productRepository.GetByIdAsync(request.Id, request.JoinCategory);
             return _mapper.Map<ProductDto>(product);
         }
     }

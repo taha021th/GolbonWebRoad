@@ -1,4 +1,5 @@
-﻿using GolbonWebRoad.Domain.Interfaces;
+﻿using FluentValidation;
+using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 
 namespace GolbonWebRoad.Application.Features.Products.Commands
@@ -6,6 +7,14 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
     public class DeleteProductCommand : IRequest
     {
         public int Id { get; set; }
+    }
+
+    public class DeleteProductCommandValidator : AbstractValidator<DeleteProductCommand>
+    {
+        public DeleteProductCommandValidator()
+        {
+            RuleFor(p => p.Id).NotEmpty().WithMessage("Product ID cannot be empty.");
+        }
     }
     public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand>
     {

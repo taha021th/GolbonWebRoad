@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using GolbonWebRoad.Application.Dtos;
+using GolbonWebRoad.Application.Dtos.Products;
 using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
@@ -13,6 +13,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         public string Description { get; set; }
         public decimal Price { get; set; }
         public string ImageUrl { get; set; }
+        public int CategoryId { get; set; }
     }
 
     public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>

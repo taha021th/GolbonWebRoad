@@ -1,6 +1,5 @@
 ﻿using GolbonWebRoad.Application.Dtos;
 using GolbonWebRoad.Application.Features.Orders.Commands;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -8,18 +7,14 @@ using System.Text.Json;
 
 namespace GolbonWebRoad.Api.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+
     [Authorize]
-    public class CheckoutController : ControllerBase
+    public class CheckoutController : ApiBaseController
     {
-        private readonly IMediator _mediator;
+
         private const string CartSessionKey = "Cart";
 
-        public CheckoutController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+
 
         // POST: api/checkout/placeorder
         [HttpPost("placeorder")]
@@ -52,7 +47,7 @@ namespace GolbonWebRoad.Api.Controllers
             };
 
             // ارسال کامند به لایه اپلیکیشن و گرفتن شناسه سفارش جدید
-            var orderId = await _mediator.Send(command);
+            var orderId = await Mediator.Send(command);
 
             // خالی کردن سبد خرید پس از ثبت موفق سفارش
             HttpContext.Session.Remove(CartSessionKey);

@@ -1,23 +1,15 @@
 ﻿using GolbonWebRoad.Application.Dtos;
 using GolbonWebRoad.Application.Features.Products.Queries;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace GolbonWebRoad.Api.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CartController : ControllerBase
+
+    public class CartController : ApiBaseController
     {
-        private readonly IMediator _mediator;
+
         private const string CartSessionKey = "Cart";
-
-        public CartController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         // GET: api/Cart
         [HttpGet]
         public IActionResult GetCart()
@@ -30,7 +22,7 @@ namespace GolbonWebRoad.Api.Controllers
         [HttpPost("add")]
         public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request)
         {
-            var product = await _mediator.Send(new GetProductByIdQuery { Id = request.ProductId });
+            var product = await Mediator.Send(new GetProductByIdQuery { Id = request.ProductId, JoinCategory=true });
             if (product == null) return NotFound("محصول یافت نشد.");
 
             var cart = GetCartFromSession();
@@ -41,10 +33,9 @@ namespace GolbonWebRoad.Api.Controllers
                 cart.Add(new CartItemDto
                 {
                     ProductId = product.Id,
-                    ProductName = product.Name,
                     Price = product.Price,
                     Quantity = request.Quantity,
-                    ImageUrl = product.ImageUrl
+                    Product=product
                 });
             }
             else

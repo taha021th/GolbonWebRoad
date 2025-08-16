@@ -1,4 +1,6 @@
-﻿namespace GolbonWebRoad.Application.Dtos
+﻿using GolbonWebRoad.Application.Dtos.Categories;
+
+namespace GolbonWebRoad.Application.Dtos.Products
 {
     public class ProductDto
     {
@@ -7,5 +9,7 @@
         public string Description { get; set; }
         public decimal Price { get; set; }
         public string? ImageUrl { get; set; }
+
+        public CategorySummaryDto Category { get; set; }
     }
 }

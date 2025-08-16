@@ -1,5 +1,6 @@
-﻿@using GolbonWebRoad.Application.Dtos
-@model IEnumerable<ProductDto>
+﻿
+@using GolbonWebRoad.Web.Models
+@model ProductViewModel
 @{
     ViewData["Title"] = "همه محصولات";
 }
@@ -17,45 +18,47 @@
         <aside class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md h-fit sticky top-24">
             <h3 class="text-xl font-bold mb-6 border-b pb-4">جستجو و فیلتر</h3>
 
-            <div class="mb-6">
-                <label for="search" class="font-semibold block mb-2">نام محصول</label>
-                <input type="text" id="search" placeholder="جستجو..." class="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-300 outline-none transition">
-            </div>
+            <form asp-controller="Products" asp-action="Index" method="get">
+    <div class="mb-6">
+        <label for="search" class="font-semibold block mb-2">نام محصول</label>
+        <input type="text" name="searchTerm" value="@ViewData["CurrentFilter"]" placeholder="جستجو..." class="w-full p-2 border rounded-md ...">
+    </div>
 
-            <div class="mb-6">
-                <h4 class="font-semibold mb-3">دسته‌بندی</h4>
-                <div class="space-y-2">
-                    <div class="flex items-center">
-                        <input type="checkbox" id="cat1" class="rounded text-indigo-600 focus:ring-indigo-500">
-                        <label for="cat1" class="mr-2 text-gray-700">اکسسوری</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="cat2" class="rounded text-indigo-600 focus:ring-indigo-500">
-                        <label for="cat2" class="mr-2 text-gray-700">گجت‌ها</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="cat3" class="rounded text-indigo-600 focus:ring-indigo-500">
-                        <label for="cat3" class="mr-2 text-gray-700">پوشاک</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="cat4" class="rounded text-indigo-600 focus:ring-indigo-500">
-                        <label for="cat4" class="mr-2 text-gray-700">کفش</label>
-                    </div>
-                </div>
-            </div>
+    <div class="mb-6">
+    <label for="categoryId" class="font-semibold block mb-2">دسته‌بندی</label>
+    <select name="categoryId" class="w-full p-2 border rounded-md ...">
+        <option value="">همه دسته‌بندی‌ها</option>
 
-            <div>
-                <h4 class="font-semibold mb-3">محدوده قیمت</h4>
-                <input type="range" min="0" max="10000000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-            </div>
+        @foreach (var category in Model.Categories)
+        {
+            // بررسی می‌کنیم که آیا این کتگوری همان کتگوری انتخاب شده قبلی است یا نه
+            bool isSelected = ViewData["CurrentCategory"] != null && (int)ViewData["CurrentCategory"] == category.Id;
 
+            <option value="@category.Id" selected="@isSelected">@category.Name</option>
+        }
+    </select>
+</div>
+
+    <div class="mb-6">
+        <label for="sortOrder" class="font-semibold block mb-2">مرتب‌سازی بر اساس</label>
+        <select name="sortOrder" class="w-full p-2 border rounded-md ...">
+            <option value="name">نام</option>
+            <option value="price_asc">ارزان‌ترین</option>
+            <option value="price_desc">گران‌ترین</option>
+        </select>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="w-full bg-indigo-600 ...">اعمال فیلتر</button>
+    </div>
+</form>
         </aside>
 
         <main class="lg:col-span-3">
-            @if (Model != null && Model.Any())
+            @if (Model.Products != null && Model.Products.Any())
             {
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-                    @foreach (var product in Model)
+                    @foreach (var product in Model.Products)
                     {
                         <div class="group border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 bg-white">
                             <a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Id" class="block overflow-hidden bg-gray-100">

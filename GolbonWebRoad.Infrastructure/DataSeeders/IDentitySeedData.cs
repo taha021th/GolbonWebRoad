@@ -6,8 +6,8 @@ namespace GolbonWebRoad.Infrastructure.DataSeeders
     {
         public static async Task Initialize(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            string adminRole = "Admin";
-            string adminEmail = "admin@example.com";
+            string adminRole = "User";
+            string adminEmail = "user@gmail.com";
             string adminPassword = "Password123!"; // این پسورد را در محیط واقعی امن کنید
 
             if (await roleManager.FindByNameAsync(adminRole) == null)

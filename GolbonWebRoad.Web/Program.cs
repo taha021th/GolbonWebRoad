@@ -1,6 +1,7 @@
-﻿using GolbonWebRoad.Application;
+using GolbonWebRoad.Application;
 using GolbonWebRoad.Infrastructure;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 // 1. پیکربندی لاگر اولیه (Bootstrap Logger)
@@ -13,6 +14,11 @@ Log.Information("Starting up application");
 
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("GolbonWebRoadDbContextConnection") ?? throw new InvalidOperationException("Connection string 'GolbonWebRoadDbContextConnection' not found.");
+
+
+
+
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {

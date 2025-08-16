@@ -1,34 +1,34 @@
 ﻿using GolbonWebRoad.Application.Features.Products.Commands;
 using GolbonWebRoad.Application.Features.Products.Queries;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GolbonWebRoad.Api.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProductsController : ControllerBase
-    {
-        private readonly IMediator _mediator;
 
-        public ProductsController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+    public class ProductsController : ApiBaseController
+    {
+
 
         // GET: api/Products
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(string? searchTerm, int? categoryId, string? sortOrder, bool? joinCategory = false)
         {
-            var products = await _mediator.Send(new GetProductsQuery());
+            var products = await Mediator.Send(new GetProductsQuery
+            {
+                SearchTerm=searchTerm,
+                CategoryId=categoryId,
+                SortOrder=sortOrder,
+                JoinCategory=joinCategory
+
+            });
             return Ok(products);
         }
 
         // GET: api/Products/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(int id, bool? joinCategory = false)
         {
-            var product = await _mediator.Send(new GetProductByIdQuery { Id = id });
+            var product = await Mediator.Send(new GetProductByIdQuery { Id = id, JoinCategory=joinCategory });
             if (product == null)
             {
                 return NotFound();
@@ -42,7 +42,7 @@ namespace GolbonWebRoad.Api.Controllers
         // [Authorize(Roles = "Admin")] 
         public async Task<IActionResult> Create([FromForm] CreateProductCommand command) // استفاده از FromForm برای دریافت فایل
         {
-            var product = await _mediator.Send(command);
+            var product = await Mediator.Send(command);
             return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
         }
 
@@ -50,13 +50,13 @@ namespace GolbonWebRoad.Api.Controllers
         // نکته: این اندپوینت باید امن‌سازی شود
         [HttpPut("{id}")]
         // [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Update(int id, [FromForm] UpdateProductCommand command)
+        public async Task<IActionResult> Edit(int id, [FromForm] UpdateProductCommand command)
         {
             if (id != command.Id)
             {
                 return BadRequest();
             }
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -66,7 +66,7 @@ namespace GolbonWebRoad.Api.Controllers
         // [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _mediator.Send(new DeleteProductCommand { Id = id });
+            await Mediator.Send(new DeleteProductCommand { Id = id });
             return NoContent();
         }
     }

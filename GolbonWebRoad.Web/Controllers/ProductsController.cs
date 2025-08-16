@@ -1,4 +1,7 @@
-﻿using GolbonWebRoad.Application.Features.Products.Queries;
+﻿using AutoMapper;
+using GolbonWebRoad.Application.Features.Categories.Queries;
+using GolbonWebRoad.Application.Features.Products.Queries;
+using GolbonWebRoad.Web.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,14 +10,27 @@ namespace GolbonWebRoad.Web.Controllers
     public class ProductsController : Controller
     {
         private readonly IMediator _mediator;
-        public ProductsController(IMediator mediator)
+        private readonly IMapper _mapper;
+        public ProductsController(IMediator mediator, IMapper mapper)
         {
             _mediator=mediator;
+            _mapper=mapper;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? searchTerm, int? categoryId, string? sortOrder)
         {
-            var products = await _mediator.Send(new GetProductsQuery());
-            return View(products);
+
+            var products = await _mediator.Send(new GetProductsQuery { SearchTerm=searchTerm, CategoryId=categoryId, SortOrder=sortOrder });
+            var categories = await _mediator.Send(new GetCategoriesQuery());
+            var viewModel = new ProductViewModel
+            {
+                Products=products,
+                Categories=categories
+
+            };
+            ViewData["CurrentFilter"] = searchTerm;
+            ViewData["CurrentCategory"]=categoryId;
+            ViewData["CurrentSort"]=sortOrder;
+            return View(viewModel);
         }
         public async Task<IActionResult> Detail(int id)
         {

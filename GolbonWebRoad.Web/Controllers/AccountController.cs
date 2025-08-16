@@ -19,7 +19,6 @@ namespace GolbonWebRoad.Web.Controllers
         }
         public async Task<IActionResult> Index()
         {
-
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
@@ -27,6 +26,7 @@ namespace GolbonWebRoad.Web.Controllers
             }
             var orders = await _mediator.Send(new GetOrdersByUserIdQuery { UserId=userId });
             return View(orders);
+
         }
     }
 }
