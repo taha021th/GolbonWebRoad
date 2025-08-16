@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - پنل مدیریت Aura</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen bg-gray-100">
+        <aside class="w-64 bg-gray-800 text-white flex flex-col">
+            <div class="h-16 flex items-center justify-center text-2xl font-bold border-b border-gray-700">
+                <a asp-area="" asp-controller="Home" asp-action="Index">Aura Admin</a>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-700">داشبورد</a>
+                <a asp-area="Admin" asp-controller="Products" asp-action="Index" class="flex items-center gap-3 px-4 py-2 rounded-lg bg-indigo-600">مدیریت محصولات</a>
+                <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-700">مدیریت سفارشات</a>
+                <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-700">مدیریت کاربران</a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 flex flex-col">
+            <header class="h-16 bg-white shadow-md flex items-center justify-between px-6">
+                <h1 class="text-xl font-semibold">@ViewData["Title"]</h1>
+                <div>
+                    <partial name="_LoginPartial" />
+                </div>
+            </header>
+            <div class="p-6 overflow-y-auto">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
