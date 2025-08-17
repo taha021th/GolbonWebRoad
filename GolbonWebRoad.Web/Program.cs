@@ -1,5 +1,6 @@
 using GolbonWebRoad.Application;
 using GolbonWebRoad.Infrastructure;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -31,6 +32,12 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
+builder.Services.AddAutoMapper(config =>
+{
+    config.AddProfile<GolbonWebRoad.Web.Mapping.MappingProfile>();
+}
+            );
 
 
 

@@ -14,6 +14,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         }
         public async Task<Product> AddAsync(Product product)
         {
+            product.CreatedAt=DateTime.UtcNow;
             await _context.Products.AddAsync(product);
             await _context.SaveChangesAsync();
             return product;
@@ -75,6 +76,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
 
         public async Task UpdateAsync(Product product)
         {
+
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
         }

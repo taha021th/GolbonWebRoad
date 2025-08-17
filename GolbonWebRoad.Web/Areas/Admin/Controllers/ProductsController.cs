@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using GolbonWebRoad.Application.Dtos.Categories;
+using GolbonWebRoad.Application.Features.Categories.Queries;
 using GolbonWebRoad.Application.Features.Products.Commands;
 using GolbonWebRoad.Application.Features.Products.Queries;
 using GolbonWebRoad.Application.Interfaces.Services;
@@ -29,13 +31,19 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
             var products = await _mediator.Send(new GetProductsQuery());
             return View(products);
         }
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var categories = await _mediator.Send(new GetCategoriesQuery());
+            var viewModel = new CreateProductViewModel
+            {
+
+                Categories=_mapper.Map<IEnumerable<CategorySummaryDto>>(categories)
+            };
+            return View(viewModel);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ProductViewModel model)
+        public async Task<IActionResult> Create(CreateProductViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -50,11 +58,38 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
             }
             return View(model);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var product = await _mediator.Send(new GetProductByIdQuery { Id=id });
+            var categories = await _mediator.Send(new GetCategoriesQuery());
+
+            if (product==null)
+            {
+                return NotFound();
+            }
+            var viewModel = new EditProductViewModel
+            {
+                Id=product.Id,
+                Name=product.Name,
+                Price=product.Price,
+                Description=product.Description,
+                CategoryId=product.CategoryId,
+                ExistingImageUrl=product.ImageUrl,
+
+                Categories=_mapper.Map<IEnumerable<CategorySummaryDto>>(categories)
+
+            };
+            return View(viewModel);
+
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, ProductViewModel model)
+        public async Task<IActionResult> Edit(EditProductViewModel model)
         {
-            if (id!=model.Id) return BadRequest();
+
             if (ModelState.IsValid)
             {
                 var command = _mapper.Map<UpdateProductCommand>(model);
@@ -80,9 +115,10 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int id)
         {
 
-            var productDto = await _mediator.Send(new GetProductByIdQuery { Id=id });
+            var productDto = await _mediator.Send(new GetProductByIdQuery { Id=id, JoinCategory=true });
             if (productDto==null) return NotFound();
-            return View(productDto);
+            var viewModel = _mapper.Map<DeleteProductViewModel>(productDto);
+            return View(viewModel);
         }
 
         [HttpPost, ActionName("Delete")]

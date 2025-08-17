@@ -15,11 +15,15 @@ namespace GolbonWebRoad.Application.Mapping
             //Products
             CreateMap<Product, ProductDto>().ReverseMap();
             CreateMap<CreateProductCommand, Product>();
+            CreateMap<UpdateProductCommand, Product>();
             CreateMap<Product, ProductSummaryDto>();
+
+
 
             //Categories
             CreateMap<Category, CategoryDto>().ReverseMap();
             CreateMap<Category, CategorySummaryDto>().ReverseMap();
+            CreateMap<CategoryDto, CategorySummaryDto>();
             CreateMap<CreateCategoryCommand, Category>();
             CreateMap<UpdateCategoryCommand, Category>();
             CreateMap<GetCategoriesQuery, Category>();

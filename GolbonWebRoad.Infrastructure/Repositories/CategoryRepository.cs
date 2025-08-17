@@ -18,6 +18,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
 
             try
             {
+                category.CreatedAt=DateTime.UtcNow;
                 await _context.Categories.AddAsync(category);
                 await _context.SaveChangesAsync();
                 return category;

@@ -1,15 +1,14 @@
 ﻿using GolbonWebRoad.Application.Dtos.Categories;
 
-namespace GolbonWebRoad.Application.Dtos.Products
+namespace GolbonWebRoad.Web.Areas.Admin.Models
 {
-    public class ProductDto
+    public class CreateProductViewModel
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
-        public string? ImageUrl { get; set; }
+        public IFormFile? ImageFile { get; set; }
         public int CategoryId { get; set; }
-        public CategorySummaryDto Category { get; set; }
+        public IEnumerable<CategorySummaryDto>? Categories { get; set; }
     }
 }
