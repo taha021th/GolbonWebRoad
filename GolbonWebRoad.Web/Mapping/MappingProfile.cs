@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using GolbonWebRoad.Application.Dtos.Categories;
 using GolbonWebRoad.Application.Dtos.Products;
+using GolbonWebRoad.Application.Dtos.Users;
 using GolbonWebRoad.Application.Features.Categories.Commands;
 using GolbonWebRoad.Application.Features.Products.Commands;
+using GolbonWebRoad.Application.Features.Users.Commands;
 using GolbonWebRoad.Web.Areas.Admin.Models;
 using GolbonWebRoad.Web.Areas.Admin.Models.Categories;
+using GolbonWebRoad.Web.Areas.Admin.Models.Users;
 
 namespace GolbonWebRoad.Web.Mapping
 {
@@ -21,6 +24,17 @@ namespace GolbonWebRoad.Web.Mapping
             CreateMap<CreateCategoryViewModel, CreateCategoryCommand>();
             CreateMap<CategoryDto, EditCategoryViewModel>();
             CreateMap<EditCategoryViewModel, UpdateCategoryCommand>().ReverseMap();
+
+            //Users
+            CreateMap<ManageUserRolesDto, ManageUserRolesViewModel>().ReverseMap();
+            CreateMap<ManageUserRolesDto, UpdateUserRoleCommand>();
+            CreateMap<UserDto, ManageUserRolesViewModel>().ReverseMap();
+            CreateMap<ManageUserRolesDto, ManageUserRolesViewModel>().ReverseMap();
+            CreateMap<RoleDto, RoleViewModel>();
+
+            // نقشه برای آپدیت کردن نقش‌ها
+            CreateMap<ManageUserRolesViewModel, UpdateUserRoleCommand>();
+
         }
     }
 }
