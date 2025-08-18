@@ -35,6 +35,7 @@ namespace GolbonWebRoad.Infrastructure
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IFileStorageService, FileStorageService>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IUserService, UserService>();
             return services;
 
         }

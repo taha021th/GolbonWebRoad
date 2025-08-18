@@ -1,0 +1,35 @@
+﻿@model IEnumerable<GolbonWebRoad.Application.Dtos.Users.UserDto>
+@{
+    ViewData["Title"] = "مدیریت کاربران";
+}
+
+<div class="bg-white p-6 rounded-xl shadow-md">
+    <h2 class="text-2xl font-bold mb-6">لیست کاربران</h2>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-right">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="p-3">نام کاربری</th>
+                    <th class="p-3">ایمیل</th>
+                    <th class="p-3">نقش‌ها</th>
+                    <th class="p-3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3 font-semibold">@user.UserName</td>
+                        <td class="p-3">@user.Email</td>
+                        <td class="p-3">
+                            @string.Join("، ", user.Roles)
+                        </td>
+                        <td class="p-3 text-left">
+                            <a href="#" class="font-semibold text-indigo-600 hover:underline">مدیریت نقش‌ها</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
