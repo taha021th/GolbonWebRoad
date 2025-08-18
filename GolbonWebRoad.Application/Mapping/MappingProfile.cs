@@ -30,6 +30,7 @@ namespace GolbonWebRoad.Application.Mapping
 
             //Orders
             CreateMap<Order, OrderDto>().ReverseMap();
+            CreateMap<OrderItem, OrderItemDto>();
 
 
         }

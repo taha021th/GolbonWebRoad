@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = "داشبورد";
+}
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-xl shadow-md flex items-center justify-between">
+        <div>
+            <p class="text-gray-500">مجموع فروش</p>
+            <p class="text-2xl font-bold">۱,۲۵۰,۰۰۰ تومان</p>
+        </div>
+        <div class="bg-green-100 text-green-600 p-3 rounded-full">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01"></path></svg>
+        </div>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow-md flex items-center justify-between">
+        <div>
+            <p class="text-gray-500">تعداد سفارشات</p>
+            <p class="text-2xl font-bold">۳۴</p>
+        </div>
+        <div class="bg-blue-100 text-blue-600 p-3 rounded-full">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+        </div>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow-md flex items-center justify-between">
+        <div>
+            <p class="text-gray-500">تعداد محصولات</p>
+            <p class="text-2xl font-bold">۱۲۸</p>
+        </div>
+        <div class="bg-indigo-100 text-indigo-600 p-3 rounded-full">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+        </div>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow-md flex items-center justify-between">
+        <div>
+            <p class="text-gray-500">تعداد کاربران</p>
+            <p class="text-2xl font-bold">۷۶</p>
+        </div>
+        <div class="bg-pink-100 text-pink-600 p-3 rounded-full">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
+        <h3 class="font-bold mb-4">نمودار فروش ماهانه</h3>
+        <div class="h-64 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+            مکان قرارگیری نمودار
+        </div>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow-md">
+        <h3 class="font-bold mb-4">آخرین سفارشات</h3>
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <p>سفارش #1024</p>
+                <p class="font-semibold">۸۵,۰۰۰ تومان</p>
+            </div>
+            <div class="flex items-center justify-between">
+                <p>سفارش #1023</p>
+                <p class="font-semibold">۱۲۰,۰۰۰ تومان</p>
+            </div>
+            <div class="flex items-center justify-between">
+                <p>سفارش #1022</p>
+                <p class="font-semibold">۴۵,۰۰۰ تومان</p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,4 @@
-﻿using GolbonWebRoad.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace GolbonWebRoad.Application.Dtos
 {
@@ -12,7 +11,7 @@ namespace GolbonWebRoad.Application.Dtos
         public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
         public string OrderStatus { get; set; }
-        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public ICollection<OrderItemDto> OrderItems { get; set; } = new List<OrderItemDto>();
 
     }
 

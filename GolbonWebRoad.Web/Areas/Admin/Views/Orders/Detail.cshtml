@@ -1,0 +1,85 @@
+﻿@model GolbonWebRoad.Application.Dtos.OrderDto
+@{
+    ViewData["Title"] = $"جزئیات سفارش #{Model.Id}";
+}
+
+<div class="bg-white p-6 rounded-xl shadow-md">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4">
+        <div>
+            <h2 class="text-2xl font-bold">جزئیات سفارش <span class="font-mono">#@Model.Id</span></h2>
+            <p class="text-gray-500 text-sm">ثبت شده در تاریخ: @Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            @if (Model.OrderStatus == "تکمیل شده")
+            {
+                <span class="bg-green-100 text-green-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded">تکمیل شده</span>
+            }
+            else{
+                <span class="bg-yellow-100 text-yellow-800 text-sm font-medium mr-2 px-3 py-1 rounded-full">در حال پردازش</span>
+            }
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div>
+            <h3 class="text-lg font-semibold mb-3">اطلاعات مشتری</h3>
+            <div class="space-y-2 text-gray-700">
+                <p><span class="font-semibold">شناسه کاربر:</span> @Model.UserId</p>
+            </div>
+        </div>
+        <div>
+            <h3 class="text-lg font-semibold mb-3">خلاصه مالی</h3>
+            <div class="space-y-2 text-gray-700">
+                <p><span class="font-semibold">جمع مبلغ:</span> @Model.TotalAmount.ToString("N0") تومان</p>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <h3 class="text-lg font-semibold mb-3">محصولات سفارش</h3>
+        <div class="overflow-x-auto border rounded-lg">
+            <table class="w-full text-sm text-right">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="p-3">محصول</th>
+                        <th class="p-3">قیمت واحد</th>
+                        <th class="p-3">تعداد</th>
+                        <th class="p-3">مبلغ کل آیتم</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-3 font-semibold">@item.Product.Name</td>
+                            <td class="p-3">@item.Price.ToString("N0") تومان</td>
+                            <td class="p-3">@item.Quantity عدد</td>
+                            <td class="p-3 font-semibold">@((item.Price * item.Quantity).ToString("N0")) تومان</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-8 flex justify-end gap-4">
+        <a asp-action="Index" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition">بازگشت</a>
+
+        @if (Model.OrderStatus == "تکمیل شده")
+        {
+            <button type="button" class="bg-gray-400 text-white font-bold py-2 px-6 rounded-lg cursor-not-allowed">
+                تکمیل شده
+            </button>
+        }
+        else
+        {
+            <form asp-action="UpdateStatus" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="status" value="تکمیل شده" />
+                <button type="submit" class="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition">
+                    تغییر وضعیت به تکمیل شده
+                </button>
+            </form>
+        }
+    </div>
+</div>
