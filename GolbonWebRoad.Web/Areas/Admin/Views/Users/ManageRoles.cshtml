@@ -1,29 +1,26 @@
 ﻿@model GolbonWebRoad.Web.Areas.Admin.Models.Users.ManageUserRolesViewModel
-@{
-    ViewData["Title"] = "مدیریت نقش‌های کاربر";
-}
 
-<div class="bg-white p-6 rounded-xl shadow-md">
-    <h2 class="text-2xl font-bold mb-6 border-b pb-4">مدیریت نقش‌های کاربر: @Model.UserName</h2>
-    <form asp-action="ManageRoles" method="post">
-        <input type="hidden" asp-for="UserId" />
-        <div class="mb-4">
-            <h3 class="font-semibold text-gray-800 mb-2">انتخاب نقش‌ها:</h3>
-            <div class="space-y-2">
-                @for (int i = 0; i < Model.Roles.Count; i++)
-                {
-                    <div class="flex items-center">
-                        <input type="hidden" asp-for="@Model.Roles[i].Value" />
-                        <input type="hidden" asp-for="@Model.Roles[i].Text" />
-                        <input asp-for="@Model.Roles[i].Selected" class="h-4 w-4 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300" />
-                        <label class="mr-2 text-gray-700" asp-for="@Model.Roles[i].Selected">@Model.Roles[i].Text</label>
-                    </div>
-                }
-            </div>
+<form method="post">
+    <input type="hidden" asp-for="UserId" />
+    <div class="card">
+        <div class="card-header">
+            <h2>مدیریت نقش‌های کاربر: @Model.UserName</h2>
         </div>
-        <div class="mt-8 flex justify-end gap-4">
-            <a asp-action="Index" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg">انصراف</a>
-            <button type="submit" class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg">ذخیره تغییرات</button>
+        <div class="card-body">
+            @for (int i = 0; i < Model.Roles.Count; i++)
+            {
+                <div class="form-check m-1">
+                    <input type="hidden" asp-for="Roles[i].RoleName" />
+                    <input type="checkbox" asp-for="Roles[i].IsSelected" class="form-check-input" />
+                    <label class="form-check-label" for="Roles_@(i)__IsSelected">
+                        @Model.Roles[i].RoleName
+                    </label>
+                </div>
+            }
         </div>
-    </form>
-</div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">ذخیره تغییرات</button>
+            <a asp-action="Index" class="btn btn-secondary">بازگشت</a>
+        </div>
+    </div>
+</form>

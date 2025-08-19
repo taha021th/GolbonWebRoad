@@ -27,14 +27,13 @@ namespace GolbonWebRoad.Web.Mapping
 
             //Users
             CreateMap<ManageUserRolesDto, ManageUserRolesViewModel>().ReverseMap();
-            CreateMap<ManageUserRolesDto, UpdateUserRoleCommand>();
-            CreateMap<UserDto, ManageUserRolesViewModel>().ReverseMap();
-            CreateMap<ManageUserRolesDto, ManageUserRolesViewModel>().ReverseMap();
-            CreateMap<RoleDto, RoleViewModel>();
+
+            // این مپ جایگزین مپ اشتباه قبلی می‌شود
+            // این مپ هم برای نمایش و هم برای ارسال اطلاعات کار می‌کند
+            CreateMap<RoleDto, RoleViewModel>().ReverseMap();
 
             // نقشه برای آپدیت کردن نقش‌ها
             CreateMap<ManageUserRolesViewModel, UpdateUserRoleCommand>();
-
         }
     }
 }
