@@ -1,5 +1,6 @@
 ﻿using GolbonWebRoad.Application.Features.Orders.Commands;
 using GolbonWebRoad.Application.Features.Orders.Queries;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GolbonWebRoad.Api.Controllers
@@ -26,12 +27,14 @@ namespace GolbonWebRoad.Api.Controllers
             return Ok(listOrderDto);
 
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateOrderCommand model)
         {
             await Mediator.Send(model);
             return NoContent();
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost(nameof(UpdateStatus))]
         public async Task<IActionResult> UpdateStatus([FromBody] UpdateOrderStatusCommand model)
         {
