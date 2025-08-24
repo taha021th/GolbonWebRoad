@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GolbonWebRoad.Api.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class OrdersController : ApiBaseController
     {
         [HttpGet("userId")]

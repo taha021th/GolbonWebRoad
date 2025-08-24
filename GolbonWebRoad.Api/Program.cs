@@ -4,19 +4,24 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text.Json;
 
 
 
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddApplicationServices();
+
 builder.Services.AddControllers();
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout= TimeSpan.FromSeconds(30);
-    options.Cookie.HttpOnly=true;
-    options.Cookie.IsEssential=true;
-});
+//builder.Services.AddSession(options =>
+//{
+//    options.IdleTimeout= TimeSpan.FromSeconds(30);
+//    options.Cookie.HttpOnly=true;
+//    options.Cookie.IsEssential=true;
+//});
 
 builder.Services.AddAuthentication(options =>
 {
@@ -24,7 +29,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme=JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
-    options.TokenValidationParameters=new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    options.TokenValidationParameters=new TokenValidationParameters
     {
         ValidateIssuer=true,
         ValidateAudience=true,
@@ -33,12 +38,32 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer=builder.Configuration["Jwt:Issuer"],
         ValidAudience=builder.Configuration["Jwt:Audience"],
         IssuerSigningKey=new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+
+    };
+    options.Events =new JwtBearerEvents
+    {
+        OnChallenge=context =>
+        {
+            context.HandleResponse();
+            context.Response.StatusCode=401;
+            context.Response.ContentType="application/json";
+            var result = JsonSerializer.Serialize(new { message = "شما مجوز دسترسی به این بخش را ندارید." });
+            return context.Response.WriteAsync(result);
+
+        },
+        OnForbidden=context =>
+        {
+            context.Response.StatusCode=401;
+            context.Response.ContentType="application/json";
+            var result = JsonSerializer.Serialize(new { message = "سطح دسترسی شما به این بخش مجاز نیست." });
+            return context.Response.WriteAsync(result);
+        }
+
     };
 });
-builder.Services.AddAuthorization();
+
 // Add services to the container.
-builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddApplicationServices();
+
 
 
 
@@ -86,11 +111,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseSession();
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+//app.UseSession();
+
+
 
 app.MapControllers();
 

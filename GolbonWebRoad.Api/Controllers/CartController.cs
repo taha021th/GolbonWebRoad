@@ -5,7 +5,8 @@ using System.Text.Json;
 
 namespace GolbonWebRoad.Api.Controllers
 {
-
+    [Route("api/[controller]")]
+    [ApiController]
     public class CartController : ApiBaseController
     {
 

@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GolbonWebRoad.Api.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+
     public class ApiBaseController : ControllerBase
     {
         private IMediator? _mediator;

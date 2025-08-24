@@ -8,6 +8,9 @@ using System.Text.Json;
 namespace GolbonWebRoad.Api.Controllers
 {
 
+
+    [Route("api/[controller]")]
+    [ApiController]
     [Authorize]
     public class CheckoutController : ApiBaseController
     {

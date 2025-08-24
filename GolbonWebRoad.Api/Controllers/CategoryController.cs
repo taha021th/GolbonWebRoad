@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GolbonWebRoad.Api.Controllers
 {
-
+    [Route("api/[controller]")]
+    [ApiController]
     public class CategoryController : ApiBaseController
     {
         [HttpGet]
@@ -28,6 +29,8 @@ namespace GolbonWebRoad.Api.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateCategoryCommand model)
         {
+            Console.WriteLine(HttpContext.User.IsInRole("Admin"));
+
             var category = await Mediator.Send(model);
             return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
         }
