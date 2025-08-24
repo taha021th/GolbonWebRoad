@@ -2,6 +2,7 @@
 using GolbonWebRoad.Application.Features.Products.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GolbonWebRoad.Api.Controllers
 {
@@ -9,8 +10,13 @@ namespace GolbonWebRoad.Api.Controllers
     [ApiController]
     public class ProductsController : ApiBaseController
     {
-
-
+        private readonly IMemoryCache _cache;
+        private readonly string _cacheKey;
+        public ProductsController(IMemoryCache cache)
+        {
+            _cache=cache;
+            _cacheKey="AllProducts";
+        }
         // GET: api/Products
         /// <summary>
         /// دریافت لیست محصولات با قابلیت فیلتر و مرتب سازی
@@ -18,7 +24,13 @@ namespace GolbonWebRoad.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] GetProductsQuery query)
         {
+            if (_cache.TryGetValue(_cacheKey, out var cachedProducts))
+                return Ok(cachedProducts);
+
+
             var products = await Mediator.Send(new GetProductsQuery());
+            var productCacheOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(24));
+            _cache.Set(_cacheKey, products, productCacheOptions);
             return Ok(products);
         }
 

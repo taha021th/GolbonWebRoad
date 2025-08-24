@@ -11,22 +11,23 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+builder.Services.AddProblemDetails();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
+
 builder.Services.AddControllers();
-//builder.Services.AddSession(options =>
-//{
-//    options.IdleTimeout= TimeSpan.FromSeconds(30);
-//    options.Cookie.HttpOnly=true;
-//    options.Cookie.IsEssential=true;
-//});
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout= TimeSpan.FromSeconds(30);
+    options.Cookie.HttpOnly=true;
+    options.Cookie.IsEssential=true;
+});
 
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme=JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultAuthenticateScheme=JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme=JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
     options.TokenValidationParameters=new TokenValidationParameters
@@ -47,15 +48,15 @@ builder.Services.AddAuthentication(options =>
             context.HandleResponse();
             context.Response.StatusCode=401;
             context.Response.ContentType="application/json";
-            var result = JsonSerializer.Serialize(new { message = "شما مجوز دسترسی به این بخش را ندارید." });
+            var result = JsonSerializer.Serialize(new { message = "هویت شما مشخص نیست اجازه دسترسی ندارید." });
             return context.Response.WriteAsync(result);
 
         },
         OnForbidden=context =>
         {
-            context.Response.StatusCode=401;
+            context.Response.StatusCode=403;
             context.Response.ContentType="application/json";
-            var result = JsonSerializer.Serialize(new { message = "سطح دسترسی شما به این بخش مجاز نیست." });
+            var result = JsonSerializer.Serialize(new { message = "شما مجاز به دسترسی این بخش نیستید." });
             return context.Response.WriteAsync(result);
         }
 
@@ -102,6 +103,7 @@ builder.Services.AddSwaggerGen(options =>
 
     options.AddSecurityRequirement(securityRequirement);
 });
+builder.Services.AddMemoryCache();
 #endregion
 var app = builder.Build();
 
@@ -112,10 +114,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
-app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-//app.UseSession();
+
+
+
+app.UseSession();
 
 
 

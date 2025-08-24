@@ -1,5 +1,6 @@
 ﻿using GolbonWebRoad.Application.Dtos;
 using GolbonWebRoad.Application.Features.Products.Queries;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -7,19 +8,22 @@ namespace GolbonWebRoad.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CartController : ApiBaseController
     {
 
         private const string CartSessionKey = "Cart";
-        // GET: api/Cart
+
         [HttpGet]
+
         public IActionResult GetCart()
         {
             var cart = GetCartFromSession();
             return Ok(cart);
         }
 
-        // POST: api/Cart/add
+
+
         [HttpPost("add")]
         public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request)
         {

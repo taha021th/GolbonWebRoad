@@ -14,15 +14,17 @@ namespace GolbonWebRoad.Api.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
-        public AuthController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IConfiguration configuration)
+        public AuthController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager=userManager;
             _signInManager=signInManager;
+            _roleManager=roleManager;
             _configuration=configuration;
 
         }
-        [HttpPost("login")]
+        [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto model)
         {
             var user = await _userManager.FindByNameAsync(model.UserName);
@@ -52,6 +54,34 @@ namespace GolbonWebRoad.Api.Controllers
             }
             return Unauthorized();
 
+        }
+
+
+
+        [HttpPost("Register")]
+        public async Task<IActionResult> Register([FromBody] UserRegisterDto model)
+        {
+
+            var userExists = await _userManager.FindByNameAsync(model.UserName);
+            if (userExists !=null)
+            {
+                return Conflict("کاربر با این نام کاربری از قبل موجود است.");
+
+            }
+            IdentityUser user = new()
+            {
+                Email=model.Email,
+                UserName=model.UserName,
+                SecurityStamp=Guid.NewGuid().ToString(),
+            };
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+                return BadRequest();
+
+            if (await _roleManager.RoleExistsAsync("User"))
+                await _userManager.AddToRoleAsync(user, "User");
+
+            return Ok(new { Status = "Success", Message = "کاربر با موفقیت ثبت نام شد" });
         }
 
         private JwtSecurityToken GenerateToken(List<Claim> authClaims)

@@ -2,6 +2,7 @@
 using GolbonWebRoad.Application.Features.Categories.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GolbonWebRoad.Api.Controllers
 {
@@ -9,10 +10,29 @@ namespace GolbonWebRoad.Api.Controllers
     [ApiController]
     public class CategoryController : ApiBaseController
     {
+        private readonly IMemoryCache _cache;
+        private string _cacheKey;
+
+        public CategoryController(IMemoryCache cache)
+        {
+            _cache=cache;
+            _cacheKey="allCategories";
+
+        }
         [HttpGet]
         public async Task<IActionResult> GetAll(bool? joinProducts = false)
         {
+            if (_cache.TryGetValue(_cacheKey, out var cachedCategories))
+            {
+                return Ok(cachedCategories);
+            }
+
             var categories = await Mediator.Send(new GetCategoriesQuery { JoinProducts=joinProducts });
+
+            var cacheEntryOptions =
+                new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(24));
+            _cache.Set(_cacheKey, categories, cacheEntryOptions);
+
             return Ok(categories);
         }
 
@@ -29,9 +49,8 @@ namespace GolbonWebRoad.Api.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateCategoryCommand model)
         {
-            Console.WriteLine(HttpContext.User.IsInRole("Admin"));
-
             var category = await Mediator.Send(model);
+            _cache.Remove(_cacheKey);
             return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
         }
 
@@ -44,6 +63,7 @@ namespace GolbonWebRoad.Api.Controllers
                 return BadRequest("Id mismatch");
             }
             var category = await Mediator.Send(model);
+            _cache.Remove(_cacheKey);
             return NoContent();
 
         }
@@ -54,7 +74,7 @@ namespace GolbonWebRoad.Api.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             await Mediator.Send(new DeleteCategoryCommand { Id = id });
-
+            _cache.Remove(_cacheKey);
             return NoContent();
 
         }
