@@ -1,4 +1,5 @@
-﻿using GolbonWebRoad.Domain.Entities;
+﻿using GolbonWebRoad.Application.Exceptions;
+using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using GolbonWebRoad.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +27,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             catch (Exception ex)
             {
 
-                throw new Exception("خطای سرور");
+                throw new BadRequestException("خطای سرور");
             }
 
 
@@ -46,7 +47,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("خطای سرور");
+                throw new BadRequestException("خطای سرور");
             }
         }
 
@@ -81,7 +82,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("خطای سرور");
+                throw new BadRequestException("خطای سرور");
 
             }
         }

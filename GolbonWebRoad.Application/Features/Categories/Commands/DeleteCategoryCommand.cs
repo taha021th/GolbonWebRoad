@@ -18,16 +18,17 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
     }
     public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand>
     {
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public DeleteCategoryCommandHandler(ICategoryRepository categoryRepository, IMapper mapper)
+        public DeleteCategoryCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _categoryRepository=categoryRepository;
+            _unitOfWork=unitOfWork;
             _mapper=mapper;
         }
         public async Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
-            await _categoryRepository.DeleteAsync(request.Id);
+            await _unitOfWork.CategoryRepository.DeleteAsync(request.Id);
+            await _unitOfWork.CompleteAsync();
 
         }
     }

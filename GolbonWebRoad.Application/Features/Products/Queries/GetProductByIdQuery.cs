@@ -13,16 +13,16 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
 
     public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, ProductDto>
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public GetProductByIdQueryHandler(IProductRepository productRepository, IMapper mapper)
+        public GetProductByIdQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _productRepository = productRepository;
+            _unitOfWork=unitOfWork;
             _mapper = mapper;
         }
         public async Task<ProductDto> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
-            var product = await _productRepository.GetByIdAsync(request.Id, request.JoinCategory);
+            var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id, request.JoinCategory);
             return _mapper.Map<ProductDto>(product);
         }
     }

@@ -11,17 +11,17 @@ namespace GolbonWebRoad.Application.Features.Categories.Queries
     }
     public class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQuery, IEnumerable<CategoryDto>>
     {
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public GetCategoriesQueryHandler(ICategoryRepository categoryRepository, IMapper mapper)
+        public GetCategoriesQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _categoryRepository=categoryRepository;
+            _unitOfWork=unitOfWork;
             _mapper=mapper;
 
         }
         public async Task<IEnumerable<CategoryDto>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
         {
-            var categories = await _categoryRepository.GetAllAsync(request.JoinProducts);
+            var categories = await _unitOfWork.CategoryRepository.GetAllAsync(request.JoinProducts);
             var categoriesDto = _mapper.Map<IEnumerable<CategoryDto>>(categories);
             return categoriesDto;
         }

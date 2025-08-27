@@ -12,11 +12,11 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
     }
     public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, int>
     {
-        private readonly IOrderRepository _orderRepository;
-        public CreateOrderCommandHandler(IOrderRepository orderRepository)
+        private readonly IUnitOfWork _unitOfWork;
+        public CreateOrderCommandHandler(IUnitOfWork unitOfWork)
         {
 
-            _orderRepository=orderRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<int> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -35,7 +35,8 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
                 }).ToList()
 
             };
-            var newOrder = await _orderRepository.AddAsync(order);
+            var newOrder = await _unitOfWork.OrderRepository.AddAsync(order);
+            await _unitOfWork.CompleteAsync();
             return newOrder.Id;
         }
     }

@@ -26,22 +26,23 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
     // Handler: منطق اجرای دستور ویرایش
     public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand>
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public UpdateProductCommandHandler(IProductRepository productRepository, IMapper mapper)
+        public UpdateProductCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _productRepository = productRepository;
+            _unitOfWork=unitOfWork;
             _mapper = mapper;
         }
 
         public async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
-            var productToUpdate = await _productRepository.GetByIdAsync(request.Id);
+            var productToUpdate = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id);
             if (productToUpdate != null)
             {
                 _mapper.Map(request, productToUpdate);
-                await _productRepository.UpdateAsync(productToUpdate);
+                await _unitOfWork.ProductRepository.UpdateAsync(productToUpdate);
+                await _unitOfWork.CompleteAsync();
             }
         }
     }

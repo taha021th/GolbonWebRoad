@@ -1,7 +1,10 @@
 ﻿using GolbonWebRoad.Application;
+using GolbonWebRoad.Application.Exceptions;
 using GolbonWebRoad.Infrastructure;
+using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text.Json;
@@ -10,20 +13,48 @@ using System.Text.Json;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddProblemDetails();
+#region Config Problem Details For Exception Handler
+builder.Services.AddProblemDetails(options =>
+{
+    options.Map<NotFoundException>(ex => new ProblemDetails
+    {
+        Status=StatusCodes.Status404NotFound,
+        Title="Not Found",
+        Detail= ex.Message
+    });
+    options.Map<BadRequestException>(ex => new ProblemDetails
+    {
+        Status=StatusCodes.Status500InternalServerError,
+        Title="Bad Request",
+        Detail= ex.Message
+    });
+    options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
+});
+#endregion
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
 
 builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+});
+#region add session
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout= TimeSpan.FromSeconds(30);
     options.Cookie.HttpOnly=true;
     options.Cookie.IsEssential=true;
 });
-
+#endregion
+#region Jwt
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme=JwtBearerDefaults.AuthenticationScheme;
@@ -62,15 +93,9 @@ builder.Services.AddAuthentication(options =>
 
     };
 });
-
-// Add services to the container.
-
-
-
-
+#endregion
 #region Swagger
 builder.Services.AddEndpointsApiExplorer();
-
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -105,7 +130,9 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddMemoryCache();
 #endregion
+
 var app = builder.Build();
+app.UseProblemDetails();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -113,6 +140,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

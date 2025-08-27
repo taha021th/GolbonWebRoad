@@ -29,11 +29,11 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
     }
     public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, ProductDto>
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public CreateProductCommandHandler(IProductRepository productRepository, IMapper mapper)
+        public CreateProductCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _productRepository = productRepository;
+            _unitOfWork = unitOfWork;
             _mapper=mapper;
 
         }
@@ -41,7 +41,8 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             var product = _mapper.Map<Product>(request);
-            var newProduct = await _productRepository.AddAsync(product);
+            var newProduct = await _unitOfWork.ProductRepository.AddAsync(product);
+            await _unitOfWork.CompleteAsync();
 
             return _mapper.Map<ProductDto>(newProduct);
         }

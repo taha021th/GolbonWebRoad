@@ -18,16 +18,17 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
     }
     public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand>
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteProductCommandHandler(IProductRepository productRepository)
+        public DeleteProductCommandHandler(IUnitOfWork unitOfWork)
         {
-            _productRepository = productRepository;
+            _unitOfWork=unitOfWork;
         }
 
         public async Task Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
-            await _productRepository.DeleteAsync(request.Id);
+            await _unitOfWork.ProductRepository.DeleteAsync(request.Id);
+            await _unitOfWork.CompleteAsync();
         }
     }
 }

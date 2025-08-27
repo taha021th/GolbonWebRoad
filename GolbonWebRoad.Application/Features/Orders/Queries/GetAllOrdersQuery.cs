@@ -11,16 +11,16 @@ namespace GolbonWebRoad.Application.Features.Orders.Queries
     }
     public class GetAllOrdersQueryHandler : IRequestHandler<GetAllOrdersQuery, IEnumerable<OrderDto>>
     {
-        private readonly IOrderRepository _orderRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public GetAllOrdersQueryHandler(IOrderRepository orderRepository, IMapper mapper)
+        public GetAllOrdersQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _orderRepository= orderRepository;
+            _unitOfWork = unitOfWork;
             _mapper= mapper;
         }
         public async Task<IEnumerable<OrderDto>> Handle(GetAllOrdersQuery request, CancellationToken cancellationToken)
         {
-            var orders = await _orderRepository.GetAllAsync();
+            var orders = await _unitOfWork.OrderRepository.GetAllAsync();
             return _mapper.Map<IEnumerable<OrderDto>>(orders);
         }
     }

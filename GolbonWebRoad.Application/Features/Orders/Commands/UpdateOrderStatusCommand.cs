@@ -10,18 +10,19 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
     }
     public class UpdateOrderStatusCommandHandler : IRequestHandler<UpdateOrderStatusCommand>
     {
-        private readonly IOrderRepository _orderRepository;
-        public UpdateOrderStatusCommandHandler(IOrderRepository orderRepository)
+        private readonly IUnitOfWork _unitOfWork;
+        public UpdateOrderStatusCommandHandler(IUnitOfWork unitOfWork)
         {
-            _orderRepository=orderRepository;
+            _unitOfWork = unitOfWork;
         }
         public async Task Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
         {
-            var order = await _orderRepository.GetByIdAsync(request.OrderId);
+            var order = await _unitOfWork.OrderRepository.GetByIdAsync(request.OrderId);
             if (order !=null)
             {
                 order.OrderStatus=request.OrderStatus;
-                await _orderRepository.UpdateAsync(order);
+                await _unitOfWork.OrderRepository.UpdateAsync(order);
+                await _unitOfWork.CompleteAsync();
             }
         }
     }

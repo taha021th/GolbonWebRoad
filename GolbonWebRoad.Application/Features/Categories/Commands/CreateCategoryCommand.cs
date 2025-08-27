@@ -25,22 +25,20 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
 
     public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, CategoryDto>
     {
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public CreateCategoryCommandHandler(ICategoryRepository categoryRepository, IMapper mapper)
+        public CreateCategoryCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _categoryRepository = categoryRepository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
         public async Task<CategoryDto> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
             var categoryDto = _mapper.Map<Category>(request);
-            var category = await _categoryRepository.AddAsync(categoryDto);
+            var category = await _unitOfWork.CategoryRepository.AddAsync(categoryDto);
+            await _unitOfWork.CompleteAsync();
             return _mapper.Map<CategoryDto>(category);
-
-
-
         }
     }
 }
