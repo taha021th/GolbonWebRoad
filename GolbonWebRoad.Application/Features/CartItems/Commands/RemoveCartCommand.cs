@@ -19,7 +19,7 @@ namespace GolbonWebRoad.Application.Features.CartItems.Commands
         public async Task<Unit> Handle(RemoveCartCommand request, CancellationToken cancellationToken)
         {
             var cartItem = await _unitOfWork.CartItemRepository.GetCartItemAsync(request.UserId, request.ProductId);
-            if (cartItem != null) throw new NotFoundException("آیتم مورد نظر در سبر خرید یافت نشد.");
+            if (cartItem == null) throw new NotFoundException("آیتم مورد نظر در سبر خرید یافت نشد.");
             _unitOfWork.CartItemRepository.RemoveCartItem(cartItem);
             await _unitOfWork.CompleteAsync();
             return Unit.Value;
