@@ -6,8 +6,8 @@ namespace GolbonWebRoad.Domain.Interfaces
     {
         Task<Product?> GetByIdAsync(int id, bool? joinCategory = false);
         Task<ICollection<Product>> GetAllAsync(string? searchTerm = null, int? categoryId = null, string? sortOrder = null, bool? joinCategory = false);
-        Task<Product> AddAsync(Product product);
-        Task UpdateAsync(Product product);
+        Product Add(Product product);
+        void Update(Product product);
         Task DeleteAsync(int id);
     }
 }

@@ -43,7 +43,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
                 throw new NotFoundException("محصولی با این شناسه یافت نشد.");
 
             _mapper.Map(request, productToUpdate);
-            await _unitOfWork.ProductRepository.UpdateAsync(productToUpdate);
+            _unitOfWork.ProductRepository.Update(productToUpdate);
             await _unitOfWork.CompleteAsync();
 
         }

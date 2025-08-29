@@ -36,7 +36,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
         public async Task<CategoryDto> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
             var categoryDto = _mapper.Map<Category>(request);
-            var category = await _unitOfWork.CategoryRepository.AddAsync(categoryDto);
+            var category = _unitOfWork.CategoryRepository.Update(categoryDto);
             await _unitOfWork.CompleteAsync();
             return _mapper.Map<CategoryDto>(category);
         }

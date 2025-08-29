@@ -41,7 +41,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             var product = _mapper.Map<Product>(request);
-            var newProduct = await _unitOfWork.ProductRepository.AddAsync(product);
+            var newProduct = _unitOfWork.ProductRepository.Add(product);
             await _unitOfWork.CompleteAsync();
 
             return _mapper.Map<ProductDto>(newProduct);

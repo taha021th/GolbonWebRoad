@@ -28,10 +28,9 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             return await _context.CartItems.
             FirstOrDefaultAsync(ci => ci.UserId==userId && ci.ProductId==productId);
         }
-        public async Task AddCartItemAsync(CartItem cartItem)
+        public void AddCartItem(CartItem cartItem)
         {
-
-            await _context.CartItems.AddAsync(cartItem);
+            _context.CartItems.Add(cartItem);
 
         }
         public void UpdateCartItem(CartItem cartItem)

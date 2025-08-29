@@ -4,10 +4,10 @@ namespace GolbonWebRoad.Domain.Interfaces
 {
     public interface IOrderRepository
     {
-        Task<Order> AddAsync(Order order);
+        Order Add(Order order);
         Task<IEnumerable<Order>> GetByUserIdAsync(string userId);
         Task<Order?> GetByIdAsync(int id);
         Task<IEnumerable<Order>> GetAllAsync();
-        Task UpdateAsync(Order order);
+        void Update(Order order);
     }
 }

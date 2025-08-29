@@ -22,7 +22,7 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
             if (order==null)
                 throw new NotFoundException("سفارش با این شناسه یافت نشد.");
             order.OrderStatus=request.OrderStatus;
-            await _unitOfWork.OrderRepository.UpdateAsync(order);
+            _unitOfWork.OrderRepository.Update(order);
             await _unitOfWork.CompleteAsync();
 
         }

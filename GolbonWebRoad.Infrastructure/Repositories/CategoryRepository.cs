@@ -14,41 +14,22 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         {
             _context=context;
         }
-        public async Task<Category> AddAsync(Category category)
+        public Category Add(Category category)
         {
-
-            try
-            {
-                category.CreatedAt=DateTime.UtcNow;
-                await _context.Categories.AddAsync(category);
-                await _context.SaveChangesAsync();
-                return category;
-            }
-            catch (Exception ex)
-            {
-
-                throw new BadRequestException("خطای سرور");
-            }
-
-
+            category.CreatedAt=DateTime.UtcNow;
+            _context.Categories.Add(category);
+            return category;
         }
 
         public async Task DeleteAsync(int id)
         {
-            try
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id==id);
+            if (category==null)
             {
-                var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id==id);
-                if (category!=null)
-                {
-                    _context.Categories.Remove(category);
-                    await _context.SaveChangesAsync();
-                }
+                throw new NotFoundException("دسته بندی برای حذف یافت نشد.");
+            }
+            _context.Categories.Remove(category);
 
-            }
-            catch (Exception ex)
-            {
-                throw new BadRequestException("خطای سرور");
-            }
         }
 
         public async Task<IEnumerable<Category>> GetAllAsync(bool? joinProducts = false)
@@ -72,19 +53,10 @@ namespace GolbonWebRoad.Infrastructure.Repositories
 
         }
 
-        public async Task<Category> UpdateAsync(Category category)
+        public Category Update(Category category)
         {
-            try
-            {
-                _context.Categories.Update(category);
-                await _context.SaveChangesAsync();
-                return category;
-            }
-            catch (Exception ex)
-            {
-                throw new BadRequestException("خطای سرور");
-
-            }
+            _context.Categories.Update(category);
+            return category;
         }
     }
 }

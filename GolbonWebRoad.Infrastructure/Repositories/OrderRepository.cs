@@ -13,10 +13,9 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             _context= context;
         }
 
-        public async Task<Order> AddAsync(Order order)
+        public Order Add(Order order)
         {
-            await _context.Orders.AddAsync(order);
-            await _context.SaveChangesAsync();
+            _context.Orders.Add(order);
             return order;
         }
 
@@ -41,10 +40,9 @@ namespace GolbonWebRoad.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task UpdateAsync(Order order)
+        public void Update(Order order)
         {
             _context.Orders.Update(order);
-            await _context.SaveChangesAsync();
         }
     }
 }

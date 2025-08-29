@@ -46,7 +46,7 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
                 OrderItems=orderItems,
                 TotalAmount=totalAmount
             };
-            var newOrder = await _unitOfWork.OrderRepository.AddAsync(order);
+            var newOrder = _unitOfWork.OrderRepository.Add(order);
             await _unitOfWork.CompleteAsync();
             return newOrder.Id;
         }

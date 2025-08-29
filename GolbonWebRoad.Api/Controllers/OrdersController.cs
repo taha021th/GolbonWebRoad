@@ -22,7 +22,10 @@ namespace GolbonWebRoad.Api.Controllers
         private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 
-
+        /// <summary>
+        /// دریافت سفارش هایی که کاربر لاگین کرده ثبت کرده
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("GetUserOrders")]
         [Authorize]
         public async Task<IActionResult> GetUserOrders()
@@ -32,6 +35,11 @@ namespace GolbonWebRoad.Api.Controllers
             var listOrderDto = await Mediator.Send(new GetOrdersByUserIdQuery { UserId=userId });
             return Ok(listOrderDto);
         }
+        /// <summary>
+        /// دریافت سفارش با ای دی سفارش ثبت شده
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> GetById(int id)
@@ -42,7 +50,7 @@ namespace GolbonWebRoad.Api.Controllers
 
         }
         /// <summary>
-        /// نیاز به دسترسی ادمین
+        /// داخل پنل ادمین خود ادمین باید تمام سفارشات کاربرا رو ببینه
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -54,7 +62,11 @@ namespace GolbonWebRoad.Api.Controllers
             return Ok(listOrderDto);
 
         }
-
+        /// <summary>
+        /// ثبت سفارش کاربر
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateOrderRequestDto request)
@@ -65,7 +77,11 @@ namespace GolbonWebRoad.Api.Controllers
             await Mediator.Send(command);
             return Ok(new { message = "سفارش با موفقیت ثبت شد." });
         }
-
+        /// <summary>
+        /// تغییر وضعیت سفارش کاربر 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost(nameof(UpdateStatus))]
         [Authorize(Roles = AppRoles.Admin)]
         public async Task<IActionResult> UpdateStatus([FromBody] UpdateOrderStatusRequestDto request)

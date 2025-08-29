@@ -38,7 +38,7 @@ namespace GolbonWebRoad.Application.Features.CartItems.Commands
             else
             {
                 var entity = _mapper.Map<CartItem>(request);
-                await _unitOfWork.CartItemRepository.AddCartItemAsync(entity);
+                _unitOfWork.CartItemRepository.AddCartItem(entity);
             }
 
             await _unitOfWork.CompleteAsync();
