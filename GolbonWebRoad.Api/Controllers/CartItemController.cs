@@ -1,4 +1,6 @@
-﻿using GolbonWebRoad.Application.Features.CartItems.Commands;
+﻿using AutoMapper;
+using GolbonWebRoad.Application.Dtos.CartItems;
+using GolbonWebRoad.Application.Features.CartItems.Commands;
 using GolbonWebRoad.Application.Features.CartItems.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -14,9 +16,11 @@ namespace GolbonWebRoad.Api.Controllers
     {
 
         private readonly IMediator _mediator;
-        public CartItemController(IMediator mediator)
+        private readonly IMapper _mapper;
+        public CartItemController(IMediator mediator, IMapper mapper)
         {
             _mediator = mediator;
+            _mapper = mapper;
         }
         private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -28,16 +32,19 @@ namespace GolbonWebRoad.Api.Controllers
             return Ok(cart);
         }
         [HttpPost("add")]
-        public async Task<IActionResult> AddToCart([FromBody] AddToCartCommand command)
+        public async Task<IActionResult> AddToCart([FromBody] AddToCartRequestDto request)
         {
+            var command = _mapper.Map<AddToCartCommand>(request);
             command.UserId=GetUserId();
             await _mediator.Send(command);
             return Ok(new { message = "محصول با موفقیت به سبد خرید اضافه شد." });
         }
         [HttpPut("update/{productId}")]
-        public async Task<IActionResult> UpdateCartItem([FromRoute] int productId, [FromBody] , UpdateCartItemCommand command)
+        public async Task<IActionResult> UpdateCartItem([FromRoute] int productId, [FromBody] UpdateCartItemRequestDto request)
         {
-            if (productId!=command.ProductId) return NotFound("محصول مورد نظر یافت نشد");
+            if (productId!=request.ProductId) return NotFound("محصول مورد نظر یافت نشد");
+            var command = _mapper.Map<UpdateCartItemCommand>(request);
+            command.UserId=GetUserId();
             await _mediator.Send(command);
             return Ok(new { message = "محصول با موفقیت بروزرسانی شد." });
 
@@ -49,6 +56,14 @@ namespace GolbonWebRoad.Api.Controllers
             var command = new RemoveCartCommand { ProductId=productId, UserId=GetUserId() };
             await _mediator.Send(command);
             return Ok(new { message = "محصول با موفقیت از سبد خرید حذف شد." });
+        }
+        [HttpPost("removeAll")]
+        public async Task<IActionResult> RemoveAllCartItems()
+        {
+            var command = new RemoveAllCartItemsCommand() { UserId=GetUserId() };
+            await _mediator.Send(command);
+            return Ok(new { message = "محصولات شما از سبد خرید حذف شد." });
+
         }
     }
 }

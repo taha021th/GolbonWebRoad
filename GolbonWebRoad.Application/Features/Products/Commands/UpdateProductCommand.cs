@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using GolbonWebRoad.Application.Exceptions;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 
@@ -38,12 +39,13 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         public async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
             var productToUpdate = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id);
-            if (productToUpdate != null)
-            {
-                _mapper.Map(request, productToUpdate);
-                await _unitOfWork.ProductRepository.UpdateAsync(productToUpdate);
-                await _unitOfWork.CompleteAsync();
-            }
+            if (productToUpdate == null)
+                throw new NotFoundException("محصولی با این شناسه یافت نشد.");
+
+            _mapper.Map(request, productToUpdate);
+            await _unitOfWork.ProductRepository.UpdateAsync(productToUpdate);
+            await _unitOfWork.CompleteAsync();
+
         }
     }
 }

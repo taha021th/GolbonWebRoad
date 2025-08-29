@@ -1,8 +1,14 @@
-﻿using GolbonWebRoad.Application.Features.Products.Commands;
+﻿using AutoMapper;
+using GolbonWebRoad.Api.CacheRevalidations;
+using GolbonWebRoad.Application.Dtos.Products;
+using GolbonWebRoad.Application.Features.Products.Commands;
 using GolbonWebRoad.Application.Features.Products.Queries;
+using GolbonWebRoad.Application.Interfaces.Services;
+using GolbonWebRoad.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Primitives;
 
 namespace GolbonWebRoad.Api.Controllers
 {
@@ -11,11 +17,14 @@ namespace GolbonWebRoad.Api.Controllers
     public class ProductsController : ApiBaseController
     {
         private readonly IMemoryCache _cache;
-        private readonly string _cacheKey;
-        public ProductsController(IMemoryCache cache)
+        private readonly IMapper _mapper;
+        private readonly IFileStorageService _fileStorageService;
+
+        public ProductsController(IMemoryCache cache, IMapper mapper, IFileStorageService fileStorageService)
         {
             _cache=cache;
-            _cacheKey="AllProducts";
+            _mapper=mapper;
+            _fileStorageService=fileStorageService;
         }
         // GET: api/Products
         /// <summary>
@@ -24,13 +33,15 @@ namespace GolbonWebRoad.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] GetProductsQuery query)
         {
-            if (_cache.TryGetValue(_cacheKey, out var cachedProducts))
+            string cacheKey = $"products-{query.SearchTerm}-{query.CategoryId}-{query.SortOrder}-{query.JoinCategory}";
+            if (_cache.TryGetValue(cacheKey, out var cachedProducts))
                 return Ok(cachedProducts);
 
+            var products = await Mediator.Send(query);
 
-            var products = await Mediator.Send(new GetProductsQuery());
             var productCacheOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(24));
-            _cache.Set(_cacheKey, products, productCacheOptions);
+            productCacheOptions.AddExpirationToken(new CancellationChangeToken(CacheRevalidation.ProductTokenSource.Token));
+            _cache.Set(cacheKey, products, productCacheOptions);
             return Ok(products);
         }
 
@@ -41,6 +52,7 @@ namespace GolbonWebRoad.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id, [FromQuery] bool joinCategory = false)
         {
+
             var product = await Mediator.Send(new GetProductByIdQuery { Id = id, JoinCategory=joinCategory });
             if (product == null)
             {
@@ -54,10 +66,16 @@ namespace GolbonWebRoad.Api.Controllers
         /// ایجاد یک محصول جدید (نیاز به دسترسی ادمین)
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([FromForm] CreateProductCommand command) // استفاده از FromForm برای دریافت فایل
+        [Authorize(Roles = AppRoles.Admin)]
+        public async Task<IActionResult> Create([FromForm] CreateProductRequestDto request) // استفاده از FromForm برای دریافت فایل
         {
+            var command = _mapper.Map<CreateProductCommand>(request);
+            if (request.ImageFile!=null)
+            {
+                command.ImageUrl=await _fileStorageService.SaveFileAsync(request.ImageFile, "products");
+            }
             var product = await Mediator.Send(command);
+            CacheRevalidation.RevalidateProductAndCategoryCache();
             return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
         }
 
@@ -67,14 +85,20 @@ namespace GolbonWebRoad.Api.Controllers
         /// </summary>
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Update(int id, [FromForm] UpdateProductCommand command)
+        [Authorize(Roles = AppRoles.Admin)]
+        public async Task<IActionResult> Update(int id, [FromForm] UpdateProductRequestDto request)
         {
-            if (id != command.Id)
+            if (id != request.Id)
             {
                 return BadRequest("Id in URL does not match Id in body.");
             }
+            var command = _mapper.Map<UpdateProductCommand>(request);
+            if (request.ImageFile!=null)
+            {
+                command.ImageUrl=await _fileStorageService.SaveFileAsync(request.ImageFile, "products");
+            }
             await Mediator.Send(command);
+            CacheRevalidation.RevalidateProductAndCategoryCache();
             return NoContent();
         }
 
@@ -83,10 +107,11 @@ namespace GolbonWebRoad.Api.Controllers
         /// حذف یک محصول نیاز به دسترسی ادمین
         /// </summary>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = AppRoles.Admin)]
         public async Task<IActionResult> Delete(int id)
         {
             await Mediator.Send(new DeleteProductCommand { Id = id });
+            CacheRevalidation.RevalidateProductAndCategoryCache();
             return NoContent();
         }
     }

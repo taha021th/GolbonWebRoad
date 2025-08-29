@@ -22,7 +22,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
 
         public async Task<IEnumerable<Order>> GetAllAsync()
         {
-            return await _context.Orders.Include(o => o.OrderItems).ToListAsync();
+            return await _context.Orders.Include(o => o.OrderItems).OrderByDescending(o => o.OrderDate).ToListAsync();
         }
 
 
@@ -34,6 +34,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         public async Task<IEnumerable<Order>> GetByUserIdAsync(string userId)
         {
             return await _context.Orders.Where(o => o.UserId==userId)
+                .Include(u => u.User)
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .OrderByDescending(o => o.OrderDate)

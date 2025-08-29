@@ -1,4 +1,5 @@
-﻿using GolbonWebRoad.Domain.Interfaces;
+﻿using GolbonWebRoad.Application.Exceptions;
+using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 
 namespace GolbonWebRoad.Application.Features.Orders.Commands
@@ -18,12 +19,12 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
         public async Task Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
         {
             var order = await _unitOfWork.OrderRepository.GetByIdAsync(request.OrderId);
-            if (order !=null)
-            {
-                order.OrderStatus=request.OrderStatus;
-                await _unitOfWork.OrderRepository.UpdateAsync(order);
-                await _unitOfWork.CompleteAsync();
-            }
+            if (order==null)
+                throw new NotFoundException("سفارش با این شناسه یافت نشد.");
+            order.OrderStatus=request.OrderStatus;
+            await _unitOfWork.OrderRepository.UpdateAsync(order);
+            await _unitOfWork.CompleteAsync();
+
         }
     }
 }

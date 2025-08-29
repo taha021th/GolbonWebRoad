@@ -1,0 +1,313 @@
+﻿/* * A more complete dark theme for Swagger UI
+ * Credits to those who have created similar themes before.
+*/
+
+html {
+    box-sizing: border-box;
+    overflow: -moz-scrollbars-vertical;
+    overflow-y: scroll;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+body {
+    margin: 0;
+    background: #1e1e1e; /* Dark background for the whole page */
+}
+
+/* Main container */
+.swagger-ui {
+    color: #e0e0e0;
+}
+
+    /* Top bar */
+    .swagger-ui .topbar {
+        background-color: #2b2b2b;
+        border-bottom: 1px solid #444;
+    }
+
+        .swagger-ui .topbar .download-url-wrapper input[type=text] {
+            background: #3c3c3c;
+            border: 1px solid #555;
+            color: #e0e0e0;
+        }
+
+        .swagger-ui .topbar .download-url-wrapper .select-label select {
+            background: #3c3c3c;
+            border: 1px solid #555;
+            color: #e0e0e0;
+        }
+
+    /* Main title and info */
+    .swagger-ui .info {
+        background: #2b2b2b;
+        padding: 20px;
+        margin: 0;
+    }
+
+        .swagger-ui .info .title {
+            color: #ffffff;
+        }
+
+        .swagger-ui .info .base-url {
+            background: #3c3c3c;
+            color: #cceeff;
+        }
+
+        .swagger-ui .info a {
+            color: #87cefa;
+        }
+
+    /* Endpoint sections (e.g., Auth, CartItem) */
+    .swagger-ui .opblock-tag {
+        color: #ffffff;
+        border-bottom: 1px solid #444;
+    }
+
+    /* Individual endpoint blocks */
+    .swagger-ui .opblock {
+        background: #2b2b2b;
+        border-color: #444;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+        .swagger-ui .opblock .opblock-summary-path {
+            color: #cceeff;
+        }
+
+        .swagger-ui .opblock .opblock-summary-description {
+            color: #b0b0b0;
+        }
+
+    .swagger-ui .opblock-description-wrapper p, .swagger-ui .opblock-title_normal {
+        color: #e0e0e0;
+    }
+
+    /* Parameters section */
+    .swagger-ui .parameters-col {
+        color: #c0c0c0;
+    }
+
+    .swagger-ui .parameters-container .parameters-col_description input {
+        background-color: #3c3c3c;
+        color: #e0e0e0;
+        border: 1px solid #555;
+    }
+
+    .swagger-ui .parameter__name, .swagger-ui .parameter__type {
+        color: #d0d0d0;
+    }
+
+    .swagger-ui .parameter__in {
+        color: #a0a0a0;
+    }
+
+    /* Buttons */
+    .swagger-ui .btn {
+        border-color: #555;
+        color: #e0e0e0;
+    }
+
+        .swagger-ui .btn:hover {
+            background: #444;
+        }
+
+        .swagger-ui .btn.authorize {
+            background-color: #357a38;
+            color: #ffffff;
+        }
+
+    /* Responses section */
+    .swagger-ui .responses-inner h4, .swagger-ui .responses-inner h5 {
+        color: #ffffff;
+    }
+
+    .swagger-ui .response-col_status {
+        color: #b0b0b0;
+    }
+
+    .swagger-ui .responses-table {
+        background: #3c3c3c;
+    }
+
+    .swagger-ui table thead tr th {
+        background: #333;
+        color: #ffffff;
+    }
+
+    .swagger-ui .model-example {
+        background: #1a1a1a;
+    }
+
+    .swagger-ui .highlight-code .microlight {
+        background-color: #1a1a1a !important;
+    }
+
+    /* Models */
+    .swagger-ui .model-title {
+        color: #ffffff;
+    }
+
+    .swagger-ui .model {
+        color: #c0c0c0;
+    }
+
+        .swagger-ui .model .property.primitive {
+            color: #d0d0d0;
+        }
+
+    /* Modals */
+    .swagger-ui .dialog-ux .modal-ux-content {
+        background: #2b2b2b;
+    }
+
+    .swagger-ui .dialog-ux .modal-ux-header {
+        background: #3c3c3c;
+        border-bottom: 1px solid #444;
+    }
+
+        .swagger-ui .dialog-ux .modal-ux-header h3 {
+            color: #ffffff;
+        }
+
+    .swagger-ui .auth-container .errors {
+        color: #ff6b6b;
+    }
+
+    /* --- Dark Styles for "Try it out" Section --- */
+
+    /* Main container of the "Try it out" panel */
+    .swagger-ui .try-out__container {
+        background: #333 !important;
+        border-color: #555;
+        box-shadow: none;
+        border-radius: 4px;
+    }
+
+    /* Headers like "Parameters" and "Request body" */
+    .swagger-ui .opblock-section-header {
+        background: #3c3c3c;
+        border-bottom: 1px solid #555;
+    }
+
+        .swagger-ui .opblock-section-header h4 {
+            color: #e0e0e0;
+        }
+
+    /* The textarea for Request body */
+    .swagger-ui .body-param__textarea {
+        background: #1a1a1a;
+        color: #d4d4d4; /* Text color inside editor */
+        border: 1px solid #555;
+    }
+
+    /* JSON syntax highlighting inside the editor */
+    .swagger-ui .editor-container .cm-s-default .cm-string {
+        color: #ce9178 !important; /* String color */
+    }
+
+    .swagger-ui .editor-container .cm-s-default .cm-property {
+        color: #9cdcfe !important; /* Key color */
+    }
+
+    .swagger-ui .editor-container .cm-s-default .cm-number {
+        color: #b5cea8 !important; /* Number color */
+    }
+
+    .swagger-ui .editor-container .cm-s-default .cm-atom {
+        color: #569cd6 !important; /* null, true, false color */
+    }
+
+    /* Execute Button */
+    .swagger-ui .execute-wrapper .btn.execute {
+        background-color: #1e90ff !important; /* A nice blue */
+        border-color: #1e90ff !important;
+        color: white !important;
+        box-shadow: none;
+    }
+
+        .swagger-ui .execute-wrapper .btn.execute:hover {
+            background-color: #1c86ee !important;
+            border-color: #1c86ee !important;
+        }
+
+    /* Cancel Button */
+    .swagger-ui .btn.cancel {
+        background-color: transparent !important;
+        border: 2px solid #ff6b6b !important;
+        color: #ff6b6b !important;
+    }
+
+        .swagger-ui .btn.cancel:hover {
+            background-color: #ff6b6b !important;
+            color: white !important;
+        }
+
+    /* Response Section Styling */
+    .swagger-ui .responses-wrapper {
+        background-color: #2b2b2b;
+    }
+
+    /* The area where response JSON is shown */
+    .swagger-ui .response pre.microlight {
+        background: #1a1a1a !important;
+        color: #d4d4d4 !important;
+    }
+
+    /* --- Additional Dark Styles for Expanded Endpoint View --- */
+
+    /* Headers for "Parameters", "Request body", "Responses" in the default view */
+    .swagger-ui .opblock-body .opblock-section-header {
+        background: #3c3c3c;
+        border-bottom: 1px solid #555;
+        box-shadow: none;
+    }
+
+        .swagger-ui .opblock-body .opblock-section-header h4 {
+            color: #e0e0e0;
+        }
+
+    /* "Try it out" button styling */
+    .swagger-ui .try-out .btn {
+        background-color: #555;
+        border: 2px solid #777;
+        color: #fff;
+    }
+
+        .swagger-ui .try-out .btn:hover {
+            background-color: #666;
+            border-color: #888;
+        }
+
+    /* Dropdown for media type (e.g., application/json) */
+    .swagger-ui .opblock-body .content-type select {
+        background: #3c3c3c;
+        border: 1px solid #555;
+        color: #e0e0e0;
+    }
+
+    /* Tabs like "Example Value" and "Schema" */
+    .swagger-ui .tab-header .tab-item {
+        color: #ccc;
+        padding: 8px 0;
+    }
+
+        .swagger-ui .tab-header .tab-item.active {
+            color: white;
+            border-bottom: 3px solid #87cefa; /* A light blue accent for the active tab */
+        }
+
+    /* The panel containing the example value or schema */
+    .swagger-ui .opblock-body .tab-content {
+        background: #1a1a1a; /* Very dark background for code examples */
+        border-top: 1px solid #555;
+    }
+
+    /* Making the parameter table dark */
+    .swagger-ui .parameters-container, .swagger-ui .parameters-col {
+        color: #ccc;
+    }

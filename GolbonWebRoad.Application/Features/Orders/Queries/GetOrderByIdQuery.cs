@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using GolbonWebRoad.Application.Dtos;
+using GolbonWebRoad.Application.Dtos.Orders;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 

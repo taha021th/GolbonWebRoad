@@ -14,7 +14,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             _context=context;
 
         }
-        public async Task<List<CartItem>> GetCartItemsByUserIdAsync(string userId)
+        public async Task<IEnumerable<CartItem>> GetCartItemsByUserIdAsync(string userId)
         {
             return await _context.CartItems
             .Where(ci => ci.UserId==userId)
@@ -30,6 +30,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         }
         public async Task AddCartItemAsync(CartItem cartItem)
         {
+
             await _context.CartItems.AddAsync(cartItem);
 
         }
@@ -41,6 +42,10 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         public void RemoveCartItem(CartItem cartItem)
         {
             _context.CartItems.Remove(cartItem);
+        }
+        public void RemoveAllCartItem(IEnumerable<CartItem> cartItems)
+        {
+            _context.CartItems.RemoveRange(cartItems);
         }
         public async Task<int> SaveChangesAsync()
         {

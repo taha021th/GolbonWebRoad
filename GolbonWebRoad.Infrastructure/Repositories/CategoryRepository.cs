@@ -51,7 +51,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             }
         }
 
-        public async Task<ICollection<Category>> GetAllAsync(bool? joinProducts = false)
+        public async Task<IEnumerable<Category>> GetAllAsync(bool? joinProducts = false)
         {
             var query = _context.Categories.AsQueryable();
             if (joinProducts==true)

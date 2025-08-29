@@ -6,7 +6,7 @@ namespace GolbonWebRoad.Domain.Entities
     public class CartItem
     {
         public int Id { get; set; }
-        public int Quantity { get; set; }
+        public int Quantity { get; set; } = 1;
 
         public string UserId { get; set; }
         [ForeignKey("UserId")]

@@ -1,4 +1,5 @@
-﻿using GolbonWebRoad.Application.Exceptions;
+﻿using AutoMapper;
+using GolbonWebRoad.Application.Exceptions;
 using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
@@ -9,14 +10,16 @@ namespace GolbonWebRoad.Application.Features.CartItems.Commands
     {
         public string UserId { get; set; }
         public int ProductId { get; set; }
-        public int Quantity { get; set; }
+
     }
     public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
-        public AddToCartCommandHandler(IUnitOfWork unitOfWork)
+        private readonly IMapper _mapper;
+        public AddToCartCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<Unit> Handle(AddToCartCommand request, CancellationToken cancellationToken)
@@ -26,20 +29,16 @@ namespace GolbonWebRoad.Application.Features.CartItems.Commands
 
             var cartItem = await _unitOfWork.CartItemRepository.GetCartItemAsync(request.UserId, request.ProductId);
 
+
             if (cartItem != null)
             {
-                cartItem.Quantity += request.Quantity;
+                cartItem.Quantity += 1;
                 _unitOfWork.CartItemRepository.UpdateCartItem(cartItem);
             }
             else
             {
-                cartItem = new CartItem
-                {
-                    UserId = request.UserId,
-                    ProductId = request.ProductId,
-                    Quantity = request.Quantity
-                };
-                await _unitOfWork.CartItemRepository.AddCartItemAsync(cartItem);
+                var entity = _mapper.Map<CartItem>(request);
+                await _unitOfWork.CartItemRepository.AddCartItemAsync(entity);
             }
 
             await _unitOfWork.CompleteAsync();

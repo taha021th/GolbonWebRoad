@@ -1,8 +1,13 @@
-﻿using GolbonWebRoad.Application.Features.Categories.Commands;
+﻿using AutoMapper;
+using GolbonWebRoad.Api.CacheRevalidations;
+using GolbonWebRoad.Application.Dtos.Categories;
+using GolbonWebRoad.Application.Features.Categories.Commands;
 using GolbonWebRoad.Application.Features.Categories.Queries;
+using GolbonWebRoad.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Primitives;
 
 namespace GolbonWebRoad.Api.Controllers
 {
@@ -11,27 +16,29 @@ namespace GolbonWebRoad.Api.Controllers
     public class CategoryController : ApiBaseController
     {
         private readonly IMemoryCache _cache;
-        private string _cacheKey;
+        private readonly IMapper _mapper;
 
-        public CategoryController(IMemoryCache cache)
+
+        public CategoryController(IMemoryCache cache, IMapper mapper)
         {
             _cache=cache;
-            _cacheKey="allCategories";
-
+            _mapper=mapper;
         }
         [HttpGet]
         public async Task<IActionResult> GetAll(bool? joinProducts = false)
         {
-            if (_cache.TryGetValue(_cacheKey, out var cachedCategories))
+            string cacheKey = $"categories-{joinProducts}";
+            if (_cache.TryGetValue(cacheKey, out var cachedCategories))
             {
                 return Ok(cachedCategories);
             }
 
             var categories = await Mediator.Send(new GetCategoriesQuery { JoinProducts=joinProducts });
 
-            var cacheEntryOptions =
-                new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(24));
-            _cache.Set(_cacheKey, categories, cacheEntryOptions);
+            var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(24));
+            cacheEntryOptions.AddExpirationToken(new CancellationChangeToken(CacheRevalidation.ProductTokenSource.Token));
+
+            _cache.Set(cacheKey, categories, cacheEntryOptions);
 
             return Ok(categories);
         }
@@ -39,6 +46,7 @@ namespace GolbonWebRoad.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id, bool? joinProducts = false)
         {
+
             var category = await Mediator.Send(new GetCategoryByIdQuery { Id=id, JoinProducts=joinProducts });
             if (category==null) return NotFound();
             return Ok(category);
@@ -46,35 +54,37 @@ namespace GolbonWebRoad.Api.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([FromBody] CreateCategoryCommand model)
+        [Authorize(Roles = AppRoles.Admin)]
+        public async Task<IActionResult> Create([FromBody] CreateCategoryRequestDto request)
         {
-            var category = await Mediator.Send(model);
-            _cache.Remove(_cacheKey);
+            var command = _mapper.Map<CreateCategoryCommand>(request);
+            var category = await Mediator.Send(command);
+            CacheRevalidation.RevalidateProductAndCategoryCache();
             return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryCommand model)
+        [Authorize(Roles = AppRoles.Admin)]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryRequestDto request)
         {
-            if (id !=model.Id)
+            if (id !=request.Id)
             {
-                return BadRequest("Id mismatch");
+                return BadRequest("دسته بندی یافت نشد");
             }
-            var category = await Mediator.Send(model);
-            _cache.Remove(_cacheKey);
+            var command = _mapper.Map<UpdateCategoryCommand>(request);
+            var category = await Mediator.Send(command);
+            CacheRevalidation.RevalidateProductAndCategoryCache();
             return NoContent();
 
         }
 
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = AppRoles.Admin)]
         public async Task<IActionResult> Delete(int id)
         {
             await Mediator.Send(new DeleteCategoryCommand { Id = id });
-            _cache.Remove(_cacheKey);
+            CacheRevalidation.RevalidateProductAndCategoryCache();
             return NoContent();
 
         }

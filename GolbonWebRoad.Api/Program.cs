@@ -1,4 +1,5 @@
-﻿using GolbonWebRoad.Application;
+﻿using GolbonWebRoad.Api.CacheRevalidations;
+using GolbonWebRoad.Application;
 using GolbonWebRoad.Application.Exceptions;
 using GolbonWebRoad.Infrastructure;
 using Hellang.Middleware.ProblemDetails;
@@ -34,7 +35,7 @@ builder.Services.AddProblemDetails(options =>
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
-
+builder.Services.AddSingleton<CacheRevalidation>();
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
 {
@@ -138,8 +139,13 @@ app.UseProblemDetails();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.InjectStylesheet("/swagger/css/dark-theme.css");
+
+    });
 }
+app.UseStaticFiles();
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthentication();
