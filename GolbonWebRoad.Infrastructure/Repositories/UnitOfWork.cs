@@ -1,4 +1,5 @@
 ﻿using GolbonWebRoad.Domain.Interfaces;
+using GolbonWebRoad.Domain.Interfaces.Repositories;
 using GolbonWebRoad.Infrastructure.Persistence;
 
 namespace GolbonWebRoad.Infrastructure.Repositories

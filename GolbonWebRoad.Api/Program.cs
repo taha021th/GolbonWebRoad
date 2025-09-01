@@ -8,35 +8,55 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text.Json;
 
 
 
 
 var builder = WebApplication.CreateBuilder(args);
-#region Config Problem Details For Exception Handler
+builder.Services.AddControllers();
+builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddApplicationServices();
+
+
 builder.Services.AddProblemDetails(options =>
 {
+    options.Map<InsufficientExecutionStackException>(ex => new ProblemDetails
+    {
+        Status=StatusCodes.Status409Conflict,
+        Title="موجودی کافی نیست",
+        Detail=ex.Message
+    });
+
+    options.Map<BadRequestException>(ex => new ProblemDetails
+    {
+        Status=StatusCodes.Status400BadRequest,
+        Title="Bad Request",
+        Detail=ex.Message
+    });
     options.Map<NotFoundException>(ex => new ProblemDetails
     {
         Status=StatusCodes.Status404NotFound,
         Title="Not Found",
         Detail= ex.Message
     });
-    options.Map<BadRequestException>(ex => new ProblemDetails
+    options.Map<InternalServerErrorException>(ex => new ProblemDetails
     {
         Status=StatusCodes.Status500InternalServerError,
-        Title="Bad Request",
+        Title="Internal Server Error",
         Detail= ex.Message
     });
     options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
 });
-#endregion
-builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddApplicationServices();
+
+builder.Host.UseSerilog((context, config) =>
+{
+    config.ReadFrom.Configuration(context.Configuration);
+});
 
 builder.Services.AddSingleton<CacheRevalidation>();
-builder.Services.AddControllers();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",

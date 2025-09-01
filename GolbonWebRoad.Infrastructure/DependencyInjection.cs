@@ -1,5 +1,6 @@
 ﻿using GolbonWebRoad.Application.Interfaces.Services;
 using GolbonWebRoad.Domain.Interfaces;
+using GolbonWebRoad.Domain.Interfaces.Repositories;
 using GolbonWebRoad.Infrastructure.Persistence;
 using GolbonWebRoad.Infrastructure.Repositories;
 using GolbonWebRoad.Infrastructure.Services;

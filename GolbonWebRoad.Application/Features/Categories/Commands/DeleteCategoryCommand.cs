@@ -1,7 +1,9 @@
-﻿using AutoMapper;
-using FluentValidation;
+﻿using FluentValidation;
+using GolbonWebRoad.Application.Exceptions; // using برای NotFoundException
+using GolbonWebRoad.Application.Interfaces;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
+using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
 
 namespace GolbonWebRoad.Application.Features.Categories.Commands
 {
@@ -19,19 +21,44 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
     public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        public DeleteCategoryCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly ILogger<DeleteCategoryCommandHandler> _logger; // ۲. ILogger را تعریف کنید
+
+        // ۳. ILogger را تزریق کرده و وابستگی اضافی به IMapper را حذف کنید
+        public DeleteCategoryCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteCategoryCommandHandler> logger)
         {
-            _unitOfWork=unitOfWork;
-            _mapper=mapper;
+            _unitOfWork = unitOfWork;
+            _logger = logger;
         }
+
         public async Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
-            await _unitOfWork.CategoryRepository.DeleteAsync(request.Id);
-            await _unitOfWork.CompleteAsync();
+            // لاگ اطلاعاتی: ثبت شروع عملیات
+            _logger.LogInformation("شروع فرآیند حذف دسته‌بندی با شناسه {CategoryId}.", request.Id);
 
+            try
+            {
+                // ۴. ابتدا دسته‌بندی را پیدا کنید تا از وجود آن مطمئن شوید
+                var categoryToDelete = await _unitOfWork.CategoryRepository.GetByIdAsync(request.Id);
+                if (categoryToDelete == null)
+                {
+                    // لاگ هشدار: ثبت یک نتیجه منفی قابل انتظار
+                    _logger.LogWarning("دسته‌بندی با شناسه {CategoryId} برای حذف یافت نشد.", request.Id);
+                    throw new NotFoundException($"دسته‌بندی با شناسه {request.Id} یافت نشد.");
+                }
+
+                await _unitOfWork.CategoryRepository.DeleteAsync(request.Id);
+                await _unitOfWork.CompleteAsync();
+
+                // لاگ اطلاعاتی: ثبت نتیجه موفقیت‌آمیز عملیات
+                _logger.LogInformation("دسته‌بندی با شناسه {CategoryId} و نام '{CategoryName}' با موفقیت حذف شد.",
+                    request.Id, categoryToDelete.Name);
+            }
+            catch (Exception ex) when (ex is not NotFoundException)
+            {
+                // لاگ بحرانی: ثبت خطاهای پیش‌بینی نشده
+                _logger.LogCritical(ex, "خطای بحرانی در هنگام حذف دسته‌بندی با شناسه {CategoryId}.", request.Id);
+                throw; // Exception را دوباره پرتاب کن تا Middleware آن را به 500 تبدیل کند
+            }
         }
     }
-
-
 }

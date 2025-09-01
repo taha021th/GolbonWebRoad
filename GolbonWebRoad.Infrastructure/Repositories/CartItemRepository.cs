@@ -1,5 +1,5 @@
 using GolbonWebRoad.Domain.Entities;
-using GolbonWebRoad.Domain.Interfaces;
+using GolbonWebRoad.Domain.Interfaces.Repositories;
 using GolbonWebRoad.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 namespace GolbonWebRoad.Infrastructure.Repositories

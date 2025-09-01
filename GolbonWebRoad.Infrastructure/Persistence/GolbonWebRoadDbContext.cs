@@ -20,6 +20,7 @@ namespace GolbonWebRoad.Infrastructure.Persistence
         {
 
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Log>().ToTable("Logs");
 
         }
     }

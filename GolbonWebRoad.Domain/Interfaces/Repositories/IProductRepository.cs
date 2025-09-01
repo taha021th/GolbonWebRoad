@@ -1,6 +1,6 @@
 ﻿using GolbonWebRoad.Domain.Entities;
 
-namespace GolbonWebRoad.Domain.Interfaces
+namespace GolbonWebRoad.Domain.Interfaces.Repositories
 {
     public interface IProductRepository
     {

@@ -1,6 +1,6 @@
 ﻿using GolbonWebRoad.Application.Exceptions;
 using GolbonWebRoad.Domain.Entities;
-using GolbonWebRoad.Domain.Interfaces;
+using GolbonWebRoad.Domain.Interfaces.Repositories;
 using GolbonWebRoad.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,7 +29,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
                 {
                     "price_desc" => query.OrderByDescending(p => p.Price),
                     "price_asc" => query.OrderBy(p => p.Price),
-                    _ => query.OrderBy(p => p.Name) // حالت پیش‌فرض
+                    _ => query.OrderBy(p => p.Name)
                 };
 
             if (joinCategory==true)
