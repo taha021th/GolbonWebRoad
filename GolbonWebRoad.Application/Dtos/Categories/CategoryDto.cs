@@ -6,6 +6,7 @@ namespace GolbonWebRoad.Application.Dtos.Categories
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string? Slog { get; set; }
         public IEnumerable<ProductSummaryDto> Products { get; set; }
     }
 }

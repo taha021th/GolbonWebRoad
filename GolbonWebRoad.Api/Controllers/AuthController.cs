@@ -10,7 +10,7 @@ namespace GolbonWebRoad.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ApiBaseController
+    public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;

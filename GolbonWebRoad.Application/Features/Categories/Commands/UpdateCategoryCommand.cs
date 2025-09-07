@@ -2,7 +2,6 @@
 using FluentValidation;
 using GolbonWebRoad.Application.Dtos.Categories;
 using GolbonWebRoad.Application.Exceptions; // using برای NotFoundException
-using GolbonWebRoad.Application.Interfaces;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
@@ -13,6 +12,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string? Slog { get; set; }
     }
 
     public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCommand>

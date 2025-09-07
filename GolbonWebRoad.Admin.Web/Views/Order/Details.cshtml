@@ -1,0 +1,80 @@
+﻿@model GolbonWebRoad.Admin.Web.Dtos.OrderDto
+@{
+    ViewData["Title"] = $"جزئیات سفارش #{Model.Id}";
+    var updateStatusModel = ViewBag.UpdateStatusViewModel as GolbonWebRoad.Admin.Web.ViewModels.UpdateOrderStatusViewModel;
+}
+
+<h1>@ViewData["Title"]</h1>
+<hr />
+
+@if (TempData["StatusSuccess"] != null)
+{
+        <div class="alert alert-success">@TempData["StatusSuccess"]</div>
+}
+@if (TempData["StatusError"] != null)
+{
+        <div class="alert alert-danger">@TempData["StatusError"]</div>
+}
+
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">اطلاعات کلی سفارش</div>
+            <div class="card-body">
+                <p><strong>شماره سفارش:</strong> @Model.Id</p>
+                <p><strong>نام مشتری:</strong> @Model.UserName</p>
+                <p><strong>آدرس:</strong> @Model.UserAddress</p>
+                <p><strong>تاریخ ثبت:</strong> @Model.OrderDate</p>
+                <p><strong>مبلغ نهایی:</strong> @Model.TotalPrice.ToString("N0") تومان</p>
+                <p><strong>وضعیت فعلی:</strong> <span class="badge bg-primary">@Model.OrderStatus</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">تغییر وضعیت سفارش</div>
+            <div class="card-body">
+                <form asp-action="UpdateStatus" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="@updateStatusModel.OrderId" value="@Model.Id" />
+                    <div class="form-group">
+                        <label>انتخاب وضعیت جدید:</label>
+                        <select name="NewStatus" class="form-select" asp-items="@updateStatusModel.AvailableStatuses">
+                            <option value="">-- انتخاب کنید --</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success mt-3">ذخیره وضعیت</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <h3>اقلام سفارش</h3>
+    <table class="table">
+        <thead class="table-light">
+            <tr>
+                <th>نام محصول</th>
+                <th>تعداد</th>
+                <th>قیمت واحد (تومان)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderItems)
+            {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.Price.ToString("N0")</td>
+                    </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <a asp-action="Index" class="btn btn-secondary">بازگشت به لیست سفارشات</a>
+</div>

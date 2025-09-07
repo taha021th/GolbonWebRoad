@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using GolbonWebRoad.Application.Exceptions;
-using GolbonWebRoad.Application.Interfaces;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید

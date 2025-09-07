@@ -1,0 +1,222 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسویه حساب - فروشگاه Tecture</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+    <style>
+        :root {
+            --bg-color: #121212; --primary-text-color: #FFFFFF; --secondary-text-color: #a0a0a0; --card-bg-color: #1a1a1a; --border-color: #333333; --accent-color: #4a90e2;
+        }
+        body.light-mode {
+            --bg-color: #f4f4f5; --card-bg-color: #FFFFFF; --primary-text-color: #18181b; --secondary-text-color: #71717a; --border-color: #e4e4e7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--main-font); background-color: var(--bg-color); color: var(--primary-text-color); line-height: 1.7; overflow-x: hidden; transition: background-color 0.3s ease, color 0.3s ease; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        a { text-decoration: none; color: var(--primary-text-color); transition: color 0.3s ease; }
+        a:hover { color: var(--accent-color); }
+        img { max-width: 100%; height: auto; display: block; }
+
+        /* --- هدر و فوتر --- */
+        .promo-banner { background-color: var(--accent-color); color: var(--primary-text-color); text-align: center; padding: 8px 0; font-weight: 700; font-size: 0.9rem; }
+        .main-header { background-color: rgba(18, 18, 18, 0.8); border-bottom: 1px solid var(--border-color); padding: 15px 0; position: sticky; top: 0; width: 100%; z-index: 1000; backdrop-filter: blur(10px); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        body.light-mode .main-header { background-color: rgba(229, 231, 235, 0.8); }
+        .header-container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+        .header-actions { display: flex; align-items: center; gap: 25px; font-size: 1.3rem; }
+        #theme-toggle { cursor: pointer; }
+        #theme-toggle .fa-sun { display: none; }
+        body.light-mode #theme-toggle .fa-sun { display: inline-block; }
+        body.light-mode #theme-toggle .fa-moon { display: none; }
+        .main-footer { background-color: #000000; color: var(--secondary-text-color); padding: 80px 0 30px; border-top: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        body.light-mode .main-footer { background-color: #18181b; }
+
+        /* --- استایل‌های صفحه تسویه حساب --- */
+        .page-header { padding: 60px 0; background-color: var(--card-bg-color); text-align: center; border-bottom: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        .page-header h1 { font-size: 3rem; font-weight: 800; }
+
+        .checkout-section { padding: 50px 0; }
+        .checkout-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; align-items: flex-start;}
+
+        .checkout-form, .order-summary { background-color: var(--card-bg-color); border: 1px solid var(--border-color); padding: 30px; transition: background-color 0.3s ease, border-color 0.3s ease; }
+        .checkout-form h2, .order-summary h2 { font-size: 1.5rem; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 700; }
+        .form-group input { width: 100%; background-color: var(--bg-color); color: var(--primary-text-color); border: 1px solid var(--border-color); padding: 12px; font-family: var(--main-font); font-size: 1rem; }
+        .form-row { display: flex; gap: 20px; }
+        .form-row .form-group { flex: 1; }
+
+        .payment-methods .method { display: flex; align-items: center; gap: 15px; padding: 15px; border: 1px solid var(--border-color); margin-bottom: 10px; cursor: pointer; }
+        .payment-methods .method.selected { border-color: var(--accent-color); background-color: rgba(74, 144, 226, 0.1); }
+        .payment-methods .method input[type="radio"] { width: 20px; height: 20px; }
+        .payment-methods .method img { height: 30px; }
+
+        .order-summary { position: sticky; top: 110px; }
+        .summary-item { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; }
+        .summary-item img { width: 60px; height: 60px; object-fit: cover; }
+        .summary-item-details { flex-grow: 1; }
+        .summary-item-details .price { color: var(--secondary-text-color); }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .summary-total { font-size: 1.2rem; font-weight: 700; border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 10px;}
+        .secure-checkout-notice { text-align: center; margin-top: 20px; color: var(--secondary-text-color); }
+        .secure-checkout-notice i { color: #28a745; }
+
+        .btn { display: block; width: 100%; text-align: center; background-color: var(--accent-color); color: white; border: 2px solid var(--accent-color); padding: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; font-size: 1.1rem;}
+        .btn:hover { background-color: transparent; color: var(--accent-color); }
+
+        /* --- Responsive --- */
+        @@media (max-width: 992px) {
+            .checkout-layout { grid-template-columns: 1fr; }
+            .order-summary { margin-top: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="promo-banner"><p>ارسال رایگان برای خریدهای بالای ۵۰۰ هزار تومان!</p></div>
+    <header class="main-header">
+        <div class="container header-container">
+            <a href="./index.html" class="logo">Tecture</a>
+            <div class="header-actions">
+                <div id="theme-toggle"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></div>
+                <a href="./cart.html" class="header-action-link"><span>بازگشت به سبد خرید</span> <i class="fa-solid fa-arrow-left"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <header class="page-header" data-aos="fade-in">
+            <h1>تسویه حساب</h1>
+        </header>
+
+        <section class="checkout-section">
+            <div class="container checkout-layout">
+                <!-- فرم‌های اطلاعات -->
+                <div class="checkout-form" data-aos="fade-up">
+                    <div class="login-prompt">
+                        <p>عضو هستید؟ <a href="#">برای ورود کلیک کنید.</a></p>
+                    </div>
+
+                    <h2>۱. اطلاعات ارسال</h2>
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstname">نام</label>
+                                <input type="text" id="firstname" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastname">نام خانوادگی</label>
+                                <input type="text" id="lastname" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">آدرس کامل</label>
+                            <input type="text" id="address" placeholder="خیابان، کوچه، پلاک، واحد" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">شهر</label>
+                                <input type="text" id="city" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="postcode">کد پستی</label>
+                                <input type="text" id="postcode" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">شماره موبایل</label>
+                            <input type="tel" id="phone" required>
+                        </div>
+                    </form>
+
+                    <h2 style="margin-top: 40px;">۲. روش پرداخت</h2>
+                    <div class="payment-methods">
+                        <div class="method selected">
+                            <input type="radio" name="payment" id="gateway1" checked>
+                            <label for="gateway1">
+                                <img src="https://placehold.co/80x40/f0f0f0/333?text=Saman" alt="درگاه پرداخت سامان">
+                                <span>درگاه پرداخت امن سامان</span>
+                            </label>
+                        </div>
+                        <div class="method">
+                            <input type="radio" name="payment" id="gateway2">
+                            <label for="gateway2">
+                                <img src="https://placehold.co/80x40/f0f0f0/333?text=ZarinPal" alt="درگاه پرداخت زرین پال">
+                                <span>درگاه پرداخت زرین پال</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- خلاصه سفارش -->
+                <aside class="order-summary" data-aos="fade-left">
+                    <h2>خلاصه سفارش</h2>
+                    <div class="summary-items">
+                        <div class="summary-item">
+                            <img src="https://images.unsplash.com/photo-1592078615290-033ee584e267?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=200" alt="صندلی راحتی چوبی">
+                            <div class="summary-item-details">
+                                <span>صندلی راحتی چوبی (۱ عدد)</span>
+                                <p class="price">3,200,000 تومان</p>
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <img src="https://images.unsplash.com/photo-1538688525198-9b88f6f53126?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=200" alt="چراغ مطالعه رومیزی">
+                            <div class="summary-item-details">
+                                <span>چراغ مطالعه رومیزی (۲ عدد)</span>
+                                <p class="price">3,700,000 تومان</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="summary-row" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 10px;">
+                        <span>جمع کل</span>
+                        <span>6,900,000 تومان</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>هزینه ارسال</span>
+                        <span>رایگان</span>
+                    </div>
+                    <div class="summary-row summary-total">
+                        <span>مبلغ قابل پرداخت</span>
+                        <span>6,900,000 تومان</span>
+                    </div>
+                    <button class="btn">پرداخت و ثبت نهایی سفارش</button>
+                    <p class="secure-checkout-notice">
+                        <i class="fas fa-lock"></i> پرداخت امن و رمزنگاری شده
+                    </p>
+                </aside>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="main-footer">...</footer>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+        // منطق کامل تغییر حالت
+        (function themeSwitcher() {
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const body = document.body;
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme === 'light') { body.classList.add('light-mode'); }
+            themeToggleBtn.addEventListener('click', function() {
+                body.classList.toggle('light-mode');
+                localStorage.setItem('theme', body.classList.contains('light-mode') ? 'light' : 'dark');
+            });
+        })();
+    </script>
+</body>
+</html>

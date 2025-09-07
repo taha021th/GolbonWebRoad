@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using GolbonWebRoad.Application.Dtos.CartItems;
 using GolbonWebRoad.Application.Exceptions;
-using GolbonWebRoad.Application.Interfaces;
 using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
@@ -81,6 +80,7 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
                         // استفاده از Exception سفارشی و استاندارد
                         throw new InsufficientStockException($"تعداد درخواست شما برای محصول {product.Name} بیشتر از موجودی محصول می باشد. تعداد باقی مانده از محصول :{product.Quantity} درخواست شما: {item.Quantity}");
                     }
+
                 }
 
                 if (!orderItems.Any())

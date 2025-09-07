@@ -1,0 +1,15 @@
+﻿@model GolbonWebRoad.Admin.Web.ViewModels.ProductViewModel
+@{
+    ViewData["Title"] = "ایجاد محصول جدید";
+}
+
+<h1>@ViewData["Title"]</h1>
+<hr />
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <partial name="_ProductForm" model="Model" />
+    <div class="form-group mt-3">
+        <input type="submit" value="ایجاد محصول" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">بازگشت به لیست</a>
+    </div>
+</form>

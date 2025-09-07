@@ -5,29 +5,32 @@ using GolbonWebRoad.Application.Features.Products.Commands;
 using GolbonWebRoad.Application.Features.Products.Queries;
 using GolbonWebRoad.Application.Interfaces.Services;
 using GolbonWebRoad.Domain.Enums;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
-using System.Security.Claims; // ۲. اضافه کردن using برای دسترسی به اطلاعات کاربر
+using System.Security.Claims;
 
 namespace GolbonWebRoad.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController : ApiBaseController
+    public class ProductsController : ControllerBase
     {
         private readonly IMemoryCache _cache;
         private readonly IMapper _mapper;
         private readonly IFileStorageService _fileStorageService;
         private readonly ILogger<ProductsController> _logger;
+        private readonly IMediator _mediator;
 
-        public ProductsController(IMemoryCache cache, IMapper mapper, IFileStorageService fileStorageService, ILogger<ProductsController> logger)
+        public ProductsController(IMemoryCache cache, IMapper mapper, IFileStorageService fileStorageService, ILogger<ProductsController> logger, IMediator mediator)
         {
             _cache = cache;
             _mapper = mapper;
             _fileStorageService = fileStorageService;
             _logger = logger;
+            _mediator=mediator;
         }
 
         private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -47,7 +50,7 @@ namespace GolbonWebRoad.Api.Controllers
             }
 
             _logger.LogInformation("داده‌ای در کش یافت نشد، در حال ارسال کوئری به دیتابیس...");
-            var products = await Mediator.Send(query);
+            var products = await _mediator.Send(query);
 
             var productCacheOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(24));
             productCacheOptions.AddExpirationToken(new CancellationChangeToken(CacheRevalidation.ProductTokenSource.Token));
@@ -62,7 +65,7 @@ namespace GolbonWebRoad.Api.Controllers
         {
             _logger.LogInformation("درخواست برای دریافت محصول با شناسه {ProductId} دریافت شد.", id);
 
-            var product = await Mediator.Send(new GetProductByIdQuery { Id = id, JoinCategory = joinCategory });
+            var product = await _mediator.Send(new GetProductByIdQuery { Id = id, JoinCategory = joinCategory });
             if (product == null)
             {
                 _logger.LogWarning("محصول با شناسه {ProductId} یافت نشد.", id);
@@ -88,7 +91,7 @@ namespace GolbonWebRoad.Api.Controllers
                 _logger.LogInformation("فایل تصویر در مسیر '{ImageUrl}' ذخیره شد.", command.ImageUrl);
             }
 
-            var product = await Mediator.Send(command);
+            var product = await _mediator.Send(command);
 
             _logger.LogInformation("باطل‌سازی کش محصولات و دسته‌بندی‌ها به دلیل ایجاد محصول جدید.");
             CacheRevalidation.RevalidateProductAndCategoryCache();
@@ -106,12 +109,12 @@ namespace GolbonWebRoad.Api.Controllers
 
             if (id != request.Id)
             {
-                // لاگ خطا: ثبت یک درخواست نامعتبر از سمت کلاینت
+
                 _logger.LogError("عدم تطابق شناسه! شناسه در URL ({UrlId}) با شناسه در بدنه درخواست ({BodyId}) برای ادمین {AdminId} متفاوت است.", id, request.Id, adminId);
                 return BadRequest("Id in URL does not match Id in body.");
             }
 
-            // ... (منطق حذف فایل قدیمی و آپلود فایل جدید باید اینجا اضافه شود) ...
+
 
             var command = _mapper.Map<UpdateProductCommand>(request);
             if (request.ImageFile != null)
@@ -120,7 +123,7 @@ namespace GolbonWebRoad.Api.Controllers
                 command.ImageUrl = await _fileStorageService.SaveFileAsync(request.ImageFile, "products");
             }
 
-            await Mediator.Send(command);
+            await _mediator.Send(command);
 
             _logger.LogInformation("باطل‌سازی کش محصولات و دسته‌بندی‌ها به دلیل به‌روزرسانی محصول {ProductId}.", id);
             CacheRevalidation.RevalidateProductAndCategoryCache();
@@ -136,9 +139,9 @@ namespace GolbonWebRoad.Api.Controllers
             var adminId = GetUserId();
             _logger.LogInformation("ادمین {AdminId} درخواست حذف محصول با شناسه {ProductId} را ارسال کرد.", adminId, id);
 
-            // ... (منطق حذف فایل فیزیکی محصول از سرور باید اینجا اضافه شود) ...
 
-            await Mediator.Send(new DeleteProductCommand { Id = id });
+
+            await _mediator.Send(new DeleteProductCommand { Id = id });
 
             _logger.LogInformation("باطل‌سازی کش محصولات و دسته‌بندی‌ها به دلیل حذف محصول {ProductId}.", id);
             CacheRevalidation.RevalidateProductAndCategoryCache();

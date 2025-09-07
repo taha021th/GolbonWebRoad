@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GolbonWebRoad.Application.Dtos.CartItems;
 using GolbonWebRoad.Application.Dtos.Categories;
+using GolbonWebRoad.Application.Dtos.Logs;
 using GolbonWebRoad.Application.Dtos.Orders;
 using GolbonWebRoad.Application.Dtos.Products;
 using GolbonWebRoad.Application.Features.CartItems.Commands;
@@ -114,6 +115,10 @@ namespace GolbonWebRoad.Application.Mapping
             // از DTO ورودی کنترلر به کامند داخلی اپلیکیشن
             // استفاده: در اکشن UpdateStatus در OrdersController
             CreateMap<UpdateOrderStatusRequestDto, UpdateOrderStatusCommand>();
+            #endregion
+
+            #region Logs
+            CreateMap<Log, LogDto>();
             #endregion
         }
     }

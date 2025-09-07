@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using GolbonWebRoad.Application.Dtos.Categories;
-using GolbonWebRoad.Application.Interfaces;
 using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
@@ -12,6 +11,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
     public class CreateCategoryCommand : IRequest<CategoryDto>
     {
         public string Name { get; set; }
+        public string? Slog { get; set; }
     }
 
     public class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCommand>

@@ -43,7 +43,7 @@ namespace GolbonWebRoad.Web.Controllers
             var command = new CreateOrderCommand
             {
                 UserId = userId,
-                CartItems = cart.Select(c => new CartItemDto
+                CartItems = cart.Select(c => new CartItemSummaryDto
                 {
                     ProductId = c.ProductId,
                     Quantity = c.Quantity,

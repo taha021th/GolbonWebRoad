@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using GolbonWebRoad.Application.Exceptions;
-using GolbonWebRoad.Application.Interfaces;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
@@ -11,6 +10,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
     public class UpdateProductCommand : IRequest
     {
         public int Id { get; set; }
+        public string Slog { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }

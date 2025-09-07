@@ -1,4 +1,5 @@
-﻿@model GolbonWebRoad.Web.Areas.Admin.Models.DeleteProductViewModel
+﻿@using GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
+@model DeleteProductViewModel
 @{
     ViewData["Title"] = "حذف محصول: " + Model.Name;
 }
@@ -30,6 +31,7 @@
 
     <form asp-action="Delete" method="post">
         <input type="hidden" asp-for="Id" />
+        <input type="hidden" name="imageUrl" value="@Model.ImageUrl" />
         <div class="flex justify-end gap-4">
             <a asp-action="Index" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition">انصراف</a>
             <button type="submit" class="bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700 transition">بله، حذف کن</button>

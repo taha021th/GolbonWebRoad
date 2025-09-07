@@ -1,99 +1,214 @@
-﻿@    using GolbonWebRoad.Application.Dtos;
-    using GolbonWebRoad.Application.Dtos.CartItems
+﻿@using GolbonWebRoad.Application.Dtos;
+@using GolbonWebRoad.Application.Dtos.CartItems;
 @model List<CartItemDto>
 @{
     ViewData["Title"] = "سبد خرید";
     // Calculate the total price
     decimal totalPrice = Model.Sum(item => item.Product.Price * item.Quantity);
 }
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سبد خرید - فروشگاه Tecture</title>
 
-<div class="bg-gray-100 py-10">
-    <div class="container mx-auto px-4">
-        <h1 class="text-3xl font-bold text-center">سبد خرید شما</h1>
-    </div>
-</div>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
 
-<div class="container mx-auto px-4 py-12">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    @if (Model != null && Model.Any())
-    {
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 
-            <div class="lg:col-span-2 bg-white rounded-xl shadow-md">
-                <div class="p-4 border-b">
-                    <h2 class="text-xl font-semibold">@Model.Count() آیتم در سبد شما</h2>
-                </div>
-                <div class="p-4 space-y-4">
-                    @foreach (var item in Model)
-                    {
-                        <div class="flex flex-col sm:flex-row gap-4 items-center border-b pb-4">
-                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.ProductId" class="flex items-center gap-4 flex-1">
-                                <img src="@(string.IsNullOrEmpty(item.Product.ImageUrl) ? "https://placehold.co/400x400/EEE/31343C?text=Aura" : item.Product.ImageUrl)"
-                                     alt="@item.Product.Name"
-                                     class="w-24 h-24 object-cover rounded-md" />
-                                <div>
-                                    <p class="font-semibold text-lg hover:text-indigo-600 transition">@item.Product.Name</p>
-                                    <p class="text-gray-500 text-sm">@item.Product.Price.ToString("N0") تومان</p>
-                                </div>
-                            </a>
+    <style>
+        :root {
+            --bg-color: #121212; --primary-text-color: #FFFFFF; --secondary-text-color: #a0a0a0; --card-bg-color: #1a1a1a; --border-color: #333333; --accent-color: #4a90e2;
+        }
+        body.light-mode {
+            --bg-color: #f4f4f5; --card-bg-color: #FFFFFF; --primary-text-color: #18181b; --secondary-text-color: #71717a; --border-color: #e4e4e7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--main-font); background-color: var(--bg-color); color: var(--primary-text-color); line-height: 1.7; overflow-x: hidden; transition: background-color 0.3s ease, color 0.3s ease; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        a { text-decoration: none; color: var(--primary-text-color); transition: color 0.3s ease; }
+        a:hover { color: var(--accent-color); }
+        img { max-width: 100%; height: auto; display: block; }
 
-                            <div class="flex items-center border rounded-md h-12">
-                                <button class="w-12 h-full text-xl text-gray-500 hover:bg-gray-100 transition rounded-r-md">+</button>
-                                <input type="text" value="@item.Quantity" class="w-14 h-full text-center text-lg font-semibold border-l border-r outline-none" readonly />
-                                <button class="w-12 h-full text-xl text-gray-500 hover:bg-gray-100 transition rounded-l-md">-</button>
-                            </div>
+        /* --- هدر و فوتر --- */
+        .promo-banner { background-color: var(--accent-color); color: var(--primary-text-color); text-align: center; padding: 8px 0; font-weight: 700; font-size: 0.9rem; }
+        .main-header { background-color: rgba(18, 18, 18, 0.8); border-bottom: 1px solid var(--border-color); padding: 15px 0; position: sticky; top: 0; width: 100%; z-index: 1000; backdrop-filter: blur(10px); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        body.light-mode .main-header { background-color: rgba(229, 231, 235, 0.8); }
+        .header-container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+        .main-nav ul { list-style: none; display: flex; }
+        .main-nav ul li { margin-right: 30px; }
+        .main-nav a { font-weight: 700; }
+        .header-actions { display: flex; align-items: center; gap: 25px; font-size: 1.3rem; }
+        .header-action-link { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 700; }
+        .header-action-link span { display: inline; }
+        #theme-toggle { cursor: pointer; }
+        #theme-toggle .fa-sun { display: none; }
+        body.light-mode #theme-toggle .fa-sun { display: inline-block; }
+        body.light-mode #theme-toggle .fa-moon { display: none; }
+        .main-footer { background-color: #000000; color: var(--secondary-text-color); padding: 80px 0 30px; border-top: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        body.light-mode .main-footer { background-color: #18181b; }
 
-                            <div class="flex flex-col items-end gap-2">
-                                <p class="font-bold text-lg text-indigo-700">@((item.Product.Price * item.Quantity).ToString("N0")) تومان</p>
-                                <a asp-controller="Cart" asp-action="RemoveFromCart" asp-route-id="@item.ProductId" class="text-red-500 hover:text-red-700 transition text-sm">
-                                    حذف
-                                </a>
-                            </div>
-                        </div>
-                    }
-                </div>
+        /* --- استایل‌های صفحه سبد خرید --- */
+        .page-header { padding: 60px 0; background-color: var(--card-bg-color); text-align: center; border-bottom: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        .page-header h1 { font-size: 3rem; font-weight: 800; }
+
+        .cart-section { padding: 50px 0; }
+        .cart-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+
+        .cart-items { background-color: var(--card-bg-color); border: 1px solid var(--border-color); padding: 20px; transition: background-color 0.3s ease, border-color 0.3s ease; }
+        .cart-item { display: flex; gap: 20px; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border-color); }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item-image img { width: 100px; height: 100px; object-fit: cover; }
+        .cart-item-details { flex-grow: 1; }
+        .cart-item-details h3 { font-size: 1.1rem; }
+        .cart-item-details .price { color: var(--secondary-text-color); }
+        .quantity-selector { display: flex; align-items: center; border: 1px solid var(--border-color); max-width: 120px; }
+        .quantity-selector button { background: none; border: none; color: var(--primary-text-color); font-size: 1.2rem; padding: 5px 12px; cursor: pointer; }
+        .quantity-selector input { width: 40px; text-align: center; background: none; border: none; color: var(--primary-text-color); font-size: 1.1rem; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); }
+        .item-total-price { font-weight: 700; font-size: 1.2rem; }
+        .remove-item-btn { background: none; border: none; color: var(--secondary-text-color); font-size: 1.2rem; cursor: pointer; }
+        .remove-item-btn:hover { color: #e24a4a; }
+
+        .order-summary { background-color: var(--card-bg-color); border: 1px solid var(--border-color); padding: 20px; position: sticky; top: 110px; transition: background-color 0.3s ease, border-color 0.3s ease;}
+        .order-summary h2 { font-size: 1.5rem; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .summary-total { font-size: 1.2rem; font-weight: 700; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .coupon-form { margin-top: 20px; }
+        .coupon-form input { width: 100%; background-color: var(--bg-color); color: var(--primary-text-color); border: 1px solid var(--border-color); padding: 10px; margin-bottom: 10px; }
+        .btn { display: block; width: 100%; text-align: center; background-color: var(--accent-color); color: white; border: 2px solid var(--accent-color); padding: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; }
+        .btn:hover { background-color: transparent; color: var(--accent-color); }
+        .btn-secondary { background: none; border-color: var(--secondary-text-color); color: var(--secondary-text-color); margin-top: 10px; }
+        .btn-secondary:hover { border-color: var(--accent-color); color: var(--accent-color); }
+
+        /* --- Responsive --- */
+        @@media (max-width: 992px) {
+            .main-nav, .header-action-link span { display: none; }
+            .cart-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="promo-banner"><p>ارسال رایگان برای خریدهای بالای ۵۰۰ هزار تومان!</p></div>
+    <header class="main-header">
+        <div class="container header-container">
+            <a href="./index.html" class="logo">Tecture</a>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="./index.html">خانه</a></li>
+                    <li><a href="#">دسته‌بندی‌ها</a></li>
+                    <li><a href="./product-list.html">محصولات</a></li>
+                    <li><a href="#">تخفیف‌ها</a></li>
+                    <li><a href="#">بلاگ</a></li>
+                    <li><a href="#">تماس با ما</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <div id="theme-toggle"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></div>
+                <a href="#" class="header-action-link"><i class="fa-solid fa-user"></i><span>ورود / ثبت‌نام</span></a>
+                <a href="Carts.html" class="header-action-link"><i class="fa-solid fa-shopping-bag"></i></a>
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <i class="fa-solid fa-bars"></i>
             </div>
+        </div>
+    </header>
 
-            <aside class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md h-fit sticky top-24">
-                <h3 class="text-xl font-bold mb-6 border-b pb-4">خلاصه سفارش</h3>
-                <div class="space-y-4 text-gray-700">
-                    <div class="flex justify-between">
-                        <span>جمع کل محصولات</span>
-                        <span>@totalPrice.ToString("N0") تومان</span>
+    <main>
+        <header class="page-header" data-aos="fade-in">
+            <h1>سبد خرید شما</h1>
+        </header>
+
+        <section class="cart-section">
+            <div class="container cart-layout">
+                <!-- لیست محصولات در سبد -->
+                <div class="cart-items" data-aos="fade-up">
+                    <!-- محصول ۱ -->
+                    <div class="cart-item">
+                        <div class="cart-item-image">
+                            <img src="https://images.unsplash.com/photo-1592078615290-033ee584e267?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=200" alt="صندلی راحتی چوبی">
+                        </div>
+                        <div class="cart-item-details">
+                            <h3>صندلی راحتی چوبی</h3>
+                            <p class="price">3,200,000 تومان</p>
+                        </div>
+                        <div class="quantity-selector">
+                            <button>-</button>
+                            <input type="text" value="1">
+                            <button>+</button>
+                        </div>
+                        <p class="item-total-price">3,200,000 تومان</p>
+                        <button class="remove-item-btn" title="حذف محصول"><i class="fas fa-trash"></i></button>
                     </div>
-                    <div class="flex justify-between">
-                        <span>هزینه ارسال</span>
-                        <span class="text-green-600">رایگان</span>
-                    </div>
-                    <div class="flex justify-between font-bold text-xl border-t pt-4">
-                        <span>مبلغ قابل پرداخت</span>
-                        <span>@totalPrice.ToString("N0") تومان</span>
+
+                    <!-- محصول ۲ -->
+                    <div class="cart-item">
+                        <div class="cart-item-image">
+                            <img src="https://images.unsplash.com/photo-1538688525198-9b88f6f53126?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=200" alt="چراغ مطالعه رومیزی">
+                        </div>
+                        <div class="cart-item-details">
+                            <h3>چراغ مطالعه رومیزی</h3>
+                            <p class="price">1,850,000 تومان</p>
+                        </div>
+                        <div class="quantity-selector">
+                            <button>-</button>
+                            <input type="text" value="2">
+                            <button>+</button>
+                        </div>
+                        <p class="item-total-price">3,700,000 تومان</p>
+                        <button class="remove-item-btn" title="حذف محصول"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
 
-                <form asp-controller="Cart" asp-action="PlaceOrder" method="post" class="mt-8">
-                    <button type="submit" class="w-full block text-center bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition shadow-md">
-                        ثبت نهایی و پرداخت
-                    </button>
-                </form>
+                <!-- خلاصه سفارش -->
+                <aside class="order-summary" data-aos="fade-left">
+                    <h2>خلاصه سفارش</h2>
+                    <div class="summary-row">
+                        <span>جمع کل</span>
+                        <span>6,900,000 تومان</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>هزینه ارسال</span>
+                        <span>رایگان</span>
+                    </div>
+                    <div class="summary-row summary-total">
+                        <span>مبلغ قابل پرداخت</span>
+                        <span>6,900,000 تومان</span>
+                    </div>
+                    <form class="coupon-form">
+                        <label>کد تخفیف دارید؟</label>
+                        <input type="text" placeholder="کد تخفیف را وارد کنید">
+                    </form>
+                    <button class="btn">ادامه جهت تسویه حساب</button>
+                    <a href="./product-list.html" class="btn btn-secondary">ادامه خرید</a>
+                </aside>
+            </div>
+        </section>
 
-                <a asp-controller="Products" asp-action="Index" class="w-full block text-center text-indigo-600 mt-4">
-                    بازگشت به فروشگاه
-                </a>
-            </aside>
-        </div>
-    }
-    else
-    {
-        <div class="text-center py-20">
-            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <h2 class="mt-4 text-2xl font-semibold text-gray-800">سبد خرید شما خالی است!</h2>
-            <p class="mt-2 text-gray-500">نگران نباشید، می‌توانید از بین محصولات شگفت‌انگیز ما انتخاب کنید.</p>
-            <a asp-controller="Products" asp-action="Index" class="mt-6 inline-block bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition">
-                مشاهده محصولات
-            </a>
-        </div>
-    }
-</div>
+    </main>
+
+    <footer class="main-footer">...</footer>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+        // منطق کامل تغییر حالت
+        (function themeSwitcher() {
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const body = document.body;
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme === 'light') { body.classList.add('light-mode'); }
+            themeToggleBtn.addEventListener('click', function() {
+                body.classList.toggle('light-mode');
+                localStorage.setItem('theme', body.classList.contains('light-mode') ? 'light' : 'dark');
+            });
+        })();
+    </script>
+</body>
+</html>

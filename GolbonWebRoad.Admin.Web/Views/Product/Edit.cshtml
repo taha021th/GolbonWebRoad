@@ -1,0 +1,17 @@
+﻿@model GolbonWebRoad.Admin.Web.ViewModels.ProductViewModel
+@{
+    ViewData["Title"] = "ویرایش محصول";
+}
+
+<h1>@ViewData["Title"]</h1>
+<hr />
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ExistingImageUrl" />
+    <partial name="_ProductForm" model="Model" />
+    <div class="form-group mt-3">
+        <input type="submit" value="ذخیره تغییرات" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">بازگشت به لیست</a>
+    </div>
+</form>

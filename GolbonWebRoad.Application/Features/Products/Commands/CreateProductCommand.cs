@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using GolbonWebRoad.Application.Dtos.Products;
-using GolbonWebRoad.Application.Interfaces;
 using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
@@ -11,6 +10,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
 {
     public class CreateProductCommand : IRequest<ProductDto>
     {
+        public string Slog { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }

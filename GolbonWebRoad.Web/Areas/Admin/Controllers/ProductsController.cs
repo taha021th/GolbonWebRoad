@@ -4,7 +4,7 @@ using GolbonWebRoad.Application.Features.Categories.Queries;
 using GolbonWebRoad.Application.Features.Products.Commands;
 using GolbonWebRoad.Application.Features.Products.Queries;
 using GolbonWebRoad.Application.Interfaces.Services;
-using GolbonWebRoad.Web.Areas.Admin.Models;
+using GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +17,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
     {
 
         private readonly IMediator _mediator;
-        private readonly IFileStorageService _fileStorageService; // جایگزینی IWebHostEnvironment
+        private readonly IFileStorageService _fileStorageService;
         private readonly IMapper _mapper;
 
         public ProductsController(IMediator mediator, IFileStorageService fileStorageService, IMapper mapper)
@@ -45,18 +45,23 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateProductViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var command = _mapper.Map<CreateProductCommand>(model);
-                if (model.ImageFile != null)
-                {
-                    // استفاده از سرویس برای ذخیره فایل
-                    command.ImageUrl = await _fileStorageService.SaveFileAsync(model.ImageFile, "images/products");
-                }
-                await _mediator.Send(command);
-                return RedirectToAction(nameof(Index));
+                var categories = await _mediator.Send(new GetCategoriesQuery());
+                model.Categories = _mapper.Map<IEnumerable<CategorySummaryDto>>(categories);
+                return View(model);
             }
-            return View(model);
+
+            var command = _mapper.Map<CreateProductCommand>(model);
+            if (model.ImageFile != null)
+            {
+                // استفاده از سرویس برای ذخیره فایل
+                command.ImageUrl = await _fileStorageService.SaveFileAsync(model.ImageFile, "images/products");
+            }
+            await _mediator.Send(command);
+            return RedirectToAction(nameof(Index));
+
+
         }
 
         [HttpGet]
@@ -69,18 +74,9 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            var viewModel = new EditProductViewModel
-            {
-                Id=product.Id,
-                Name=product.Name,
-                Price=product.Price,
-                Description=product.Description,
-                CategoryId=product.CategoryId,
-                ExistingImageUrl=product.ImageUrl,
-
-                Categories=_mapper.Map<IEnumerable<CategorySummaryDto>>(categories)
-
-            };
+            var viewModel = _mapper.Map<EditProductViewModel>(product);
+            viewModel.Categories=_mapper.Map<IEnumerable<CategorySummaryDto>>(categories);
+            viewModel.ExistingImageUrl=product.ImageUrl;
             return View(viewModel);
 
         }
@@ -90,26 +86,29 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(EditProductViewModel model)
         {
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var command = _mapper.Map<UpdateProductCommand>(model);
-                if (model.ImageFile!=null)
-                {
-                    if (!string.IsNullOrEmpty(model.ExistingImageUrl))
-                    {
-                        await _fileStorageService.DeleteFileAsync(Path.GetFileName(model.ExistingImageUrl), "images/products");
-                    }
-                    command.ImageUrl=await _fileStorageService.SaveFileAsync(model.ImageFile, "images/products");
-                }
-                else
-                {
-                    command.ImageUrl=model.ExistingImageUrl;
-                }
-                await _mediator.Send(command);
-                return RedirectToAction(nameof(Index));
+                var categories = await _mediator.Send(new GetCategoriesQuery());
 
+                model.Categories=_mapper.Map<IEnumerable<CategorySummaryDto>>(categories);
+                return View(model);
             }
-            return View(model);
+            var command = _mapper.Map<UpdateProductCommand>(model);
+            if (model.ImageFile!=null)
+            {
+                if (!string.IsNullOrEmpty(model.ExistingImageUrl))
+                {
+                    await _fileStorageService.DeleteFileAsync(Path.GetFileName(model.ExistingImageUrl), "images/products");
+                }
+                command.ImageUrl=await _fileStorageService.SaveFileAsync(model.ImageFile, "images/products");
+            }
+            else
+            {
+                command.ImageUrl=model.ExistingImageUrl;
+            }
+            await _mediator.Send(command);
+            return RedirectToAction(nameof(Index));
+
         }
 
         public async Task<IActionResult> Delete(int id)
@@ -123,18 +122,17 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id, string? imageUrl) // ✅ پارامتر جدید
         {
-
-            var productToDelete = await _mediator.Send(new GetProductByIdQuery { Id=id });
-            if (productToDelete !=null && !string.IsNullOrEmpty(productToDelete.ImageUrl))
+            if (!string.IsNullOrEmpty(imageUrl))
             {
-                await _fileStorageService.DeleteFileAsync(Path.GetFileName(productToDelete.ImageUrl), "images/products");
+                await _fileStorageService.DeleteFileAsync(Path.GetFileName(imageUrl), "images/products");
             }
-            await _mediator.Send(new DeleteProductCommand { Id=id });
-            return RedirectToAction(nameof(Index));
 
+            await _mediator.Send(new DeleteProductCommand { Id = id });
+            return RedirectToAction(nameof(Index));
         }
+
 
     }
 }

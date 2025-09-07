@@ -3,6 +3,7 @@ using GolbonWebRoad.Application.Dtos.Orders;
 using GolbonWebRoad.Application.Features.Orders.Commands;
 using GolbonWebRoad.Application.Features.Orders.Queries;
 using GolbonWebRoad.Domain.Enums;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -11,15 +12,17 @@ namespace GolbonWebRoad.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersController : ApiBaseController
+    public class OrdersController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly ILogger<OrdersController> _logger;
+        private readonly IMediator _mediator;
 
-        public OrdersController(IMapper mapper, ILogger<OrdersController> logger)
+        public OrdersController(IMapper mapper, ILogger<OrdersController> logger, IMediator mediator)
         {
             _mapper=mapper;
             _logger=logger;
+            _mediator=mediator;
         }
         private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -41,7 +44,7 @@ namespace GolbonWebRoad.Api.Controllers
                 return Unauthorized();
 
             };
-            var listOrderDto = await Mediator.Send(new GetOrdersByUserIdQuery { UserId=userId });
+            var listOrderDto = await _mediator.Send(new GetOrdersByUserIdQuery { UserId=userId });
             _logger.LogInformation("تعداد {OrderCount} سفارش برای کاربر {UserId} یافت و پاسخ ارسال شد.", listOrderDto.Count(), userId);
             return Ok(listOrderDto);
         }
@@ -57,7 +60,7 @@ namespace GolbonWebRoad.Api.Controllers
             var userId = GetUserId();
             _logger.LogInformation("کاربر {UserId} درخواست دریافت سفارش با شناسه {OrderId} را ارسال کرد.", userId, id);
 
-            var orderDto = await Mediator.Send(new GetOrderByIdQuery { Id=id });
+            var orderDto = await _mediator.Send(new GetOrderByIdQuery { Id=id });
             if (orderDto==null)
             {
                 _logger.LogWarning("سفارش با شناسه {OrderId} که توسط کاربر {UserId} درخواست شده بود، یافت نشد.", id, userId);
@@ -86,7 +89,7 @@ namespace GolbonWebRoad.Api.Controllers
             var adminId = GetUserId();
             _logger.LogInformation("ادمین {AdminId} درخواست دریافت تمام سفارشات را ارسال کرد.", adminId);
 
-            var listOrderDto = await Mediator.Send(new GetAllOrdersQuery());
+            var listOrderDto = await _mediator.Send(new GetAllOrdersQuery());
 
             if (!listOrderDto.Any())
             {
@@ -111,7 +114,7 @@ namespace GolbonWebRoad.Api.Controllers
 
             var command = _mapper.Map<CreateOrderCommand>(request);
             command.UserId = GetUserId();
-            await Mediator.Send(command);
+            await _mediator.Send(command);
             return Ok(new { message = "سفارش با موفقیت ثبت شد." });
         }
         /// <summary>
@@ -127,7 +130,7 @@ namespace GolbonWebRoad.Api.Controllers
             _logger.LogInformation("ادمین {AdminId} درخواست تغییر وضعیت سفارش {OrderId} به '{OrderStatus}' را ارسال کرد.", adminId, request.OrderId, request.OrderStatus);
 
             var command = _mapper.Map<UpdateOrderStatusCommand>(request);
-            await Mediator.Send(command);
+            await _mediator.Send(command);
             _logger.LogInformation("وضعیت سفارش {OrderId} با موفقیت توسط ادمین {AdminId} به '{OrderStatus}' تغییر یافت.", request.OrderId, adminId, request.OrderStatus);
             return NoContent();
         }

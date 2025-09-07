@@ -4,6 +4,7 @@ using GolbonWebRoad.Application.Dtos.Categories;
 using GolbonWebRoad.Application.Features.Categories.Commands;
 using GolbonWebRoad.Application.Features.Categories.Queries;
 using GolbonWebRoad.Domain.Enums;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -14,17 +15,19 @@ namespace GolbonWebRoad.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryController : ApiBaseController
+    public class CategoryController : ControllerBase
     {
         private readonly IMemoryCache _cache;
         private readonly IMapper _mapper;
         private readonly ILogger<CategoryController> _logger; // ۳. اطمینان از تزریق ILogger
+        private readonly IMediator _mediator;
 
-        public CategoryController(IMemoryCache cache, IMapper mapper, ILogger<CategoryController> logger)
+        public CategoryController(IMemoryCache cache, IMapper mapper, ILogger<CategoryController> logger, IMediator mediator)
         {
             _cache = cache;
             _mapper = mapper;
             _logger = logger;
+            _mediator= mediator;
         }
 
         private string GetAdminId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -42,7 +45,7 @@ namespace GolbonWebRoad.Api.Controllers
             }
 
             _logger.LogInformation("داده‌ای در کش یافت نشد، در حال ارسال کوئری به دیتابیس...");
-            var categories = await Mediator.Send(new GetCategoriesQuery { JoinProducts = joinProducts });
+            var categories = await _mediator.Send(new GetCategoriesQuery { JoinProducts = joinProducts });
 
             var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(60));
 
@@ -60,7 +63,7 @@ namespace GolbonWebRoad.Api.Controllers
         {
             _logger.LogInformation("درخواست برای دریافت دسته‌بندی با شناسه {CategoryId} دریافت شد.", id);
 
-            var category = await Mediator.Send(new GetCategoryByIdQuery { Id = id, JoinProducts = joinProducts });
+            var category = await _mediator.Send(new GetCategoryByIdQuery { Id = id, JoinProducts = joinProducts });
             if (category == null)
             {
                 _logger.LogWarning("دسته‌بندی با شناسه {CategoryId} یافت نشد.", id);
@@ -79,7 +82,7 @@ namespace GolbonWebRoad.Api.Controllers
             _logger.LogInformation("ادمین {AdminId} درخواست ایجاد دسته‌بندی جدید با نام '{CategoryName}' را ارسال کرد.", adminId, request.Name);
 
             var command = _mapper.Map<CreateCategoryCommand>(request);
-            var category = await Mediator.Send(command);
+            var category = await _mediator.Send(command);
 
             _logger.LogInformation("باطل‌سازی کش محصولات و دسته‌بندی‌ها به دلیل ایجاد دسته‌بندی جدید.");
             CacheRevalidation.RevalidateProductAndCategoryCache();
@@ -99,7 +102,7 @@ namespace GolbonWebRoad.Api.Controllers
             var command = _mapper.Map<UpdateCategoryCommand>(request);
             command.Id = id;
 
-            await Mediator.Send(command);
+            await _mediator.Send(command);
 
             _logger.LogInformation("باطل‌سازی کش محصولات و دسته‌بندی‌ها به دلیل به‌روزرسانی دسته‌بندی {CategoryId}.", id);
             CacheRevalidation.RevalidateProductAndCategoryCache();
@@ -115,7 +118,7 @@ namespace GolbonWebRoad.Api.Controllers
             var adminId = GetAdminId();
             _logger.LogInformation("ادمین {AdminId} درخواست حذف دسته‌بندی با شناسه {CategoryId} را ارسال کرد.", adminId, id);
 
-            await Mediator.Send(new DeleteCategoryCommand { Id = id });
+            await _mediator.Send(new DeleteCategoryCommand { Id = id });
 
             _logger.LogInformation("باطل‌سازی کش محصولات و دسته‌بندی‌ها به دلیل حذف دسته‌بندی {CategoryId}.", id);
             CacheRevalidation.RevalidateProductAndCategoryCache();

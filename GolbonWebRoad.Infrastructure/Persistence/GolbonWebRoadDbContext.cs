@@ -16,12 +16,32 @@ namespace GolbonWebRoad.Infrastructure.Persistence
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Log> Logs { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Log>().ToTable("Logs");
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.HasIndex(p => p.Slog).IsUnique();
+            });
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.HasIndex(c => c.Slog).IsUnique();
+            }
+            );
 
+
+            modelBuilder.Entity<ProductColor>()
+                .HasKey(pc => new { pc.ProductId, pc.ColorId });
+            modelBuilder.Entity<ProductColor>()
+                .HasOne(pc => pc.Color)
+                .WithMany(p => p.ProductColors)
+                .HasForeignKey(pc => pc.ProductId);
+
+            modelBuilder.Entity<ProductColor>()
+                .HasOne(pc => pc.Color)
+                .WithMany(c => c.ProductColors)
+                .HasForeignKey(pc => pc.ColorId);
         }
     }
 }

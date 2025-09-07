@@ -15,6 +15,7 @@
             <tr>
                 <th class="p-3">شناسه</th>
                 <th class="p-3">نام دسته‌بندی</th>
+                <th class="p-3">Slog</th>
                 <th class="p-3"></th>
             </tr>
         </thead>
@@ -24,6 +25,7 @@
                 <tr class="border-b hover:bg-gray-50">
                     <td class="p-3 font-mono">@category.Id</td>
                     <td class="p-3 font-semibold">@category.Name</td>
+                    <td class="p-3 font-semibold">@category.Slog</td>
                     <td class="p-3 flex gap-4 justify-end">
                         <a asp-action="Edit" asp-route-id="@category.Id" class="text-blue-600 hover:underline">ویرایش</a>
                         <a asp-action="Delete" asp-route-id="@category.Id" class="text-red-600 hover:underline">حذف</a>

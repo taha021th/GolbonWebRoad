@@ -27,21 +27,22 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         }
         public IActionResult Create()
         {
-            return View();
+            var viewModel = new CreateCategoryViewModel();
+            return View(viewModel);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateCategoryViewModel model)
         {
-            if (ModelState.IsValid)
+
+            if (!ModelState.IsValid)
             {
-                var command = _mapper.Map<CreateCategoryCommand>(model);
-                await _mediator.Send(command);
-                return RedirectToAction(nameof(Index));
-
+                return View(model);
             }
-            return View(model);
 
+            var command = _mapper.Map<CreateCategoryCommand>(model);
+            await _mediator.Send(command);
+            return RedirectToAction(nameof(Index));
         }
         public async Task<IActionResult> Edit(int id)
         {
@@ -53,16 +54,18 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, EditCategoryViewModel model)
+        public async Task<IActionResult> Edit(EditCategoryViewModel model)
         {
-            if (id!=model.Id) return BadRequest();
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var command = _mapper.Map<UpdateCategoryCommand>(model);
-                await _mediator.Send(command);
-                return RedirectToAction(nameof(Index));
+                return View(model);
             }
-            return View(model);
+
+            var command = _mapper.Map<UpdateCategoryCommand>(model);
+            await _mediator.Send(command);
+            return RedirectToAction(nameof(Index));
+
+
         }
 
         public async Task<IActionResult> Delete(int id)

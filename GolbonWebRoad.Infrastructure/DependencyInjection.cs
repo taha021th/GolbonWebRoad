@@ -39,7 +39,7 @@ namespace GolbonWebRoad.Infrastructure
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICartItemRepository, CartItemRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+            services.AddScoped<ILogRepository, LogRepository>();
             return services;
 
         }

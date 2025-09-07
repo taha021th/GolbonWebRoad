@@ -1,0 +1,198 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سوالات متداول - فروشگاه Tecture</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+    <style>
+        :root {
+            --bg-color: #121212; --primary-text-color: #FFFFFF; --secondary-text-color: #a0a0a0; --card-bg-color: #1a1a1a; --border-color: #333333; --accent-color: #4a90e2;
+        }
+        body.light-mode {
+            --bg-color: #f4f4f5; --card-bg-color: #FFFFFF; --primary-text-color: #18181b; --secondary-text-color: #71717a; --border-color: #e4e4e7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--main-font); background-color: var(--bg-color); color: var(--primary-text-color); line-height: 1.7; overflow-x: hidden; transition: background-color 0.3s ease, color 0.3s ease; }
+        .container { max-width: 900px; /* کانتینر باریک‌تر برای خوانایی بهتر */ margin: 0 auto; padding: 0 20px; }
+        a { text-decoration: none; color: var(--primary-text-color); transition: color 0.3s ease; }
+        a:hover { color: var(--accent-color); }
+
+        /* --- هدر و فوتر --- */
+        .promo-banner { background-color: var(--accent-color); color: var(--primary-text-color); text-align: center; padding: 8px 0; font-weight: 700; font-size: 0.9rem; }
+        .main-header { background-color: rgba(18, 18, 18, 0.8); border-bottom: 1px solid var(--border-color); padding: 15px 0; position: sticky; top: 0; width: 100%; z-index: 1000; backdrop-filter: blur(10px); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        body.light-mode .main-header { background-color: rgba(229, 231, 235, 0.8); }
+        .header-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+        .main-nav ul { list-style: none; display: flex; }
+        .main-nav ul li { margin-right: 30px; }
+        .main-nav a { font-weight: 700; }
+        .header-actions { display: flex; align-items: center; gap: 25px; font-size: 1.3rem; }
+        .header-action-link { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 700; }
+        .header-action-link span { display: inline; }
+        #theme-toggle { cursor: pointer; }
+        #theme-toggle .fa-sun { display: none; }
+        body.light-mode #theme-toggle .fa-sun { display: inline-block; }
+        body.light-mode #theme-toggle .fa-moon { display: none; }
+        .main-footer { background-color: #000000; color: var(--secondary-text-color); padding: 80px 0 30px; border-top: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        body.light-mode .main-footer { background-color: #18181b; }
+
+        /* --- استایل‌های صفحه FAQ --- */
+        .page-header { padding: 60px 0; background-color: var(--card-bg-color); text-align: center; border-bottom: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        .page-header h1 { font-size: 3rem; font-weight: 800; }
+        .page-header p { color: var(--secondary-text-color); margin-top: 10px; }
+
+        .faq-section { padding: 80px 0; }
+        .faq-category { margin-bottom: 40px; }
+        .faq-category h2 { font-size: 1.8rem; margin-bottom: 25px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+
+        .faq-item { background-color: var(--card-bg-color); border: 1px solid var(--border-color); margin-bottom: 15px; transition: background-color 0.3s ease, border-color 0.3s ease; }
+        .faq-question { display: flex; justify-content: space-between; align-items: center; padding: 20px; cursor: pointer; font-weight: 700; font-size: 1.1rem; }
+        .faq-question i { transition: transform 0.4s ease; }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; }
+        .faq-answer p { color: var(--secondary-text-color); padding: 0 20px 20px 20px; border-top: 1px solid var(--border-color); padding-top: 20px; }
+
+        .faq-item.active .faq-question i { transform: rotate(180deg); }
+        .faq-item.active .faq-answer { max-height: 200px; /* ارتفاع تقریبی برای نمایش انیمیشن */ }
+
+        /* --- Responsive --- */
+        @@media (max-width: 992px) { .main-nav, .header-action-link span { display: none; } }
+
+    </style>
+</head>
+<body>
+    <div class="promo-banner"><p>ارسال رایگان برای خریدهای بالای ۵۰۰ هزار تومان!</p></div>
+    <header class="main-header">
+        <div class="header-container">
+            <a href="./index.html" class="logo">Tecture</a>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="./index.html">خانه</a></li>
+                    <li><a href="#">دسته‌بندی‌ها</a></li>
+                    <li><a href="./product-list.html">محصولات</a></li>
+                    <li><a href="./contact.html">تماس با ما</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <div id="theme-toggle"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></div>
+                <a href="./dashboard.html" class="header-action-link"><i class="fa-solid fa-user"></i><span>حساب کاربری</span></a>
+                <a href="./cart.html" class="header-action-link"><i class="fa-solid fa-shopping-bag"></i></a>
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <header class="page-header" data-aos="fade-in">
+            <h1>سوالات متداول</h1>
+            <p>پاسخ سوالات خود را در اینجا پیدا کنید.</p>
+        </header>
+
+        <section class="faq-section">
+            <div class="container">
+                <!-- دسته اول -->
+                <div class="faq-category" data-aos="fade-up">
+                    <h2>سفارش و پرداخت</h2>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>چگونه می‌توانم سفارش خود را ثبت کنم؟</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>پس از انتخاب محصولات مورد نظر، آن‌ها را به سبد خرید اضافه کنید. سپس به صفحه سبد خرید رفته و با کلیک بر روی دکمه تسویه حساب، اطلاعات خود را وارد کرده و پرداخت را نهایی کنید.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>از چه روش‌هایی می‌توانم پرداخت کنم؟</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>شما می‌توانید از طریق تمامی کارت‌های بانکی عضو شبکه شتاب و با استفاده از درگاه‌های پرداخت امن موجود در سایت، هزینه سفارش خود را پرداخت نمایید.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- دسته دوم -->
+                <div class="faq-category" data-aos="fade-up" data-aos-delay="200">
+                    <h2>ارسال و بازگشت کالا</h2>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>هزینه و زمان ارسال سفارش چقدر است؟</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>سفارشات برای خریدهای بالای ۵۰۰ هزار تومان به صورت رایگان ارسال می‌شوند. زمان تحویل سفارشات در تهران ۱ الی ۲ روز کاری و در سایر شهرها ۳ الی ۵ روز کاری می‌باشد.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>چگونه می‌توانم سفارش خود را پیگیری کنم؟</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>پس از ثبت سفارش و ارسال آن، کد رهگیری پستی برای شما از طریق پیامک ارسال خواهد شد. همچنین می‌توانید وضعیت سفارش خود را از طریق بخش "سفارش‌ها" در حساب کاربری خود مشاهده کنید.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>آیا امکان بازگرداندن کالا وجود دارد؟</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>بله، شما تا ۷ روز پس از دریافت کالا، در صورت عدم رضایت یا وجود هرگونه مغایرت، می‌توانید طبق شرایط و ضوابط سایت، اقدام به بازگرداندن کالا نمایید.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="main-footer">...</footer>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+        // منطق کامل تغییر حالت
+        (function themeSwitcher() {
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const body = document.body;
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme === 'light') { body.classList.add('light-mode'); }
+            themeToggleBtn.addEventListener('click', function() {
+                body.classList.toggle('light-mode');
+                localStorage.setItem('theme', body.classList.contains('light-mode') ? 'light' : 'dark');
+            });
+        })();
+
+        // منطق آکاردئون FAQ
+        (function faqAccordion() {
+            const faqItems = document.querySelectorAll('.faq-item');
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                question.addEventListener('click', () => {
+                    // بستن سایر آیتم‌های باز (اختیاری)
+                    // faqItems.forEach(otherItem => {
+                    //     if (otherItem !== item) {
+                    //         otherItem.classList.remove('active');
+                    //     }
+                    // });
+                    item.classList.toggle('active');
+                });
+            });
+        })();
+
+    </script>
+</body>
+</html>

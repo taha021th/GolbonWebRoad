@@ -1,4 +1,5 @@
-﻿using GolbonWebRoad.Api.CacheRevalidations;
+﻿using GolbonWebRoad.Api;
+using GolbonWebRoad.Api.CacheRevalidations;
 using GolbonWebRoad.Application;
 using GolbonWebRoad.Application.Exceptions;
 using GolbonWebRoad.Infrastructure;
@@ -13,11 +14,37 @@ using System.Text.Json;
 
 
 
+//Log.Logger = new LoggerConfiguration()
+//    // حداقل سطح لاگ را مشخص کنید. برای محیط پروداکشن معمولا Information است
+//    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning) // لاگ‌های داخلی دات‌نت را کمتر کنید
+//    .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
+//    .Enrich.FromLogContext() // اطلاعات زمینه‌ای را به لاگ‌ها اضافه می‌کند
+//    .Enrich.WithMachineName()
+//    .Enrich.WithProcessId()
+//    .Enrich.WithThreadId()
+//    .Enrich.WithProperty("ApplicationName", "OnlineShop.API") // یک نام برای اپلیکیشن خود بگذارید
+//    .WriteTo.Console() // برای محیط توسعه
+//    .WriteTo.Seq("http://localhost:5340") // آدرس سرور Seq (پورت دریافت لاگ)
+//    .CreateBootstrapLogger(); // استفاده از BootstrapLogger برای لاگ‌گیری در زمان راه‌اندازی
+
+
+//Log.Information("Starting web host for OnlineShop");
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.UseCustomSerilog();
+
+//builder.Host.UseSerilog((context, services, configuration) => configuration
+////.ReadFrom.Configuration(context.Configuration)
+//.ReadFrom.Services(services)
+//.Enrich.FromLogContext()
+//);
+
 builder.Services.AddControllers();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
+
+
 
 
 builder.Services.AddProblemDetails(options =>
@@ -50,10 +77,7 @@ builder.Services.AddProblemDetails(options =>
     options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
 });
 
-builder.Host.UseSerilog((context, config) =>
-{
-    config.ReadFrom.Configuration(context.Configuration);
-});
+
 
 builder.Services.AddSingleton<CacheRevalidation>();
 
@@ -153,8 +177,9 @@ builder.Services.AddMemoryCache();
 #endregion
 
 var app = builder.Build();
-app.UseProblemDetails();
+app.UseSerilogRequestLogging();
 
+app.UseProblemDetails();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
