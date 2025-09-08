@@ -1,13 +1,17 @@
 ﻿using AutoMapper;
+using GolbonWebRoad.Application.Dtos.Brands;
 using GolbonWebRoad.Application.Dtos.Categories;
+using GolbonWebRoad.Application.Features.Brands.Queries;
 using GolbonWebRoad.Application.Features.Categories.Queries;
 using GolbonWebRoad.Application.Features.Products.Commands;
 using GolbonWebRoad.Application.Features.Products.Queries;
 using GolbonWebRoad.Application.Interfaces.Services;
+using GolbonWebRoad.Domain.Interfaces;
 using GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GolbonWebRoad.Web.Areas.Admin.Controllers
 {
@@ -19,49 +23,41 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         private readonly IMediator _mediator;
         private readonly IFileStorageService _fileStorageService;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProductsController(IMediator mediator, IFileStorageService fileStorageService, IMapper mapper)
+        public ProductsController(IMediator mediator, IFileStorageService fileStorageService, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mediator = mediator;
             _fileStorageService = fileStorageService;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
         public async Task<IActionResult> Index()
         {
-            var products = await _mediator.Send(new GetProductsQuery());
-            return View(products);
+            var productsDto = await _mediator.Send(new GetProductsForAdminQuery());
+            var productViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(productsDto);
+            return View(productViewModels);
         }
         public async Task<IActionResult> Create()
         {
-            var categories = await _mediator.Send(new GetCategoriesQuery());
-            var viewModel = new CreateProductViewModel
-            {
-
-                Categories=_mapper.Map<IEnumerable<CategorySummaryDto>>(categories)
-            };
+            var viewModel = new CreateProductViewModel();
+            await PopulateDropdowns(viewModel);
             return View(viewModel);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateProductViewModel model)
+        public async Task<IActionResult> Create(CreateProductViewModel viewModel)
         {
+
             if (!ModelState.IsValid)
             {
-                var categories = await _mediator.Send(new GetCategoriesQuery());
-                model.Categories = _mapper.Map<IEnumerable<CategorySummaryDto>>(categories);
-                return View(model);
+                await PopulateDropdowns(viewModel);
+                return View(viewModel);
             }
-
-            var command = _mapper.Map<CreateProductCommand>(model);
-            if (model.ImageFile != null)
-            {
-                // استفاده از سرویس برای ذخیره فایل
-                command.ImageUrl = await _fileStorageService.SaveFileAsync(model.ImageFile, "images/products");
-            }
+            var command = _mapper.Map<CreateProductCommand>(viewModel);
             await _mediator.Send(command);
+            TempData["SuccessMessage"]="محصول با موفقیت ایجاد شد.";
             return RedirectToAction(nameof(Index));
-
-
         }
 
         [HttpGet]
@@ -131,6 +127,15 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
 
             await _mediator.Send(new DeleteProductCommand { Id = id });
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task PopulateDropdowns(dynamic viewModel)
+        {
+            var categories = await _mediator.Send(new GetCategoriesQuery());
+            var brands = await _mediator.Send(new GetBrandsQuery());
+
+            viewModel.CategoryOptions = new SelectList(_mapper.Map<IEnumerable<CategorySummaryDto>>(categories), "Id", "Name", viewModel.CategoryId);
+            viewModel.BrandOptions = new SelectList(_mapper.Map<IEnumerable<BrandDto>>(brands), "Id", "Name", viewModel.BrandId);
         }
 
 

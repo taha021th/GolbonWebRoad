@@ -1,22 +1,32 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using GolbonWebRoad.Application.Dtos.Colors;
 using GolbonWebRoad.Application.Dtos.Products;
+using GolbonWebRoad.Application.Interfaces.Services;
 using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
 
 namespace GolbonWebRoad.Application.Features.Products.Commands
 {
     public class CreateProductCommand : IRequest<ProductDto>
     {
-        public string Slog { get; set; }
+        public string? Slog { get; set; }
         public string Name { get; set; }
+        public string ShortDescription { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
-        public string ImageUrl { get; set; }
+        public decimal? OldPrice { get; set; }
         public int Quantity { get; set; }
+        public string? SKU { get; set; }
+        public bool IsFeatured { get; set; }
+
         public int CategoryId { get; set; }
+        public int? BrandId { get; set; }
+        public List<ColorInputDto> Colors { get; set; } = new();
+        public List<IFormFile> Images { get; set; } = new();
     }
 
     public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
@@ -28,6 +38,10 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
                 .MaximumLength(100).WithMessage("نام محصول نمی تواند بیشتر از 100 کاراکتر باشد.");
             RuleFor(p => p.Price)
                 .GreaterThan(0).WithMessage("قیمت محصول باید بیشتر از صفر باشد.");
+            RuleFor(p => p.CategoryId)
+                .GreaterThan(0).WithMessage("انتخاب دسته‌بندی الزامی است.");
+            RuleFor(p => p.BrandId)
+                .GreaterThan(0).WithMessage("انتخاب برند الزامی است.");
         }
     }
 
@@ -35,42 +49,85 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IFileStorageService _fileStorageService;
         private readonly ILogger<CreateProductCommandHandler> _logger; // ۲. ILogger را تعریف کنید
 
         // ۳. ILogger را از طریق سازنده تزریق کنید
-        public CreateProductCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CreateProductCommandHandler> logger)
+        public CreateProductCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CreateProductCommandHandler> logger, IFileStorageService fileStorageService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
+            _fileStorageService=fileStorageService;
         }
 
         public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-            // لاگ اطلاعاتی: ثبت شروع عملیات با پارامترهای کلیدی
-            _logger.LogInformation("شروع فرآیند ایجاد محصول جدید با نام '{ProductName}' در دسته‌بندی {CategoryId}.",
-                request.Name, request.CategoryId);
 
-            try
+
+            _logger.LogInformation("شروع فرآیند ایجاد محصول جدید با نام '{ProductName}'.", request.Name);
+
+            //try
+            //{
+            var product = _mapper.Map<Product>(request);
+
+            // 1. آپلود تصاویر
+            if (request.Images != null && request.Images.Any())
             {
-                var product = _mapper.Map<Product>(request);
-
-                // ۴. استفاده از متد آسنکرون برای عملیات دیتابیس
-                var newProduct = _unitOfWork.ProductRepository.Add(product);
-                await _unitOfWork.CompleteAsync();
-
-                // لاگ اطلاعاتی: ثبت نتیجه موفقیت‌آمیز عملیات
-                _logger.LogInformation("محصول '{ProductName}' با شناسه {ProductId} با موفقیت در دیتابیس ایجاد شد.",
-                    newProduct.Name, newProduct.Id);
-
-                return _mapper.Map<ProductDto>(newProduct);
+                _logger.LogInformation("در حال آپلود {ImageCount} تصویر برای محصول '{ProductName}'.", request.Images.Count, request.Name);
+                bool isFirstImage = true;
+                foreach (var imageFile in request.Images)
+                {
+                    var imageUrl = await _fileStorageService.SaveFileAsync(imageFile, "products");
+                    product.Images.Add(new ProductImages
+                    {
+                        ImageUrl = imageUrl,
+                        IsMainImage = isFirstImage
+                    });
+                    isFirstImage = false;
+                }
             }
-            catch (Exception ex)
+
+
+            // 2. پردازش رنگ‌ها (Find or Create)
+            if (request.Colors != null && request.Colors.Any())
             {
-                // لاگ بحرانی: ثبت خطاهای پیش‌بینی نشده
-                _logger.LogCritical(ex, "خطای بحرانی در هنگام ایجاد محصول با نام '{ProductName}'.", request.Name);
-                throw; // Exception را دوباره پرتاب کن تا Middleware آن را به 500 تبدیل کند
+                foreach (var colorInput in request.Colors)
+                {
+                    if (string.IsNullOrWhiteSpace(colorInput.Name)) continue;
+
+                    var trimmedColorName = colorInput.Name.Trim();
+                    var existingColor = await _unitOfWork.ColorRepository.FindByNameAsync(trimmedColorName);
+
+                    if (existingColor == null)
+                    {
+                        _logger.LogInformation("رنگ جدید '{ColorName}' با کد '{HexCode}' در حال ایجاد است.", trimmedColorName, colorInput.HexCode);
+                        existingColor = new Color { Name = trimmedColorName, HexCode = colorInput.HexCode.Trim() };
+                        await _unitOfWork.ColorRepository.AddAsync(existingColor);
+                        await _unitOfWork.CompleteAsync();
+
+                    }
+
+                    product.ProductColors.Add(new ProductColor { ColorId = existingColor.Id });
+                }
             }
+
+
+            _unitOfWork.ProductRepository.Add(product);
+            await _unitOfWork.CompleteAsync();
+
+            _logger.LogInformation("محصول '{ProductName}' با شناسه {ProductId} با موفقیت ایجاد شد.", product.Name, product.Id);
+
+
+            var createdProduct = await _unitOfWork.ProductRepository.GetByIdAsync(product.Id, joinImages: true, joinCategory: true, joinBrands: true);
+            return _mapper.Map<ProductDto>(createdProduct);
+            //}
+            //catch (Exception ex)
+            //{
+
+            //    _logger.LogCritical(ex, "خطای بحرانی در هنگام ایجاد محصول با نام '{ProductName}'.", request.Name);
+            //    throw; // Exception را دوباره پرتاب کن تا Middleware آن را به 500 تبدیل کند
+            //}
         }
     }
 }

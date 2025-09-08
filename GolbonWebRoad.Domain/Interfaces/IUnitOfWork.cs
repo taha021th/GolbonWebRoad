@@ -8,6 +8,8 @@ namespace GolbonWebRoad.Domain.Interfaces
         IProductRepository ProductRepository { get; }
         IOrderRepository OrderRepository { get; }
         ICategoryRepository CategoryRepository { get; }
+        IBrandRepository BrandRepository { get; }
+        IColorRepository ColorRepository { get; }
         Task<int> CompleteAsync();
     }
 }

@@ -1,5 +1,8 @@
-﻿namespace GolbonWebRoad.Domain.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GolbonWebRoad.Domain.Entities
 {
+    [Table("Brands")]
     public class Brand
     {
         public int Id { get; set; }

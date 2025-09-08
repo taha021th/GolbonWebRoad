@@ -16,15 +16,16 @@ namespace GolbonWebRoad.Web.Mapping
     {
         public MappingProfile()
         {
-            #region Category
+            #region Product
 
-            CreateMap<ProductViewModel, CreateProductCommand>();
+            //CreateMap<ProductViewModel, CreateProductCommand>();
             CreateMap<CreateProductViewModel, CreateProductCommand>();
             CreateMap<EditProductViewModel, UpdateProductCommand>();
             CreateMap<ProductDto, DeleteProductViewModel>();
             CreateMap<ProductDto, EditProductViewModel>();
             CreateMap<EditProductDto, UpdateProductCommand>();
             CreateMap<EditProductDto, EditProductViewModel>();
+            CreateMap<ProductAdminSummaryDto, ProductViewModel>();
             #endregion
 
 

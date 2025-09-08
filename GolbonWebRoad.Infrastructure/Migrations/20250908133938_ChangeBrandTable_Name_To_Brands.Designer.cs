@@ -3,6 +3,7 @@ using System;
 using GolbonWebRoad.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GolbonWebRoad.Infrastructure.Migrations
 {
     [DbContext(typeof(GolbonWebRoadDbContext))]
-    partial class GolbonWebRoadDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250908133938_ChangeBrandTable_Name_To_Brands")]
+    partial class ChangeBrandTable_Name_To_Brands
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,7 +39,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Brands", (string)null);
+                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.CartItem", b =>
@@ -63,7 +66,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CartItems", (string)null);
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Category", b =>
@@ -93,7 +96,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                     b.HasIndex("Slog")
                         .IsUnique();
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Color", b =>
@@ -114,7 +117,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Colors", (string)null);
+                    b.ToTable("Colors");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Log", b =>
@@ -145,7 +148,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Logs", (string)null);
+                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Order", b =>
@@ -174,7 +177,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.OrderItem", b =>
@@ -203,7 +206,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Product", b =>
@@ -265,7 +268,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                     b.HasIndex("Slog")
                         .IsUnique();
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.ProductColor", b =>
@@ -280,7 +283,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("ColorId");
 
-                    b.ToTable("ProductColor", (string)null);
+                    b.ToTable("ProductColor");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.ProductImages", b =>
@@ -305,7 +308,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages", (string)null);
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Reviews", b =>
@@ -339,7 +342,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

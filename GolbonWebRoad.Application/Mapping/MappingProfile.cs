@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GolbonWebRoad.Application.Dtos.Brands;
 using GolbonWebRoad.Application.Dtos.CartItems;
 using GolbonWebRoad.Application.Dtos.Categories;
 using GolbonWebRoad.Application.Dtos.Logs;
@@ -68,6 +69,10 @@ namespace GolbonWebRoad.Application.Mapping
             CreateMap<UpdateCategoryCommand, Category>();
             #endregion
 
+            #region Brands
+            CreateMap<Brand, BrandDto>();
+            #endregion
+
 
             #region Products
             // --- نگاشت‌های مربوط به محصولات ---
@@ -78,11 +83,15 @@ namespace GolbonWebRoad.Application.Mapping
             CreateMap<Product, ProductDto>().ReverseMap();
             //برای تبدیل پروداکت به ProductSummaryDto در CategoryDto
             CreateMap<Product, ProductSummaryDto>();
+            CreateMap<Product, ProductAdminSummaryDto>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : "N/A"))
+                .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : "N/A"))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Images.FirstOrDefault(i => i.IsMainImage).ImageUrl));
 
             // از DTO ورودی کنترلر به کامند داخلی اپلیکیشن، با نادیده گرفتن فایل
             // استفاده: در اکشن Create در ProductsController
             CreateMap<CreateProductRequestDto, CreateProductCommand>()
-                .ForMember(des => des.ImageUrl, opt => opt.Ignore());
+                .ForMember(des => des.Images, opt => opt.Ignore());
 
             // از DTO ورودی کنترلر به کامند داخلی اپلیکیشن، با نادیده گرفتن فایل
             // استفاده: در اکشن Update در ProductsController
@@ -91,7 +100,15 @@ namespace GolbonWebRoad.Application.Mapping
 
 
 
-            CreateMap<CreateProductCommand, Product>();
+            CreateMap<CreateProductCommand, Product>()
+                .ForMember(dest => dest.Images, opt => opt.Ignore());
+
+            //CreateMap<Product, ProductDto>()
+            //    .ForMember(dest => dest.ImageUrl,
+            //               opt => opt.MapFrom(src =>
+            //                   src.Images != null && src.Images.Any()
+            //                   ? src.Images.FirstOrDefault(i => i.IsMainImage)?.ImageUrl
+            //                   : null));
             CreateMap<UpdateProductCommand, Product>();
             #endregion
 

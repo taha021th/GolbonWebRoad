@@ -6,6 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GolbonWebRoad.Infrastructure.Repositories
 {
+    //public class JoinProp
+    //{
+    //    public bool Category { get; set; }
+    //    public bool Reviews { get; set; }
+    //    public bool Images { get; set; }
+    //}
+
     public class ProductRepository : IProductRepository
     {
         private readonly GolbonWebRoadDbContext _context;
@@ -13,7 +20,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         {
             _context = context;
         }
-        public async Task<ICollection<Product>> GetAllAsync(string? searchTerm = null, int? categoryId = null, string? sortOrder = null, bool? joinCategory = false)
+        public async Task<ICollection<Product>> GetAllAsync(string? searchTerm = null, int? categoryId = null, string? sortOrder = null, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrands = false)
         {
             var query = _context.Products.AsQueryable();
             if (!string.IsNullOrEmpty(searchTerm))
@@ -33,18 +40,31 @@ namespace GolbonWebRoad.Infrastructure.Repositories
                 };
 
             if (joinCategory==true)
-                return await query.Include(c => c.Category).ToListAsync();
+                query= query.Include(c => c.Category);
+
+            if (joinReviews==true)
+                query=query.Include(r => r.Reviews);
+            if (joinImages==true)
+                query=query.Include(i => i.Images);
+
+            if (joinBrands==true)
+                query=query.Include(b => b.Brand);
+
 
             return await query.ToListAsync();
         }
-        public async Task<Product?> GetByIdAsync(int id, bool? joinCategory = false)
+        public async Task<Product?> GetByIdAsync(int id, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrands = false)
         {
             var query = _context.Products.AsQueryable();
 
             if (joinCategory==true)
-            {
                 query= query.Include(c => c.Category);
-            }
+            if (joinReviews==true)
+                query=query.Include(r => r.Reviews);
+            if (joinImages==true)
+                query=query.Include(i => i.Images);
+            if (joinBrands==true)
+                query=query.Include(b => b.Brand);
 
             return await query.FirstOrDefaultAsync(p => p.Id==id);
         }

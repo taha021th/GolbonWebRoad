@@ -9,9 +9,10 @@ namespace GolbonWebRoad.Domain.Entities
     {
         public Product()
         {
-            Category = new Category();
-            Reviews=new List<Reviews>();
-            Images=new List<ProductImages>();
+
+            Reviews=new HashSet<Reviews>();
+            Images=new HashSet<ProductImages>();
+            ProductColors=new HashSet<ProductColor>();
         }
         public int Id { get; set; }
         public string? Slog { get; set; }
@@ -24,13 +25,15 @@ namespace GolbonWebRoad.Domain.Entities
         //کد شناسایی محصول مثلا CH-WD-001
         public string? SKU { get; set; }
         public bool IsFeatured { get; set; }
+
         public int CategoryId { get; set; }
+        public int? BrandId { get; set; }
+
         public Category Category { get; set; }
         public ICollection<Reviews> Reviews { get; set; }
         public ICollection<ProductImages> Images { get; set; }
-        public virtual ICollection<Color> Colors { get; set; }
-        public virtual ICollection<ProductColor> ProductColor { get; set; }
-        public int? BrandId { get; set; }
+        public virtual ICollection<ProductColor> ProductColors { get; set; }
+
         [ForeignKey(nameof(BrandId))]
         public virtual Brand Brand { get; set; }
         public string? ImageUrl { get; set; }

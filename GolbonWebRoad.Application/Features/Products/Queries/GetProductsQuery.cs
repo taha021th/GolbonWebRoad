@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using GolbonWebRoad.Application.Dtos.Products;
-using GolbonWebRoad.Application.Interfaces;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
@@ -14,6 +13,8 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
         public int? CategoryId { get; set; }
         public string? SortOrder { get; set; }
         public bool? JoinCategory { get; set; }
+        public bool? JoinReviews { get; set; }
+        public bool? JoinImages { get; set; }
     }
 
     public class GetProductsQueryValidator : AbstractValidator<GetProductsQuery>
@@ -48,7 +49,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
 
             try
             {
-                var products = await _unitOfWork.ProductRepository.GetAllAsync(request.SearchTerm, request.CategoryId, request.SortOrder, request.JoinCategory);
+                var products = await _unitOfWork.ProductRepository.GetAllAsync(request.SearchTerm, request.CategoryId, request.SortOrder, request.JoinCategory, request.JoinReviews, request.JoinImages);
 
                 if (products == null || !products.Any())
                 {

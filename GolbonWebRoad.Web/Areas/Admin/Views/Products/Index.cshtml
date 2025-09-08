@@ -1,47 +1,73 @@
-﻿@using GolbonWebRoad.Application.Dtos.Products;
-
-@model IEnumerable<ProductDto>
+﻿@model IEnumerable<GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels.ProductViewModel>
 @{
     ViewData["Title"] = "مدیریت محصولات";
 }
 
-<div class="bg-white p-6 rounded-xl shadow-md">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">لیست محصولات</h2>
-        
-        <a asp-action="Create" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-500 transition">
-            + افزودن محصول جدید
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> افزودن محصول جدید
         </a>
     </div>
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm text-right">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="p-3">شناسه</th>
-                    <th class="p-3">نام محصول</th>
-                    <th class="p-3">قیمت</th>
-                    <th class="p-3">موجودی</th>
-                    <th class="p-3"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var product in Model)
-                {
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-3 font-mono">@product.Id</td>
-                        <td class="p-3 font-semibold">@product.Slog</td>
-                        <td class="p-3 font-semibold">@product.Name</td>
-                        <td class="p-3">@product.Price.ToString("N0") تومان</td>
-                        <td class="p-3">100</td>
-                        <td class="p-3 flex gap-2">
-                            <a asp-action="Edit" asp-route-id="@product.Id" class="text-blue-600 hover:underline">ویرایش</a>
-
-                            <a asp-action="Delete" asp-route-id="@product.Id" class="text-red-600 hover:underline">حذف</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <!-- Data Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">لیست محصولات</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>تصویر</th>
+                            <th>نام محصول</th>
+                            <th>دسته‌بندی</th>
+                            <th>برند</th>
+                            <th>قیمت</th>
+                            <th>موجودی</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://placehold.co/60x60/EFEFEF/AAAAAA&text=No+Image" : item.ImageUrl)"
+                                             alt="@item.Name"
+                                             style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;" />
+                                    </td>
+                                    <td>@item.Name</td>
+                                    <td>@item.CategoryName</td>
+                                    <td>@item.BrandName</td>
+                                    <td>@item.Price.ToString("N0") تومان</td>
+                                    <td>@item.Quantity عدد</td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-circle btn-sm" title="ویرایش">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-circle btn-sm" title="حذف">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center">هیچ محصولی برای نمایش وجود ندارد.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>

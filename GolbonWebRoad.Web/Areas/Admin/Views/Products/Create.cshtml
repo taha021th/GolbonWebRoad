@@ -1,63 +1,205 @@
-﻿@using GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
-@model CreateProductViewModel
+﻿@model GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels.CreateProductViewModel
 @{
     ViewData["Title"] = "افزودن محصول جدید";
 }
 
-<div class="bg-white p-6 rounded-xl shadow-md">
-    <h2 class="text-2xl font-bold mb-6 border-b pb-4">فرم محصول جدید</h2>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@simonwep/pickr/dist/themes/monolith.min.css" />
 
-    <form asp-action="Create" method="post" enctype="multipart/form-data">
-        <div asp-validation-summary="ModelOnly" class="text-red-500 mb-4"></div>
+<div class="container-fluid">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-                <label asp-for="Name" class="block font-semibold text-gray-700 mb-2">نام محصول</label>
-                <input asp-for="Name" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 outline-none transition" />
-                <span asp-validation-for="Name" class="text-red-500 text-sm mt-1"></span>
-            </div>
-            <div class="md:col-span-2">
-                <label asp-for="Slog" class="block font-semibold text-gray-700 mb-2">Slog</label>
-                <input asp-for="Slog" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 outline-none transition" />
-                <span asp-validation-for="Slog" class="text-red-500 text-sm mt-1"></span>
-            </div>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+    </div>
 
-            <div>
-                <label asp-for="Price" class="block font-semibold text-gray-700 mb-2">قیمت</label>
-                <input asp-for="Price" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 outline-none transition" />
-                <span asp-validation-for="Price" class="text-red-500 text-sm mt-1"></span>
-            </div>
-
-            <div>
-                <label asp-for="Categories" class="block font-semibold text-gray-700 mb-2">دسته‌بندی</label>
-                <select asp-for="CategoryId" asp-items="@(new SelectList(Model.Categories, "Id", "Name"))" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 outline-none transition">
-                    <option value="">یک دسته‌بندی انتخاب کنید</option>
-                </select>
-                <span asp-validation-for="CategoryId" class="text-red-500 text-sm mt-1"></span>
-            </div>
-
-            <div class="md:col-span-2">
-                <label asp-for="Description" class="block font-semibold text-gray-700 mb-2">توضیحات</label>
-                <textarea asp-for="Description" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 outline-none transition"></textarea>
-                <span asp-validation-for="Description" class="text-red-500 text-sm mt-1"></span>
-            </div>
-
-            <div class="md:col-span-2">
-                <label asp-for="ImageFile" class="block font-semibold text-gray-700 mb-2">تصویر محصول</label>
-                <input asp-for="ImageFile" type="file" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
-                <span asp-validation-for="ImageFile" class="text-red-500 text-sm mt-1"></span>
-            </div>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">اطلاعات محصول جدید</h6>
         </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-        <div class="mt-8 flex justify-end gap-4">
-            <a asp-action="Index" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition">انصراف</a>
-            <button type="submit" class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700 transition">ذخیره محصول</button>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Slog" class="control-label"></label>
+                            <input asp-for="Slog" class="form-control" />
+                            <span asp-validation-for="Slog" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="ShortDescription" class="control-label"></label>
+                            <textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Description" class="control-label"></label>
+                            <textarea asp-for="Description" id="descriptionEditor" class="form-control" rows="5"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Images" class="control-label"></label>
+                            <div class="custom-file">
+                                <input asp-for="Images" type="file" multiple class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">انتخاب تصاویر...</label>
+                            </div>
+                            <span asp-validation-for="Images" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Price" class="control-label"></label>
+                            <input asp-for="Price" class="form-control" type="number" step="any" />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="OldPrice" class="control-label"></label>
+                            <input asp-for="OldPrice" class="form-control" type="number" step="any" />
+                            <span asp-validation-for="OldPrice" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Quantity" class="control-label"></label>
+                            <input asp-for="Quantity" class="form-control" type="number" />
+                            <span asp-validation-for="Quantity" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="SKU" class="control-label"></label>
+                            <input asp-for="SKU" class="form-control" />
+                            <span asp-validation-for="SKU" class="text-danger"></span>
+                        </div>
+                        <div class="form-group form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" asp-for="IsFeatured" /> @Html.DisplayNameFor(model => model.IsFeatured)
+                            </label>
+                        </div>
+                        <hr />
+                        <div class="form-group">
+                            <label asp-for="CategoryId" class="control-label"></label>
+                            <select asp-for="CategoryId" class="form-control" asp-items="Model.CategoryOptions">
+                                <option value="">یک دسته‌بندی انتخاب کنید...</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="BrandId" class="control-label"></label>
+                            <select asp-for="BrandId" class="form-control" asp-items="Model.BrandOptions">
+                                <option value="">یک برند انتخاب کنید...</option>
+                            </select>
+                            <span asp-validation-for="BrandId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">@Html.DisplayNameFor(model => model.Colors)</label>
+                            <div id="colors-container">
+                            </div>
+                            <button type="button" id="add-color-btn" class="btn btn-sm btn-outline-secondary mt-2">
+                                <i class="fas fa-plus"></i> افزودن رنگ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <input type="submit" value="ایجاد محصول" class="btn btn-success" />
+                    <a asp-action="Index" class="btn btn-secondary">بازگشت به لیست</a>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script src="https://cdn.jsdelivr.net/npm/@@simonwep/pickr/dist/pickr.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const container = document.getElementById('colors-container');
+            const addButton = document.getElementById('add-color-btn');
+            let colorIndex = 0;
+
+            function createColorPicker(element, hiddenInput) {
+                const pickr = Pickr.create({
+                    el: element,
+                    theme: 'monolith', // تم مناسب برای حالت تیره
+                    default: '#42445a',
+                    swatches: [
+                        'rgba(244, 67, 54, 1)', 'rgba(233, 30, 99, 1)', 'rgba(156, 39, 176, 1)',
+                        'rgba(103, 58, 183, 1)', 'rgba(63, 81, 181, 1)', 'rgba(33, 150, 243, 1)',
+                        'rgba(3, 169, 244, 1)', 'rgba(0, 188, 212, 1)', 'rgba(0, 150, 136, 1)',
+                        'rgba(76, 175, 80, 1)', 'rgba(139, 195, 74, 1)', 'rgba(205, 220, 57, 1)',
+                        'rgba(255, 235, 59, 1)', 'rgba(255, 193, 7, 1)'
+                    ],
+                    components: {
+                        preview: true,
+                        opacity: true,
+                        hue: true,
+                        interaction: {
+                            hex: true,
+                            rgba: true,
+                            hsla: false,
+                            hsva: false,
+                            cmyk: false,
+                            input: true,
+                            clear: true,
+                            save: true
+                        }
+                    }
+                });
+
+                pickr.on('save', (color, instance) => {
+                    hiddenInput.value = color.toHEXA().toString();
+                    instance.hide();
+                });
+            }
+
+            function addColorRow() {
+                const newRow = document.createElement('div');
+                newRow.classList.add('input-group', 'mb-2');
+                newRow.innerHTML = `
+                            <input type="text" name="Colors[${colorIndex}].Name" class="form-control" placeholder="نام رنگ" required />
+                            <input type="hidden" name="Colors[${colorIndex}].HexCode" id="color-hex-${colorIndex}" value="#42445a" />
+                            <div class="input-group-append">
+                                <div class="color-picker-el" id="color-picker-${colorIndex}"></div>
+                                <button type="button" class="btn btn-danger remove-color-btn" style="border-radius: 0.25rem 0 0 0.25rem;">&times;</button>
+                            </div>
+                        `;
+                container.appendChild(newRow);
+
+                const colorPickerElement = document.getElementById(`color-picker-${colorIndex}`);
+                const hiddenHexInput = document.getElementById(`color-hex-${colorIndex}`);
+                createColorPicker(colorPickerElement, hiddenHexInput);
+
+                colorIndex++;
+            }
+
+            addButton.addEventListener('click', addColorRow);
+
+            container.addEventListener('click', function (e) {
+                if (e.target.classList.contains('remove-color-btn')) {
+                    e.target.closest('.input-group').remove();
+                }
+            });
+
+            // افزودن یک ردیف اولیه
+            addColorRow();
+
+            // برای نمایش نام فایل‌های انتخاب شده در input
+            $('.custom-file-input').on('change', function (e) {
+                var files = [];
+                for (var i = 0; i < $(this)[0].files.length; i++) {
+                    files.push($(this)[0].files[i].name);
+                }
+                $(this).next('.custom-file-label').html(files.join(', '));
+            });
+        });
+    </script>
 }
