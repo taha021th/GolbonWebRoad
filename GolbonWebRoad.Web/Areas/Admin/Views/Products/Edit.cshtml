@@ -1,73 +1,232 @@
-﻿@using GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
-@model EditProductViewModel
+﻿@model GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels.EditProductViewModel
 @{
-    ViewData["Title"] = "ویرایش محصول";
+    ViewData["Title"] = "ویرایش محصول: " + Model.Name;
 }
 
-<div class="bg-white p-6 rounded-xl shadow-md">
-    <h2 class="text-2xl font-bold mb-6 border-b pb-4">ویرایش محصول: @Model.Name</h2>
+<h1 class="text-2xl font-semibold text-gray-800 mb-4">@ViewData["Title"]</h1>
+<hr class="mb-6" />
 
-    <form asp-action="Edit" method="post" enctype="multipart/form-data">
-        <div asp-validation-summary="ModelOnly" class="text-red-500 mb-4"></div>
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="space-y-8">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-red-600 bg-red-100 p-3 rounded-md"></div>
 
-        <input type="hidden" asp-for="Id" />
-        <input type="hidden" asp-for="ExistingImageUrl" />
+    <input type="hidden" asp-for="Id" />
 
+    @* بخش اطلاعات اصلی محصول *@
+    <div class="p-6 border rounded-lg bg-white shadow-sm">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">اطلاعات اصلی</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-                <label asp-for="Name" class="block font-semibold text-gray-700 mb-2">نام محصول</label>
-                <input asp-for="Name" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 outline-none transition" />
-                <span asp-validation-for="Name" class="text-red-500 text-sm mt-1"></span>
-            </div>
-            <div class="md:col-span-2">
-                <label asp-for="Slog" class="block font-semibold text-gray-700 mb-2">Slog</label>
-                <input asp-for="Slog" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 outline-none transition" />
-                <span asp-validation-for="Slog" class="text-red-500 text-sm mt-1"></span>
+
+            <div>
+                <label asp-for="Name" class="block text-sm font-medium text-gray-700"></label>
+                <input asp-for="Name" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+                <span asp-validation-for="Name" class="text-red-500 text-xs mt-1"></span>
             </div>
 
             <div>
-                <label asp-for="Price" class="block font-semibold text-gray-700 mb-2">قیمت</label>
-                <input asp-for="Price" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 outline-none transition" />
-                <span asp-validation-for="Price" class="text-red-500 text-sm mt-1"></span>
+                <label asp-for="Slog" class="block text-sm font-medium text-gray-700"></label>
+                <input asp-for="Slog" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+                <span asp-validation-for="Slog" class="text-red-500 text-xs mt-1"></span>
+            </div>
+
+            <div class="md:col-span-2">
+                <label asp-for="ShortDescription" class="block text-sm font-medium text-gray-700"></label>
+                <textarea asp-for="ShortDescription" rows="3" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                <span asp-validation-for="ShortDescription" class="text-red-500 text-xs mt-1"></span>
+            </div>
+
+            <div class="md:col-span-2">
+                <label asp-for="Description" class="block text-sm font-medium text-gray-700"></label>
+                <textarea asp-for="Description" id="editor" rows="6" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                <span asp-validation-for="Description" class="text-red-500 text-xs mt-1"></span>
             </div>
 
             <div>
-                <label asp-for="CategoryId" class="block font-semibold text-gray-700 mb-2">دسته‌بندی</label>
-                <select asp-for="CategoryId" asp-items="@(new SelectList(Model.Categories, "Id", "Name"))" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 outline-none transition">
+                <label asp-for="Price" class="block text-sm font-medium text-gray-700"></label>
+                <input type="number" step="0.01" asp-for="Price" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+                <span asp-validation-for="Price" class="text-red-500 text-xs mt-1"></span>
+            </div>
+
+            <div>
+                <label asp-for="OldPrice" class="block text-sm font-medium text-gray-700"></label>
+                <input type="number" step="0.01" asp-for="OldPrice" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+                <span asp-validation-for="OldPrice" class="text-red-500 text-xs mt-1"></span>
+            </div>
+
+            <div>
+                <label asp-for="Quantity" class="block text-sm font-medium text-gray-700"></label>
+                <input type="number" asp-for="Quantity" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+                <span asp-validation-for="Quantity" class="text-red-500 text-xs mt-1"></span>
+            </div>
+
+            <div>
+                <label asp-for="SKU" class="block text-sm font-medium text-gray-700"></label>
+                <input asp-for="SKU" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+                <span asp-validation-for="SKU" class="text-red-500 text-xs mt-1"></span>
+            </div>
+
+            <div>
+                <label asp-for="CategoryId" class="block text-sm font-medium text-gray-700"></label>
+                <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                     <option value="">یک دسته‌بندی انتخاب کنید</option>
                 </select>
-                <span asp-validation-for="CategoryId" class="text-red-500 text-sm mt-1"></span>
+                <span asp-validation-for="CategoryId" class="text-red-500 text-xs mt-1"></span>
             </div>
 
-            <div class="md:col-span-2">
-                <label asp-for="Description" class="block font-semibold text-gray-700 mb-2">توضیحات</label>
-                <textarea asp-for="Description" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 outline-none transition"></textarea>
-                <span asp-validation-for="Description" class="text-red-500 text-sm mt-1"></span>
+            <div>
+                <label asp-for="BrandId" class="block text-sm font-medium text-gray-700"></label>
+                <select asp-for="BrandId" asp-items="Model.BrandOptions" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                    <option value="">یک برند انتخاب کنید</option>
+                </select>
+                <span asp-validation-for="BrandId" class="text-red-500 text-xs mt-1"></span>
             </div>
 
-            <div class="md:col-span-2">
-                <label asp-for="ImageFile" class="block font-semibold text-gray-700 mb-2">تغییر تصویر محصول</label>
-                <input asp-for="ImageFile" type="file" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
-                <span asp-validation-for="ImageFile" class="text-red-500 text-sm mt-1"></span>
-                @if (!string.IsNullOrEmpty(Model.ExistingImageUrl))
+            <div class="md:col-span-2 flex items-center">
+                <input asp-for="IsFeatured" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
+                <label asp-for="IsFeatured" class="ml-2 block text-sm text-gray-900">محصول ویژه</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-6 border rounded-lg bg-white shadow-sm">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">مدیریت تصاویر</h3>
+        @if (Model.Images != null && Model.Images.Any())
+        {
+            <div class="mb-4">
+                <p class="text-sm font-medium text-gray-700 mb-2">تصاویر فعلی (برای حذف، روی تصویر کلیک کنید):</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
+                    @for (int i = 0; i < Model.Images.Count; i++)
+                    {
+                        <div class="relative group">
+                            <label class="cursor-pointer">
+                                <input type="checkbox" name="ImagesToDelete" value="@Model.Images[i].ImageUrl" class="hidden image-delete-checkbox" />
+                                <img src="@Model.Images[i].ImageUrl" alt="تصویر محصول" class="rounded-md object-cover h-28 w-full border-2 border-transparent transition-all duration-300" />
+                                <div class="absolute inset-0 bg-red-700 bg-opacity-70 flex items-center justify-center opacity-0 transition-opacity">
+                                    <span class="text-white text-lg font-bold">حذف</span>
+                                </div>
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        <div>
+            <label asp-for="NewImages" class="block text-sm font-medium text-gray-700"></label>
+            <input type="file" asp-for="NewImages" multiple class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+        </div>
+    </div>
+
+    <div class="p-6 border rounded-lg bg-white shadow-sm">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">مدیریت رنگ‌ها</h3>
+            <button type="button" id="add-color-btn" class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">افزودن رنگ</button>
+        </div>
+        <div id="color-container" class="space-y-4">
+            @if (Model.ProductColors != null)
+            {
+                @for (int i = 0; i < Model.ProductColors.Count; i++)
                 {
-                    <div class="mt-4">
-                        <p class="text-sm text-gray-600">تصویر فعلی:</p>
-                        <img src="@Model.ExistingImageUrl" alt="تصویر فعلی محصول" class="mt-2 w-32 h-32 object-cover rounded-md border" />
+                    <div class="color-row flex items-center gap-4 p-2 border rounded-md">
+                        <div class="flex-1">
+                            <label class="text-xs text-gray-600">نام رنگ</label>
+                            <input name="Colors[@i].Name" type="text" value="@Model.ProductColors[i].Color.Name" class="color-name-input w-full text-sm border-gray-300 rounded-md" />
+                        </div>
+                        <div class="flex-1">
+                            <label class="text-xs text-gray-600">کد رنگ</label>
+                            <div class="flex items-center gap-2">
+                                <input type="color" value="@Model.ProductColors[i].Color.HexCode" class="color-picker-input p-1 h-10 w-10 block bg-white border border-gray-300 rounded-md cursor-pointer" />
+                                <input name="Colors[@i].HexCode" type="text" value="@Model.ProductColors[i].Color.HexCode" class="color-hex-input w-full text-sm border-gray-300 rounded-md" />
+                            </div>
+                        </div>
+                        <button type="button" class="remove-color-btn p-2 text-red-500 hover:bg-red-100 rounded-full">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
                     </div>
                 }
-            </div>
+            }
         </div>
+    </div>
 
-        <div class="mt-8 flex justify-end gap-4">
-            <a asp-action="Index" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition">انصراف</a>
-            <button type="submit" class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700 transition">ذخیره تغییرات</button>
-        </div>
-    </form>
-</div>
+    <div class="flex justify-end pt-6 border-t">
+        <a asp-action="Index" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-md mr-4 hover:bg-gray-300">انصراف</a>
+        <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">ذخیره تغییرات</button>
+    </div>
+</form>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
+    <style>
+        .image-delete-checkbox:checked ~ img {
+            opacity: 0.4;
+            border-color: #ef4444; /* red-500 */
+        }
+
+        .image-delete-checkbox:checked ~ div {
+            opacity: 1 !important;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const colorContainer = document.getElementById('color-container');
+
+            // تابع برای بازسازی ایندکس‌ها تا ModelBinder به درستی کار کند
+            function reindexColorRows() {
+                const rows = colorContainer.querySelectorAll('.color-row');
+                rows.forEach((row, index) => {
+                    row.querySelector('.color-name-input').name = `Colors[${index}].Name`;
+                    row.querySelector('.color-hex-input').name = `Colors[${index}].HexCode`;
+                });
+            }
+
+            // افزودن ردیف جدید رنگ
+            document.getElementById('add-color-btn').addEventListener('click', function () {
+                const newIndex = colorContainer.querySelectorAll('.color-row').length;
+
+                const newRowHtml = `
+                            <div class="color-row flex items-center gap-4 p-2 border rounded-md">
+                                <div class="flex-1">
+                                    <label class="text-xs text-gray-600">نام رنگ</label>
+                                    <input name="Colors[${newIndex}].Name" type="text" placeholder="مثلا: آبی" class="color-name-input w-full text-sm border-gray-300 rounded-md" />
+                                </div>
+                                <div class="flex-1">
+                                    <label class="text-xs text-gray-600">کد رنگ</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="color" value="#0000ff" class="color-picker-input p-1 h-10 w-10 block bg-white border border-gray-300 rounded-md cursor-pointer" />
+                                        <input name="Colors[${newIndex}].HexCode" type="text" value="#0000ff" class="color-hex-input w-full text-sm border-gray-300 rounded-md" />
+                                    </div>
+                                </div>
+                                <button type="button" class="remove-color-btn p-2 text-red-500 hover:bg-red-100 rounded-full">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>`;
+                colorContainer.insertAdjacentHTML('beforeend', newRowHtml);
+            });
+
+            // مدیریت رویدادها با Event Delegation برای کل container
+            colorContainer.addEventListener('click', function (e) {
+                // اگر روی دکمه حذف کلیک شد
+                const removeButton = e.target.closest('.remove-color-btn');
+                if (removeButton) {
+                    removeButton.closest('.color-row').remove();
+                    reindexColorRows(); // <<< مهم: بازسازی ایندکس‌ها بعد از حذف
+                }
+            });
+
+            colorContainer.addEventListener('input', function (e) {
+                const row = e.target.closest('.color-row');
+                if (!row) return;
+
+                // همگام‌سازی color picker و input متنی
+                const colorPicker = row.querySelector('.color-picker-input');
+                const hexInput = row.querySelector('.color-hex-input');
+
+                if (e.target === colorPicker) {
+                    hexInput.value = e.target.value;
+                }
+                if (e.target === hexInput) {
+                    colorPicker.value = e.target.value;
+                }
+            });
+        });
+    </script>
 }

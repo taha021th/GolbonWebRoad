@@ -17,7 +17,7 @@ namespace GolbonWebRoad.Domain.Entities
         public int Id { get; set; }
         public string? Slog { get; set; }
         public string Name { get; set; }
-        public string ShrotDescription { get; set; }
+        public string ShortDescription { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
         public decimal? OldPrice { get; set; }

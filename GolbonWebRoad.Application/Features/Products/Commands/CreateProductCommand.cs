@@ -63,71 +63,56 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
 
         public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-
-
             _logger.LogInformation("شروع فرآیند ایجاد محصول جدید با نام '{ProductName}'.", request.Name);
 
-            //try
-            //{
-            var product = _mapper.Map<Product>(request);
-
-            // 1. آپلود تصاویر
-            if (request.Images != null && request.Images.Any())
+            try
             {
-                _logger.LogInformation("در حال آپلود {ImageCount} تصویر برای محصول '{ProductName}'.", request.Images.Count, request.Name);
-                bool isFirstImage = true;
-                foreach (var imageFile in request.Images)
+                var product = _mapper.Map<Product>(request);
+
+                if (request.Images != null && request.Images.Any())
                 {
-                    var imageUrl = await _fileStorageService.SaveFileAsync(imageFile, "products");
-                    product.Images.Add(new ProductImages
+                    _logger.LogInformation("در حال آپلود {ImageCount} تصویر.", request.Images.Count);
+                    bool isFirstImage = true;
+                    foreach (var imageFile in request.Images)
                     {
-                        ImageUrl = imageUrl,
-                        IsMainImage = isFirstImage
-                    });
-                    isFirstImage = false;
-                }
-            }
-
-
-            // 2. پردازش رنگ‌ها (Find or Create)
-            if (request.Colors != null && request.Colors.Any())
-            {
-                foreach (var colorInput in request.Colors)
-                {
-                    if (string.IsNullOrWhiteSpace(colorInput.Name)) continue;
-
-                    var trimmedColorName = colorInput.Name.Trim();
-                    var existingColor = await _unitOfWork.ColorRepository.FindByNameAsync(trimmedColorName);
-
-                    if (existingColor == null)
-                    {
-                        _logger.LogInformation("رنگ جدید '{ColorName}' با کد '{HexCode}' در حال ایجاد است.", trimmedColorName, colorInput.HexCode);
-                        existingColor = new Color { Name = trimmedColorName, HexCode = colorInput.HexCode.Trim() };
-                        await _unitOfWork.ColorRepository.AddAsync(existingColor);
-                        await _unitOfWork.CompleteAsync();
-
+                        var imageUrl = await _fileStorageService.SaveFileAsync(imageFile, "products");
+                        product.Images.Add(new ProductImages
+                        {
+                            ImageUrl = imageUrl,
+                            IsMainImage = isFirstImage
+                        });
+                        isFirstImage = false;
                     }
-
-                    product.ProductColors.Add(new ProductColor { ColorId = existingColor.Id });
                 }
+
+                if (request.Colors != null && request.Colors.Any())
+                {
+                    foreach (var colorInput in request.Colors.Where(c => !string.IsNullOrWhiteSpace(c.Name)))
+                    {
+                        var trimmedColorName = colorInput.Name.Trim();
+                        var existingColor = await _unitOfWork.ColorRepository.FindByNameAsync(trimmedColorName);
+
+                        if (existingColor == null)
+                        {
+                            existingColor = new Color { Name = trimmedColorName, HexCode = colorInput.HexCode?.Trim() };
+                            await _unitOfWork.ColorRepository.AddAsync(existingColor);
+                        }
+
+                        product.ProductColors.Add(new ProductColor { Color = existingColor });
+                    }
+                }
+                _unitOfWork.ProductRepository.Add(product);
+                await _unitOfWork.CompleteAsync();
+
+                _logger.LogInformation("محصول '{ProductName}' با شناسه {ProductId} با موفقیت ایجاد شد.", product.Name, product.Id);
+
+                return _mapper.Map<ProductDto>(product);
             }
-
-
-            _unitOfWork.ProductRepository.Add(product);
-            await _unitOfWork.CompleteAsync();
-
-            _logger.LogInformation("محصول '{ProductName}' با شناسه {ProductId} با موفقیت ایجاد شد.", product.Name, product.Id);
-
-
-            var createdProduct = await _unitOfWork.ProductRepository.GetByIdAsync(product.Id, joinImages: true, joinCategory: true, joinBrands: true);
-            return _mapper.Map<ProductDto>(createdProduct);
-            //}
-            //catch (Exception ex)
-            //{
-
-            //    _logger.LogCritical(ex, "خطای بحرانی در هنگام ایجاد محصول با نام '{ProductName}'.", request.Name);
-            //    throw; // Exception را دوباره پرتاب کن تا Middleware آن را به 500 تبدیل کند
-            //}
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "خطای بحرانی در هنگام ایجاد محصول با نام '{ProductName}'.", request.Name);
+                throw;
+            }
         }
     }
 }

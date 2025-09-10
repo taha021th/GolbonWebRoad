@@ -10,6 +10,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
         public bool? JoinCategory { get; set; }
         public bool? JoinReviews { get; set; }
         public bool? JoinImages { get; set; }
+        public bool? JoinBrand { get; set; }
     }
     public class GetProductsForAdminQueryHandler : IRequestHandler<GetProductsForAdminQuery, IEnumerable<ProductAdminSummaryDto>>
     {
@@ -22,7 +23,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
         }
         public async Task<IEnumerable<ProductAdminSummaryDto>> Handle(GetProductsForAdminQuery request, CancellationToken cancellationToken)
         {
-            var products = await _unitOfWork.ProductRepository.GetAllAsync(joinCategory: request.JoinCategory, joinImages: request.JoinImages, joinReviews: request.JoinReviews);
+            var products = await _unitOfWork.ProductRepository.GetAllAsync(joinCategory: request.JoinCategory, joinImages: request.JoinImages, joinReviews: request.JoinReviews, joinBrand: request.JoinBrand);
 
             return _mapper.Map<IEnumerable<ProductAdminSummaryDto>>(products);
         }

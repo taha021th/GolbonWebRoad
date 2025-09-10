@@ -2,8 +2,11 @@
 using GolbonWebRoad.Application.Dtos.Brands;
 using GolbonWebRoad.Application.Dtos.CartItems;
 using GolbonWebRoad.Application.Dtos.Categories;
+using GolbonWebRoad.Application.Dtos.Colors;
 using GolbonWebRoad.Application.Dtos.Logs;
 using GolbonWebRoad.Application.Dtos.Orders;
+using GolbonWebRoad.Application.Dtos.ProductColors;
+using GolbonWebRoad.Application.Dtos.ProductImages;
 using GolbonWebRoad.Application.Dtos.Products;
 using GolbonWebRoad.Application.Features.CartItems.Commands;
 using GolbonWebRoad.Application.Features.Categories.Commands;
@@ -93,15 +96,12 @@ namespace GolbonWebRoad.Application.Mapping
             CreateMap<CreateProductRequestDto, CreateProductCommand>()
                 .ForMember(des => des.Images, opt => opt.Ignore());
 
-            // از DTO ورودی کنترلر به کامند داخلی اپلیکیشن، با نادیده گرفتن فایل
-            // استفاده: در اکشن Update در ProductsController
-            CreateMap<UpdateProductRequestDto, UpdateProductCommand>()
-                .ForMember(des => des.ImageUrl, opt => opt.Ignore());
-
-
 
             CreateMap<CreateProductCommand, Product>()
                 .ForMember(dest => dest.Images, opt => opt.Ignore());
+
+
+
 
             //CreateMap<Product, ProductDto>()
             //    .ForMember(dest => dest.ImageUrl,
@@ -110,8 +110,19 @@ namespace GolbonWebRoad.Application.Mapping
             //                   ? src.Images.FirstOrDefault(i => i.IsMainImage)?.ImageUrl
             //                   : null));
             CreateMap<UpdateProductCommand, Product>();
+            CreateMap<ProductImages, ProductImageDto>();
+
+
             #endregion
 
+
+            #region ProductColor
+
+            CreateMap<ProductColor, ProductColorDto>();
+            #endregion
+            #region Color
+            CreateMap<Color, ColorDto>();
+            #endregion
 
             #region Orders
             // --- نگاشت‌های مربوط به سفارشات ---

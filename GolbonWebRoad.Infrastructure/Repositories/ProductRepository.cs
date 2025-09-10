@@ -20,7 +20,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         {
             _context = context;
         }
-        public async Task<ICollection<Product>> GetAllAsync(string? searchTerm = null, int? categoryId = null, string? sortOrder = null, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrands = false)
+        public async Task<ICollection<Product>> GetAllAsync(string? searchTerm = null, int? categoryId = null, string? sortOrder = null, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false, bool? joinColors = false)
         {
             var query = _context.Products.AsQueryable();
             if (!string.IsNullOrEmpty(searchTerm))
@@ -47,13 +47,15 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             if (joinImages==true)
                 query=query.Include(i => i.Images);
 
-            if (joinBrands==true)
+            if (joinBrand==true)
                 query=query.Include(b => b.Brand);
+            if (joinColors==true)
+                query=query.Include(c => c.ProductColors).ThenInclude(c => c.Color);
 
 
             return await query.ToListAsync();
         }
-        public async Task<Product?> GetByIdAsync(int id, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrands = false)
+        public async Task<Product?> GetByIdAsync(int id, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false, bool? joinColors = false)
         {
             var query = _context.Products.AsQueryable();
 
@@ -63,8 +65,10 @@ namespace GolbonWebRoad.Infrastructure.Repositories
                 query=query.Include(r => r.Reviews);
             if (joinImages==true)
                 query=query.Include(i => i.Images);
-            if (joinBrands==true)
+            if (joinBrand==true)
                 query=query.Include(b => b.Brand);
+            if (joinColors==true)
+                query=query.Include(c => c.ProductColors).ThenInclude(c => c.Color);
 
             return await query.FirstOrDefaultAsync(p => p.Id==id);
         }

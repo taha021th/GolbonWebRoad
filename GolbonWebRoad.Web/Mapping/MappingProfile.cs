@@ -21,11 +21,11 @@ namespace GolbonWebRoad.Web.Mapping
             //CreateMap<ProductViewModel, CreateProductCommand>();
             CreateMap<CreateProductViewModel, CreateProductCommand>();
             CreateMap<EditProductViewModel, UpdateProductCommand>();
-            CreateMap<ProductDto, DeleteProductViewModel>();
-            CreateMap<ProductDto, EditProductViewModel>();
             CreateMap<EditProductDto, UpdateProductCommand>();
             CreateMap<EditProductDto, EditProductViewModel>();
             CreateMap<ProductAdminSummaryDto, ProductViewModel>();
+            CreateMap<ProductDto, DeleteProductViewModel>();
+            CreateMap<ProductDto, EditProductViewModel>();
             #endregion
 
 

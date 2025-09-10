@@ -49,10 +49,10 @@
                                     <td>@item.Price.ToString("N0") تومان</td>
                                     <td>@item.Quantity عدد</td>
                                     <td>
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-circle btn-sm" title="ویرایش">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" style="color:red" class="btn btn-warning btn-circle btn-sm" title="ویرایش">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-circle btn-sm" title="حذف">
+                                        <a asp-action="Delete" asp-route-id="@item.Id" style="color:red" class="btn btn-danger btn-circle btn-sm" title="حذف">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>

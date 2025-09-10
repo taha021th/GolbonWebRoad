@@ -13,6 +13,8 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
         public bool? JoinCategory { get; set; }
         public bool? JoinReviews { get; set; }
         public bool? JoinImages { get; set; }
+        public bool? JoinBrand { get; set; }
+        public bool? JoinColors { get; set; }
     }
 
     public class GetProductByIdQueryValidator : AbstractValidator<GetProductByIdQuery>
@@ -44,7 +46,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
 
             try
             {
-                var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id, request.JoinCategory, request.JoinReviews, request.JoinImages);
+                var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id, joinCategory: request.JoinCategory, joinImages: request.JoinImages, joinBrand: request.JoinBrand, joinColors: request.JoinColors, joinReviews: request.JoinReviews);
 
                 if (product == null)
                 {
@@ -55,6 +57,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
 
                 // لاگ اطلاعاتی: ثبت نتیجه موفقیت‌آمیز
                 _logger.LogInformation("محصول با شناسه {ProductId} و نام '{ProductName}' با موفقیت یافت شد.", request.Id, product.Name);
+
 
                 return _mapper.Map<ProductDto>(product);
             }
