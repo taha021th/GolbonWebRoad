@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using GolbonWebRoad.Application.Dtos.Products;
+using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
 
 namespace GolbonWebRoad.Application.Features.Products.Queries
 {
-    public class GetProductByIdQuery : IRequest<ProductDto>
+    public class GetProductByIdQuery : IRequest<Product>
     {
         public int Id { get; set; }
         public bool? JoinCategory { get; set; }
@@ -25,7 +25,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
         }
     }
 
-    public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, ProductDto>
+    public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, Product>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -39,7 +39,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
             _logger = logger;
         }
 
-        public async Task<ProductDto> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Product> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
             // لاگ اطلاعاتی: ثبت شروع عملیات
             _logger.LogInformation("شروع فرآیند دریافت محصول با شناسه {ProductId}.", request.Id);
@@ -59,7 +59,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
                 _logger.LogInformation("محصول با شناسه {ProductId} و نام '{ProductName}' با موفقیت یافت شد.", request.Id, product.Name);
 
 
-                return _mapper.Map<ProductDto>(product);
+                return product;
             }
             catch (Exception ex)
             {

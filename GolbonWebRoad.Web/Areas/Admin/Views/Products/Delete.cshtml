@@ -1,40 +1,49 @@
-﻿@using GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
-@model DeleteProductViewModel
+﻿@model GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels.DeleteProductViewModel
 @{
-    ViewData["Title"] = "حذف محصول: " + Model.Name;
+    ViewData["Title"] = "حذف محصول";
 }
 
-<div class="bg-white p-6 rounded-xl shadow-md">
-    <h2 class="text-2xl font-bold text-red-600 mb-4">تأیید حذف محصول</h2>
-    <p class="text-gray-700 mb-6">آیا از حذف محصول زیر اطمینان دارید؟ این عملیات غیرقابل بازگشت است.</p>
+<h1 class="text-2xl font-semibold text-red-700 mb-4">@ViewData["Title"]</h1>
 
-    <div class="border rounded-lg p-4 mb-6">
-        <dl class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="font-semibold">شناسه محصول:</div>
-            <div class="sm:col-span-2 font-mono">@Model.Id</div>
-
-            <div class="font-semibold">نام محصول:</div>
-            <div class="sm:col-span-2">@Model.Name</div>
-
-            <div class="font-semibold">قیمت:</div>
-            <div class="sm:col-span-2">@Model.Price.ToString("N0") تومان</div>
-
-            @if (!string.IsNullOrEmpty(Model.ImageUrl))
-            {
-                <div class="font-semibold">تصویر:</div>
-                <div class="sm:col-span-2">
-                    <img src="@Model.ImageUrl" alt="تصویر محصول" class="w-24 h-24 object-cover rounded-md border" />
-                </div>
-            }
-        </dl>
-    </div>
-
-    <form asp-action="Delete" method="post">
-        <input type="hidden" asp-for="Id" />
-        <input type="hidden" name="imageUrl" value="@Model.ImageUrl" />
-        <div class="flex justify-end gap-4">
-            <a asp-action="Index" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition">انصراف</a>
-            <button type="submit" class="bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700 transition">بله، حذف کن</button>
-        </div>
-    </form>
+<div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-md shadow-md" role="alert">
+    <p class="font-bold text-lg">آیا از حذف این محصول اطمینان دارید؟</p>
+    <p class="mt-2">این عملیات غیرقابل بازگشت است و تمام اطلاعات مربوط به این محصول برای همیشه پاک خواهد شد.</p>
 </div>
+
+<div class="mt-8 p-6 border rounded-lg bg-white">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">اطلاعات محصول</h3>
+    <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+        <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">نام محصول</dt>
+            <dd class="mt-1 text-sm text-gray-900">@Model.Name</dd>
+        </div>
+        <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">دسته‌بندی</dt>
+            <dd class="mt-1 text-sm text-gray-900">@Model.CategoryName</dd>
+        </div>
+        <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">قیمت</dt>
+            <dd class="mt-1 text-sm text-gray-900">@Model.Price.ToString("N0") تومان</dd>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <div class="sm:col-span-2">
+                <dt class="text-sm font-medium text-gray-500">تصویر شاخص</dt>
+                <dd class="mt-2">
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="rounded-md object-cover h-40" />
+                </dd>
+            </div>
+        }
+    </dl>
+</div>
+
+<form asp-action="Delete" class="mt-6">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <div class="flex justify-end pt-6 border-t">
+        <a asp-action="Index" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-md mr-4 hover:bg-gray-300">انصراف</a>
+        <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            بله، حذف کن
+        </button>
+    </div>
+</form>

@@ -38,7 +38,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
 
         public string? SKU { get; set; }
 
-        public bool IsFeatured { get; set; } = false;
+        public bool IsFeatured { get; set; }
 
         [Display(Name = "دسته‌بندی")]
         [Required(ErrorMessage = "انتخاب {0} الزامی است.")]

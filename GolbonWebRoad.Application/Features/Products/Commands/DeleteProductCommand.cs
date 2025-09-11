@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using GolbonWebRoad.Application.Exceptions; // using برای NotFoundException
-using GolbonWebRoad.Application.Interfaces;
+using GolbonWebRoad.Application.Interfaces.Services;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
@@ -10,6 +10,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
     public class DeleteProductCommand : IRequest
     {
         public int Id { get; set; }
+
     }
 
     public class DeleteProductCommandValidator : AbstractValidator<DeleteProductCommand>
@@ -23,42 +24,55 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<DeleteProductCommandHandler> _logger; // ۲. ILogger را تعریف کنید
+        private readonly IFileStorageService _fileStorageService;
 
         // ۳. ILogger را از طریق سازنده تزریق کنید
-        public DeleteProductCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteProductCommandHandler> logger)
+        public DeleteProductCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteProductCommandHandler> logger, IFileStorageService fileStorageService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _fileStorageService=fileStorageService;
         }
 
         public async Task Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
-            // لاگ اطلاعاتی: ثبت شروع عملیات
-            _logger.LogInformation("شروع فرآیند حذف محصول با شناسه {ProductId}.", request.Id);
+            _logger.LogInformation("شروع فرآیند حذف محصول با شناسه {ProductId}", request.Id);
+
+            // ۱. محصول را به همراه لیست تصاویرش از دیتابیس بخوان
+            var productToDelete = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id, joinImages: true);
+
+            if (productToDelete == null)
+            {
+                throw new NotFoundException($"محصول با شناسه {request.Id} برای حذف یافت نشد.");
+            }
+
+            // ۲. لیست آدرس تصاویر را قبل از حذف، در یک متغیر ذخیره کن
+            var imagesToDelete = productToDelete.Images.Select(i => i.ImageUrl).ToList();
 
             try
             {
-                // ۴. ابتدا محصول را پیدا کنید تا از وجود آن مطمئن شوید
-                var productToDelete = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id);
-                if (productToDelete == null)
-                {
-                    // لاگ هشدار: ثبت یک نتیجه منفی قابل انتظار
-                    _logger.LogWarning("محصول با شناسه {ProductId} برای حذف یافت نشد.", request.Id);
-                    throw new NotFoundException($"محصولی با شناسه {request.Id} یافت نشد.");
-                }
+                // ۳. محصول را از ریپازیتوری حذف کن
+                await _unitOfWork.ProductRepository.DeleteAsync(productToDelete.Id);
 
-                await _unitOfWork.ProductRepository.DeleteAsync(request.Id);
+                // ۴. تغییرات را در دیتابیس ذخیره کن
                 await _unitOfWork.CompleteAsync();
 
-                // لاگ اطلاعاتی: ثبت نتیجه موفقیت‌آمیز عملیات
-                _logger.LogInformation("محصول با شناسه {ProductId} و نام '{ProductName}' با موفقیت حذف شد.",
-                    request.Id, productToDelete.Name);
+                _logger.LogInformation("محصول با شناسه {ProductId} از دیتابیس با موفقیت حذف شد.", request.Id);
+
+                // ۵. حالا که حذف از دیتابیس موفقیت‌آمیز بود، فایل‌های فیزیکی را پاک کن
+                foreach (var imageUrl in imagesToDelete)
+                {
+                    if (!string.IsNullOrEmpty(imageUrl))
+                    {
+                        await _fileStorageService.DeleteFileAsync(Path.GetFileName(imageUrl), "products");
+                        _logger.LogInformation("فایل تصویر {ImageUrl} از سرور حذف شد.", imageUrl);
+                    }
+                }
             }
-            catch (Exception ex) when (ex is not NotFoundException)
+            catch (Exception ex)
             {
-                // لاگ بحرانی: ثبت خطاهای پیش‌بینی نشده
-                _logger.LogCritical(ex, "خطای بحرانی در هنگام حذف محصول با شناسه {ProductId}.", request.Id);
-                throw; // Exception را دوباره پرتاب کن تا Middleware آن را به 500 تبدیل کند
+                _logger.LogCritical(ex, "خطای بحرانی در هنگام حذف محصول با شناسه {ProductId}", request.Id);
+                throw;
             }
         }
     }

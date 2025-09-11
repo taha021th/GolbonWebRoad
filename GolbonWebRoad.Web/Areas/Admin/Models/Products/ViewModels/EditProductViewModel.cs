@@ -1,4 +1,4 @@
-﻿using GolbonWebRoad.Application.Dtos.ProductColors;
+﻿using GolbonWebRoad.Application.Dtos.Colors;
 using GolbonWebRoad.Application.Dtos.ProductImages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
@@ -50,8 +50,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
         [Required(ErrorMessage = "انتخاب {0} الزامی است.")]
         public int BrandId { get; set; }
 
-        // --- مدیریت تصاویر ---
-
+        // --- مدیریت تصاویر ---        
         /// <summary>
         /// تصاویر موجود محصول برای نمایش در فرم
         /// </summary>
@@ -68,19 +67,15 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
         /// </summary>
         public List<string> ImagesToDelete { get; set; } = new List<string>();
 
+        [Display(Name = "رنگ های فعلی محصول")]
+        public List<ExistingColorViewModel> ExistingColors { get; set; } = new();
+        [Display(Name = "حذف رنگ ها")]
+        public List<int> ColorsToDelete { get; set; } = new();
         // --- مدیریت رنگ‌ها ---
         [Display(Name = "رنگ های موجود محصول")]
-
-        //public List<ColorInputDto> Colors { get; set; } = new List<ColorInputDto>();
-
-        public List<ProductColorDto> ProductColors { get; set; } = new List<ProductColorDto>();
-
+        public List<ColorInputDto> NewColors { get; set; } = new List<ColorInputDto>();
         // --- پراپرتی برای دراپ‌داون‌ها ---
         public SelectList? CategoryOptions { get; set; }
         public SelectList? BrandOptions { get; set; }
     }
-
-
-
 }
-

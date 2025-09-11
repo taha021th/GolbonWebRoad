@@ -35,8 +35,8 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var productsDto = await _mediator.Send(new GetProductsForAdminQuery());
-            var productViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(productsDto);
+            var products = await _mediator.Send(new GetProductsForAdminQuery { JoinBrand=true, JoinCategory=true, JoinImages=true });
+            var productViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(products);
             return View(productViewModels);
         }
         public async Task<IActionResult> Create()
@@ -55,20 +55,20 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
                 return View(viewModel);
             }
 
-            try
-            {
-                var command = _mapper.Map<CreateProductCommand>(viewModel);
-                await _mediator.Send(command);
-                TempData["SuccessMessage"] = "محصول با موفقیت ایجاد شد.";
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                // _logger.LogError(ex, "خطا در ایجاد محصول."); 
-                ModelState.AddModelError(string.Empty, "خطایی در هنگام ایجاد محصول رخ داد. لطفا دوباره تلاش کنید.");
-                await PopulateDropdownsAsync(viewModel); // <- فراخوانی متد کمکی در صورت خطا
-                return View(viewModel);
-            }
+            //try
+            //{
+            var command = _mapper.Map<CreateProductCommand>(viewModel);
+            await _mediator.Send(command);
+            TempData["SuccessMessage"] = "محصول با موفقیت ایجاد شد.";
+            return RedirectToAction(nameof(Index));
+            //}
+            //catch (Exception ex)
+            //{
+            //    // _logger.LogError(ex, "خطا در ایجاد محصول."); 
+            //    ModelState.AddModelError(string.Empty, "خطایی در هنگام ایجاد محصول رخ داد. لطفا دوباره تلاش کنید.");
+            //    await PopulateDropdownsAsync(viewModel); // <- فراخوانی متد کمکی در صورت خطا
+            //    return View(viewModel);
+            //}
         }
 
         [HttpGet]
@@ -117,23 +117,40 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int id)
         {
 
-            var productDto = await _mediator.Send(new GetProductByIdQuery { Id=id, JoinCategory=true });
-            if (productDto==null) return NotFound();
+            var productDto = await _mediator.Send(new GetProductByIdQuery { Id=id, JoinCategory=true, JoinImages=true });
+            if (productDto==null)
+            {
+                return NotFound();
+            }
             var viewModel = _mapper.Map<DeleteProductViewModel>(productDto);
+            viewModel.ImageUrl = productDto.Images?.FirstOrDefault(i => i.IsMainImage)?.ImageUrl ?? productDto.Images?.FirstOrDefault()?.ImageUrl;
+
             return View(viewModel);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id, string? imageUrl) // ✅ پارامتر جدید
+        public async Task<IActionResult> DeleteConfirmed(int id) // ✅ پارامتر جدید
         {
-            if (!string.IsNullOrEmpty(imageUrl))
-            {
-                await _fileStorageService.DeleteFileAsync(Path.GetFileName(imageUrl), "images/products");
-            }
 
-            await _mediator.Send(new DeleteProductCommand { Id = id });
-            return RedirectToAction(nameof(Index));
+
+            try
+            {
+                await _mediator.Send(new DeleteProductCommand { Id = id });
+                TempData["SuccessMessage"] = "محصول با موفقیت حذف شد.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                //_logger.LogError(ex, "خطا در هنگام حذف محصول با شناسه {ProductId}", id);
+                // کاربر را به یک صفحه خطا یا به لیست محصولات با یک پیام خطا هدایت کن
+                TempData["ErrorMessage"] = "در هنگام حذف محصول خطایی رخ داد. لطفا دوباره تلاش کنید.";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
 

@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using GolbonWebRoad.Application.Dtos.Colors;
-using GolbonWebRoad.Application.Dtos.Products;
 using GolbonWebRoad.Application.Interfaces.Services;
 using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
@@ -11,7 +10,7 @@ using Microsoft.Extensions.Logging; // ۱. این using را برای دسترس
 
 namespace GolbonWebRoad.Application.Features.Products.Commands
 {
-    public class CreateProductCommand : IRequest<ProductDto>
+    public class CreateProductCommand : IRequest
     {
         public string? Slog { get; set; }
         public string Name { get; set; }
@@ -45,7 +44,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         }
     }
 
-    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, ProductDto>
+    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -61,7 +60,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
             _fileStorageService=fileStorageService;
         }
 
-        public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+        public async Task Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("شروع فرآیند ایجاد محصول جدید با نام '{ProductName}'.", request.Name);
 
@@ -106,7 +105,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
 
                 _logger.LogInformation("محصول '{ProductName}' با شناسه {ProductId} با موفقیت ایجاد شد.", product.Name, product.Id);
 
-                return _mapper.Map<ProductDto>(product);
+
             }
             catch (Exception ex)
             {

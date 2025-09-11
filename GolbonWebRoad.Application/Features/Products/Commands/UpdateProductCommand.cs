@@ -13,6 +13,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
 {
     public class UpdateProductCommand : IRequest
     {
+
         public int Id { get; set; }
         public string? Slog { get; set; }
         public string Name { get; set; }
@@ -25,9 +26,11 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         public bool IsFeatured { get; set; }
         public int CategoryId { get; set; }
         public int? BrandId { get; set; }
-        public List<ColorInputDto> Colors { get; set; } = new();
         public List<IFormFile> NewImages { get; set; } = new();
         public List<string> ImagesToDelete { get; set; } = new();
+        public List<ColorInputDto> NewColors { get; set; } = new();
+        public List<int> ColorsToDelete { get; set; } = new();
+
     }
 
     public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
@@ -75,6 +78,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
                 // ۲. نگاشت پراپرتی‌های ساده از Command به Entity
                 _mapper.Map(request, productToUpdate);
 
+                #region Upload Images
                 // ۳. مدیریت حذف تصاویر
                 if (request.ImagesToDelete != null && request.ImagesToDelete.Any())
                 {
@@ -84,7 +88,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
                         if (imageToRemove != null)
                         {
                             productToUpdate.Images.Remove(imageToRemove);
-                            await _fileStorageService.DeleteFileAsync(imageUrl, "products");
+                            await _fileStorageService.DeleteFileAsync(Path.GetFileName(imageUrl), "products");
                             _logger.LogInformation("تصویر {ImageUrl} حذف شد.", imageUrl);
                         }
                     }
@@ -104,24 +108,49 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
                         });
                     }
                 }
+                #endregion
 
-                // ۵. مدیریت رنگ‌ها (رویکرد ساده: پاک کردن و افزودن مجدد)
-                productToUpdate.ProductColors.Clear(); // <- حذف همه رنگ‌های قبلی
-                if (request.Colors != null)
+
+                #region Colors
+                if (request.ColorsToDelete != null && request.ColorsToDelete.Any())
                 {
-                    foreach (var colorInput in request.Colors.Where(c => !string.IsNullOrWhiteSpace(c.Name)))
+                    // لیستی از آیتم‌های ProductColor که باید حذف شوند را پیدا کن
+                    var colorsToRemove = productToUpdate.ProductColors
+                        .Where(pc => request.ColorsToDelete.Contains(pc.ColorId))
+                        .ToList();
+
+                    foreach (var productColor in colorsToRemove)
                     {
-                        var trimmedColorName = colorInput.Name.Trim();
+                        productToUpdate.ProductColors.Remove(productColor);
+                    }
+                }
+
+                // ب) افزودن رنگ‌های جدید
+                if (request.NewColors != null && request.NewColors.Any())
+                {
+                    foreach (var newColor in request.NewColors.Where(c => !string.IsNullOrWhiteSpace(c.Name)))
+                    {
+                        var trimmedColorName = newColor.Name.Trim();
+
+                        // چک کن که این رنگ از قبل به محصول اضافه نشده باشد
+                        if (productToUpdate.ProductColors.Any(pc => pc.Color.Name == trimmedColorName))
+                        {
+                            continue; // اگر بود، برو سراغ رنگ بعدی
+                        }
+
                         var existingColor = await _unitOfWork.ColorRepository.FindByNameAsync(trimmedColorName);
 
-                        if (existingColor == null)
+                        if (existingColor == null) // اگر رنگ در دیتابیس نبود، بسازش
                         {
-                            existingColor = new Color { Name = trimmedColorName, HexCode = colorInput.HexCode?.Trim() };
+                            existingColor = new Color { Name = trimmedColorName, HexCode = newColor.HexCode?.Trim() };
                             await _unitOfWork.ColorRepository.AddAsync(existingColor);
                         }
+
+                        // رابطه جدید را به محصول اضافه کن
                         productToUpdate.ProductColors.Add(new ProductColor { Color = existingColor });
                     }
                 }
+                #endregion
 
                 // ۶. ذخیره تمام تغییرات در یک تراکنش واحد
                 await _unitOfWork.CompleteAsync();

@@ -117,33 +117,34 @@
     </div>
 
     <div class="p-6 border rounded-lg bg-white shadow-sm">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900">مدیریت رنگ‌ها</h3>
-            <button type="button" id="add-color-btn" class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">افزودن رنگ</button>
-        </div>
-        <div id="color-container" class="space-y-4">
-            @if (Model.ProductColors != null)
-            {
-                @for (int i = 0; i < Model.ProductColors.Count; i++)
-                {
-                    <div class="color-row flex items-center gap-4 p-2 border rounded-md">
-                        <div class="flex-1">
-                            <label class="text-xs text-gray-600">نام رنگ</label>
-                            <input name="Colors[@i].Name" type="text" value="@Model.ProductColors[i].Color.Name" class="color-name-input w-full text-sm border-gray-300 rounded-md" />
+        <h3 class="text-lg font-medium text-gray-900 mb-4">مدیریت رنگ‌ها</h3>
+
+        @if (Model.ExistingColors != null && Model.ExistingColors.Any())
+        {
+            <div class="mb-6">
+                <p class="text-sm font-medium text-gray-700 mb-2">رنگ‌های فعلی (برای حذف، تیک بزنید):</p>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    @foreach (var color in Model.ExistingColors)
+                    {
+                        <div class="flex items-center p-2 border rounded-md">
+                            <input type="checkbox" name="ColorsToDelete" value="@color.Id" class="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500" />
+                            <label class="ml-3 flex items-center text-sm text-gray-700">
+                                <span class="w-5 h-5 rounded-full border mr-2" style="background-color: @color.HexCode;"></span>
+                                @color.Name
+                            </label>
                         </div>
-                        <div class="flex-1">
-                            <label class="text-xs text-gray-600">کد رنگ</label>
-                            <div class="flex items-center gap-2">
-                                <input type="color" value="@Model.ProductColors[i].Color.HexCode" class="color-picker-input p-1 h-10 w-10 block bg-white border border-gray-300 rounded-md cursor-pointer" />
-                                <input name="Colors[@i].HexCode" type="text" value="@Model.ProductColors[i].Color.HexCode" class="color-hex-input w-full text-sm border-gray-300 rounded-md" />
-                            </div>
-                        </div>
-                        <button type="button" class="remove-color-btn p-2 text-red-500 hover:bg-red-100 rounded-full">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-                }
-            }
+                    }
+                </div>
+            </div>
+        }
+
+        <div>
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-md font-medium text-gray-800">افزودن رنگ‌های جدید</h4>
+                <button type="button" id="add-color-btn" class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600">افزودن</button>
+            </div>
+            <div id="new-colors-container" class="space-y-4">
+            </div>
         </div>
     </div>
 
@@ -167,56 +168,49 @@
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const colorContainer = document.getElementById('color-container');
+            const container = document.getElementById('new-colors-container');
 
             // تابع برای بازسازی ایندکس‌ها تا ModelBinder به درستی کار کند
-            function reindexColorRows() {
-                const rows = colorContainer.querySelectorAll('.color-row');
+            function reindexNewColorRows() {
+                const rows = container.querySelectorAll('.new-color-row');
                 rows.forEach((row, index) => {
-                    row.querySelector('.color-name-input').name = `Colors[${index}].Name`;
-                    row.querySelector('.color-hex-input').name = `Colors[${index}].HexCode`;
+                    row.querySelector('.color-name-input').name = `NewColors[${index}].Name`;
+                    row.querySelector('.color-hex-input').name = `NewColors[${index}].HexCode`;
                 });
             }
 
-            // افزودن ردیف جدید رنگ
             document.getElementById('add-color-btn').addEventListener('click', function () {
-                const newIndex = colorContainer.querySelectorAll('.color-row').length;
-
+                const newIndex = container.querySelectorAll('.new-color-row').length;
                 const newRowHtml = `
-                            <div class="color-row flex items-center gap-4 p-2 border rounded-md">
-                                <div class="flex-1">
-                                    <label class="text-xs text-gray-600">نام رنگ</label>
-                                    <input name="Colors[${newIndex}].Name" type="text" placeholder="مثلا: آبی" class="color-name-input w-full text-sm border-gray-300 rounded-md" />
+                        <div class="new-color-row flex items-center gap-4 p-2 border rounded-md bg-gray-50">
+                            <div class="flex-1">
+                                <input name="NewColors[${newIndex}].Name" type="text" placeholder="نام رنگ جدید" class="color-name-input w-full text-sm border-gray-300 rounded-md" />
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2">
+                                    <input type="color" value="#000000" class="color-picker-input p-1 h-10 w-10 block bg-white border border-gray-300 rounded-md cursor-pointer" />
+                                    <input name="NewColors[${newIndex}].HexCode" type="text" value="#000000" class="color-hex-input w-full text-sm border-gray-300 rounded-md" />
                                 </div>
-                                <div class="flex-1">
-                                    <label class="text-xs text-gray-600">کد رنگ</label>
-                                    <div class="flex items-center gap-2">
-                                        <input type="color" value="#0000ff" class="color-picker-input p-1 h-10 w-10 block bg-white border border-gray-300 rounded-md cursor-pointer" />
-                                        <input name="Colors[${newIndex}].HexCode" type="text" value="#0000ff" class="color-hex-input w-full text-sm border-gray-300 rounded-md" />
-                                    </div>
-                                </div>
-                                <button type="button" class="remove-color-btn p-2 text-red-500 hover:bg-red-100 rounded-full">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                </button>
-                            </div>`;
-                colorContainer.insertAdjacentHTML('beforeend', newRowHtml);
+                            </div>
+                            <button type="button" class="remove-color-btn p-2 text-red-500 hover:bg-red-100 rounded-full">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>`;
+                container.insertAdjacentHTML('beforeend', newRowHtml);
             });
 
-            // مدیریت رویدادها با Event Delegation برای کل container
-            colorContainer.addEventListener('click', function (e) {
-                // اگر روی دکمه حذف کلیک شد
+            container.addEventListener('click', function (e) {
                 const removeButton = e.target.closest('.remove-color-btn');
                 if (removeButton) {
-                    removeButton.closest('.color-row').remove();
-                    reindexColorRows(); // <<< مهم: بازسازی ایندکس‌ها بعد از حذف
+                    removeButton.closest('.new-color-row').remove();
+                    reindexNewColorRows();
                 }
             });
 
-            colorContainer.addEventListener('input', function (e) {
-                const row = e.target.closest('.color-row');
+            container.addEventListener('input', function (e) {
+                const row = e.target.closest('.new-color-row');
                 if (!row) return;
 
-                // همگام‌سازی color picker و input متنی
                 const colorPicker = row.querySelector('.color-picker-input');
                 const hexInput = row.querySelector('.color-hex-input');
 
