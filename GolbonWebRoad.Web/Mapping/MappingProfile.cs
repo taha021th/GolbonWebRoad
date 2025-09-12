@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using GolbonWebRoad.Application.Dtos.ProductImages;
 using GolbonWebRoad.Application.Dtos.Users;
+using GolbonWebRoad.Application.Features.Brands.Commands;
 using GolbonWebRoad.Application.Features.Categories.Commands;
 using GolbonWebRoad.Application.Features.Products.Commands;
 using GolbonWebRoad.Application.Features.Users.Commands;
 using GolbonWebRoad.Domain.Entities;
+using GolbonWebRoad.Web.Areas.Admin.Models.Brands;
 using GolbonWebRoad.Web.Areas.Admin.Models.Categories;
 using GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels;
 using GolbonWebRoad.Web.Areas.Admin.Models.Users;
@@ -53,6 +55,14 @@ namespace GolbonWebRoad.Web.Mapping
             #region Ui
 
             #endregion
+            #endregion
+
+
+            #region Brand
+            CreateMap<Brand, BrandViewModel>();
+            CreateMap<CreateBrandViewModel, CreateBrandCommand>();
+            CreateMap<EditBrandViewModel, UpdateBrandCommand>();
+            CreateMap<Brand, DeleteBrandViewModel>();
             #endregion
 
 
