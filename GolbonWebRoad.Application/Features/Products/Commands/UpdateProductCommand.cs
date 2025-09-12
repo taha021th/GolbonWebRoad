@@ -63,7 +63,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         {
             _logger.LogInformation("شروع فرآیند ویرایش محصول با شناسه {ProductId}", request.Id);
 
-            // ۱. محصول مورد نظر را با تمام روابط لازم از دیتابیس بخوان
+
             var productToUpdate = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id,
                 joinImages: true,
                 joinColors: true);
