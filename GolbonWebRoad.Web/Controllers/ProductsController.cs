@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GolbonWebRoad.Application.Dtos.Categories;
 using GolbonWebRoad.Application.Features.Categories.Queries;
 using GolbonWebRoad.Application.Features.Products.Queries;
 using GolbonWebRoad.Web.Models;
@@ -24,7 +25,7 @@ namespace GolbonWebRoad.Web.Controllers
             var viewModel = new ProductViewModel
             {
                 Products=products,
-                Categories=categories
+                Categories=_mapper.Map<IEnumerable<CategoryDto>>(categories)
 
             };
             ViewData["CurrentFilter"] = searchTerm;

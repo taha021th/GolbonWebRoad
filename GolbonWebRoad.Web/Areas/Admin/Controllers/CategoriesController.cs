@@ -46,9 +46,9 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         }
         public async Task<IActionResult> Edit(int id)
         {
-            var categoryDto = await _mediator.Send(new GetCategoryByIdQuery { Id = id });
-            if (categoryDto == null) return NotFound();
-            var viewModel = _mapper.Map<EditCategoryViewModel>(categoryDto);
+            var category = await _mediator.Send(new GetCategoryByIdQuery { Id = id });
+            if (category == null) return NotFound();
+            var viewModel = _mapper.Map<EditCategoryViewModel>(category);
             return View(viewModel);
 
         }

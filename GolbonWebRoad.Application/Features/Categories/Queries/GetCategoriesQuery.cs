@@ -1,18 +1,17 @@
 ﻿using AutoMapper;
-using GolbonWebRoad.Application.Dtos.Categories;
-using GolbonWebRoad.Application.Interfaces;
+using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
 
 namespace GolbonWebRoad.Application.Features.Categories.Queries
 {
-    public class GetCategoriesQuery : IRequest<IEnumerable<CategoryDto>>
+    public class GetCategoriesQuery : IRequest<IEnumerable<Category>>
     {
         public bool? JoinProducts { get; set; }
     }
 
-    public class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQuery, IEnumerable<CategoryDto>>
+    public class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQuery, IEnumerable<Category>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -26,7 +25,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Queries
             _logger = logger;
         }
 
-        public async Task<IEnumerable<CategoryDto>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Category>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
         {
             // لاگ اطلاعاتی: ثبت شروع عملیات با پارامترهای ورودی
             _logger.LogInformation("شروع فرآیند دریافت لیست دسته‌بندی‌ها. JoinProducts: {JoinProducts}", request.JoinProducts);
@@ -39,14 +38,14 @@ namespace GolbonWebRoad.Application.Features.Categories.Queries
                 {
                     // لاگ هشدار: ثبت یک نتیجه منفی قابل انتظار که خطا نیست
                     _logger.LogWarning("هیچ دسته‌بندی در سیستم یافت نشد.");
-                    return new List<CategoryDto>(); // همیشه یک لیست خالی برگردانید، نه null
+                    return new List<Category>(); // همیشه یک لیست خالی برگردانید، نه null
                 }
 
                 // لاگ اطلاعاتی: ثبت نتیجه موفقیت‌آمیز
                 _logger.LogInformation("تعداد {CategoryCount} دسته‌بندی با موفقیت از دیتابیس دریافت شد.", categories.Count());
 
-                var categoriesDto = _mapper.Map<IEnumerable<CategoryDto>>(categories);
-                return categoriesDto;
+
+                return categories;
             }
             catch (Exception ex)
             {

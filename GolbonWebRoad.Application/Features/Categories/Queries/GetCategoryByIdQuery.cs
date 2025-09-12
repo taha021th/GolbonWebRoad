@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using GolbonWebRoad.Application.Dtos.Categories;
-using GolbonWebRoad.Application.Interfaces;
+using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
 
 namespace GolbonWebRoad.Application.Features.Categories.Queries
 {
-    public class GetCategoryByIdQuery : IRequest<CategoryDto>
+    public class GetCategoryByIdQuery : IRequest<Category>
     {
         public int Id { get; set; }
         public bool? JoinProducts { get; set; }
@@ -22,7 +21,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Queries
         }
     }
 
-    public class GetCategoryByIdQueryHandler : IRequestHandler<GetCategoryByIdQuery, CategoryDto>
+    public class GetCategoryByIdQueryHandler : IRequestHandler<GetCategoryByIdQuery, Category>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -36,7 +35,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Queries
             _logger = logger;
         }
 
-        public async Task<CategoryDto> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Category> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
         {
             // لاگ اطلاعاتی: ثبت شروع عملیات با پارامترهای ورودی
             _logger.LogInformation(
@@ -58,8 +57,8 @@ namespace GolbonWebRoad.Application.Features.Categories.Queries
                 _logger.LogInformation("دسته‌بندی با شناسه {CategoryId} و نام '{CategoryName}' با موفقیت یافت شد.",
                     request.Id, category.Name);
 
-                var categoryDto = _mapper.Map<CategoryDto>(category);
-                return categoryDto;
+
+                return category;
             }
             catch (Exception ex)
             {

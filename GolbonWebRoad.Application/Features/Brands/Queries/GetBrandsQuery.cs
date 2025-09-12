@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
-using GolbonWebRoad.Application.Dtos.Brands;
+using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 
 namespace GolbonWebRoad.Application.Features.Brands.Queries
 {
-    public class GetBrandsQuery : IRequest<IEnumerable<BrandDto>>
+    public class GetBrandsQuery : IRequest<IEnumerable<Brand>>
     {
     }
-    public class GetBrandsQueryHandler : IRequestHandler<GetBrandsQuery, IEnumerable<BrandDto>>
+    public class GetBrandsQueryHandler : IRequestHandler<GetBrandsQuery, IEnumerable<Brand>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -17,10 +17,10 @@ namespace GolbonWebRoad.Application.Features.Brands.Queries
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<IEnumerable<BrandDto>> Handle(GetBrandsQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Brand>> Handle(GetBrandsQuery request, CancellationToken cancellationToken)
         {
             var brands = await _unitOfWork.BrandRepository.GetAllAsync();
-            return _mapper.Map<IEnumerable<BrandDto>>(brands);
+            return brands;
         }
     }
 }

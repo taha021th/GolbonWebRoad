@@ -1,40 +1,35 @@
-﻿@model GolbonWebRoad.Application.Dtos.Categories.CategoryDto
+﻿@model GolbonWebRoad.Domain.Entities.Category
 @{
     ViewData["Title"] = "حذف دسته‌بندی";
 }
 
-<div class="bg-white p-6 rounded-xl shadow-md max-w-lg mx-auto">
-    <h2 class="text-2xl font-bold mb-4 text-red-600">تأیید حذف</h2>
-    <p class="text-gray-700 mb-6">
-        آیا از حذف دسته‌بندی زیر مطمئن هستید؟ این عملیات غیرقابل بازگشت است.
-    </p>
-
-    <div class="border rounded-lg p-4 mb-6 space-y-2 bg-gray-50">
-        <div>
-            <span class="font-semibold">شناسه:</span>
-            <span class="font-mono">@Model.Id</span>
-        </div>
-        <div>
-            <span class="font-semibold">نام دسته‌بندی:</span>
-            <span>@Model.Name</span>
-        </div>
-        <div>
-            <span class="font-semibold">Slog:</span>
-            <span>@Model.Slog</span>
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0">تأیید حذف</h3>
+            </div>
+            <div class="card-body">
+                <p>
+                    آیا از حذف دسته‌بندی <strong>@Model.Name</strong> مطمئن هستید؟
+                    <br />
+                    این عملیات غیرقابل بازگشت است.
+                </p>
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <div class="text-center my-3">
+                        <img src="@Model.ImageUrl" alt="@Model.Name" class="rounded img-thumbnail" style="max-width: 150px;" />
+                    </div>
+                }
+            </div>
+            <div class="card-footer bg-light text-end">
+                <form asp-action="Delete" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <a asp-action="Index" class="btn btn-secondary">انصراف</a>
+                    <button type="submit" class="btn btn-danger">بله، حذف کن</button>
+                </form>
+            </div>
         </div>
     </div>
-
-    <form asp-action="Delete" method="post">
-        @* فیلد مخفی برای ارسال شناسه به اکشن DeleteConfirmed *@
-        <input type="hidden" asp-for="Id" />
-
-        <div class="flex justify-end gap-4">
-            <a asp-action="Index" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition">
-                انصراف
-            </a>
-            <button type="submit" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition">
-                بله، حذف کن
-            </button>
-        </div>
-    </form>
 </div>

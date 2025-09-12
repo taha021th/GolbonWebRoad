@@ -8,5 +8,6 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Categories
         public string Name { get; set; }
         [Required(ErrorMessage = "Slog الزامی است.")]
         public string? Slog { get; set; }
+        public IFormFile? Image { get; set; }
     }
 }

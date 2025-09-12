@@ -1,0 +1,65 @@
+﻿/* --- Global Styles --- */
+body {
+    font-family: 'Vazirmatn', sans-serif;
+    overflow-x: hidden;
+}
+
+/* --- Bootstrap Sidebar Override --- */
+#wrapper {
+    display: flex;
+    transition: all 0.4s ease;
+}
+
+#sidebar-wrapper {
+    min-height: 100vh;
+    width: 250px;
+    transition: all 0.4s ease;
+    margin-right: -250px;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    margin-right: 0;
+}
+
+#page-content-wrapper {
+    min-width: 100vw;
+}
+
+#wrapper.toggled #page-content-wrapper {
+    min-width: calc(100vw - 250px);
+}
+
+@media (min-width: 768px) {
+    #sidebar-wrapper {
+        margin-right: 0;
+    }
+
+    #page-content-wrapper {
+        min-width: 0;
+        width: 100%;
+    }
+
+    #wrapper.toggled #sidebar-wrapper {
+        margin-right: -250px;
+    }
+}
+
+.list-group-item {
+    border-radius: 0 !important;
+    border: 0;
+}
+
+    .list-group-item.active {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
+    }
+
+/* --- Custom Card Styles --- */
+.card {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.card-header.bg-primary {
+    color: white;
+}

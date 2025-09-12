@@ -18,10 +18,26 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         {
             return await _context.Brands.ToListAsync();
         }
+        public async Task<Brand> GetByIdAsync(int id)
+        {
+            return await _context.Brands.FindAsync(id);
+        }
 
         public async Task AddAsync(Brand brand)
         {
             await _context.Brands.AddAsync(brand);
         }
+        public void Update(Brand brand)
+        {
+            _context.Brands.Update(brand);
+        }
+        public async Task DeleteAsync(int id)
+        {
+            Brand brand = await _context.Brands.FindAsync(id);
+            _context.Brands.Remove(brand);
+
+        }
+
+
     }
 }

@@ -8,6 +8,7 @@ using GolbonWebRoad.Application.Dtos.Orders;
 using GolbonWebRoad.Application.Dtos.ProductColors;
 using GolbonWebRoad.Application.Dtos.ProductImages;
 using GolbonWebRoad.Application.Dtos.Products;
+using GolbonWebRoad.Application.Features.Brands.Commands;
 using GolbonWebRoad.Application.Features.CartItems.Commands;
 using GolbonWebRoad.Application.Features.Categories.Commands;
 using GolbonWebRoad.Application.Features.Categories.Queries;
@@ -74,6 +75,8 @@ namespace GolbonWebRoad.Application.Mapping
 
             #region Brands
             CreateMap<Brand, BrandDto>();
+            CreateMap<CreateBrandCommand, Brand>();
+            CreateMap<UpdateBrandCommand, Brand>();
             #endregion
 
 

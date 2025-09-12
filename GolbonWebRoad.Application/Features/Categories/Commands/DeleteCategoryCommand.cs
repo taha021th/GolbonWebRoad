@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using GolbonWebRoad.Application.Exceptions; // using برای NotFoundException
-using GolbonWebRoad.Application.Interfaces;
+using GolbonWebRoad.Application.Interfaces.Services;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
@@ -22,12 +22,13 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<DeleteCategoryCommandHandler> _logger; // ۲. ILogger را تعریف کنید
-
+        private readonly IFileStorageService _fileStorageService;
         // ۳. ILogger را تزریق کرده و وابستگی اضافی به IMapper را حذف کنید
-        public DeleteCategoryCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteCategoryCommandHandler> logger)
+        public DeleteCategoryCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteCategoryCommandHandler> logger, IFileStorageService fileStorageService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _fileStorageService = fileStorageService;
         }
 
         public async Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
@@ -45,11 +46,16 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
                     _logger.LogWarning("دسته‌بندی با شناسه {CategoryId} برای حذف یافت نشد.", request.Id);
                     throw new NotFoundException($"دسته‌بندی با شناسه {request.Id} یافت نشد.");
                 }
+                if (categoryToDelete.ImageUrl!=null)
+                {
+                    _logger.LogInformation("تصویر دسته بندی با شناسه {CategoryId} حذف شد.", categoryToDelete.Id);
+                    await _fileStorageService.DeleteFileAsync(Path.GetFileName(categoryToDelete.ImageUrl), "categories");
+                }
 
                 await _unitOfWork.CategoryRepository.DeleteAsync(request.Id);
                 await _unitOfWork.CompleteAsync();
 
-                // لاگ اطلاعاتی: ثبت نتیجه موفقیت‌آمیز عملیات
+
                 _logger.LogInformation("دسته‌بندی با شناسه {CategoryId} و نام '{CategoryName}' با موفقیت حذف شد.",
                     request.Id, categoryToDelete.Name);
             }

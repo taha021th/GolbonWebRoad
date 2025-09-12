@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using GolbonWebRoad.Application.Dtos.Categories;
 using GolbonWebRoad.Application.Dtos.ProductImages;
 using GolbonWebRoad.Application.Dtos.Users;
 using GolbonWebRoad.Application.Features.Categories.Commands;
@@ -30,10 +29,8 @@ namespace GolbonWebRoad.Web.Mapping
             );
             CreateMap<CreateProductViewModel, CreateProductCommand>();
             CreateMap<Product, EditProductViewModel>().ForMember(dest => dest.ExistingColors, opt => opt.MapFrom(src => src.ProductColors.Select(pc => new ExistingColorViewModel { Id=pc.Color.Id, Name=pc.Color.Name, HexCode=pc.Color.HexCode }).ToList()));
-
             CreateMap<EditProductViewModel, UpdateProductCommand>();
             CreateMap<ProductImages, ProductImageDto>();
-
             CreateMap<Product, DeleteProductViewModel>();
             #endregion
 
@@ -44,10 +41,18 @@ namespace GolbonWebRoad.Web.Mapping
 
 
             #region Category 
-            CreateMap<CategoryDto, CategorySummaryDto>().ReverseMap();
+            #region admin
+            CreateMap<Category, CategoryViewModel>();
             CreateMap<CreateCategoryViewModel, CreateCategoryCommand>();
-            CreateMap<CategoryDto, EditCategoryViewModel>();
-            CreateMap<EditCategoryViewModel, UpdateCategoryCommand>().ReverseMap();
+            CreateMap<Category, EditCategoryViewModel>()
+                .ForMember(dest => dest.ExistingImage, opt => opt.MapFrom(src => src.ImageUrl));
+            CreateMap<EditCategoryViewModel, UpdateCategoryCommand>();
+
+            #endregion
+
+            #region Ui
+
+            #endregion
             #endregion
 
 

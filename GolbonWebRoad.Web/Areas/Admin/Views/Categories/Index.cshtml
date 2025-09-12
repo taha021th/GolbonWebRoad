@@ -1,37 +1,100 @@
-﻿@model IEnumerable<GolbonWebRoad.Application.Dtos.Categories.CategoryDto>
+﻿@model IEnumerable<GolbonWebRoad.Domain.Entities.Category>
 @{
     ViewData["Title"] = "مدیریت دسته‌بندی‌ها";
 }
 
-<div class="bg-white p-6 rounded-xl shadow-md">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">لیست دسته‌بندی‌ها</h2>
-        <a asp-action="Create" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-500 transition">
-            + افزودن دسته‌بندی جدید
-        </a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+</div>
+
+<div class="row g-4">
+    <!-- Add/Edit Category Form -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                افزودن دسته‌بندی جدید
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label for="Name" class="form-label">نام دسته‌بندی</label>
+                        <input name="Name" id="Name" class="form-control" required />
+                        <span name="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Slog" class="form-label">اسلاگ (آدرس)</label>
+                        <input name="Slog" id="Slog" class="form-control" required />
+                        <span name="Slog" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Image" class="form-label">تصویر دسته‌بندی</label>
+                        <input name="Image" id="Image" type="file" class="form-control" accept="image/*" />
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">ذخیره دسته‌بندی</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-    <table class="w-full text-sm text-right">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="p-3">شناسه</th>
-                <th class="p-3">نام دسته‌بندی</th>
-                <th class="p-3">Slog</th>
-                <th class="p-3"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var category in Model)
-            {
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-3 font-mono">@category.Id</td>
-                    <td class="p-3 font-semibold">@category.Name</td>
-                    <td class="p-3 font-semibold">@category.Slog</td>
-                    <td class="p-3 flex gap-4 justify-end">
-                        <a asp-action="Edit" asp-route-id="@category.Id" class="text-blue-600 hover:underline">ویرایش</a>
-                        <a asp-action="Delete" asp-route-id="@category.Id" class="text-red-600 hover:underline">حذف</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+
+    <!-- Categories List -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                لیست دسته‌بندی‌ها
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="py-3 px-4">تصویر</th>
+                                <th class="py-3 px-4">نام دسته‌بندی</th>
+                                <th class="py-3 px-4">اسلاگ</th>
+                                <th class="py-3 px-4 text-center">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="align-middle px-4">
+                                            <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://placehold.co/100x100/EFEFEF/AAAAAA&text=No+Image" : item.ImageUrl)"
+                                                 alt="@item.Name"
+                                                 class="rounded" style="width: 50px; height: 50px; object-fit: cover;" />
+                                        </td>
+                                        <td class="align-middle px-4">@item.Name</td>
+                                        <td class="align-middle px-4">@item.Slog</td>
+                                        <td class="align-middle text-center px-4">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">هیچ دسته‌بندی یافت نشد.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

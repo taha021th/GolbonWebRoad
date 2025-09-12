@@ -3,35 +3,49 @@
     ViewData["Title"] = "ویرایش دسته‌بندی: " + Model.Name;
 }
 
-<div class="bg-white p-6 rounded-xl shadow-md">
-    <h2 class="text-2xl font-bold mb-6 border-b pb-4">ویرایش دسته‌بندی</h2>
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3 class="mb-0">@ViewData["Title"]</h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-    <form asp-action="Edit" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-red-500 mb-4"></div>
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
 
-        @* فیلد مخفی برای ارسال شناسه دسته‌بندی *@
-        <input type="hidden" asp-for="Id" />
+                    <div class="mb-3">
+                        <label asp-for="Slog" class="form-label"></label>
+                        <input asp-for="Slog" class="form-control" />
+                        <span asp-validation-for="Slog" class="text-danger"></span>
+                    </div>
 
-        <div class="mb-4">
-            <label asp-for="Name" class="block font-semibold text-gray-700 mb-2">نام دسته‌بندی</label>
-            <input asp-for="Name" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 outline-none transition" />
-            <span asp-validation-for="Name" class="text-red-500 text-sm mt-1"></span>
+                    <div class="mb-3">
+                        <label asp-for="NewImage" class="form-label">تصویر جدید (اختیاری)</label>
+                        <input asp-for="NewImage" type="file" class="form-control" accept="image/*" />
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.ExistingImage))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label d-block">تصویر فعلی</label>
+                            <img src="@Model.ExistingImage" alt="تصویر فعلی" class="img-thumbnail" style="max-width: 150px;" />
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a asp-action="Index" class="btn btn-secondary">بازگشت به لیست</a>
+                        <button type="submit" class="btn btn-primary">ذخیره تغییرات</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="mb-4">
-            <label asp-for="Slog" class="block font-semibold text-gray-700 mb-2">Slog</label>
-            <input asp-for="Slog" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 outline-none transition" />
-            <span asp-validation-for="Slog" class="text-red-500 text-sm mt-1"></span>
-        </div>
-
-        <div class="mt-8 flex justify-end gap-4">
-            <a asp-action="Index" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition">انصراف</a>
-            <button type="submit" class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700 transition">به‌روزرسانی</button>
-        </div>
-    </form>
+    </div>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
