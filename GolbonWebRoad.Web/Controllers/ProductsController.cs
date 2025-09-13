@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GolbonWebRoad.Application.Dtos.Categories;
+using GolbonWebRoad.Application.Dtos.Products;
 using GolbonWebRoad.Application.Features.Categories.Queries;
 using GolbonWebRoad.Application.Features.Products.Queries;
 using GolbonWebRoad.Web.Models;
@@ -24,7 +25,7 @@ namespace GolbonWebRoad.Web.Controllers
             var categories = await _mediator.Send(new GetCategoriesQuery());
             var viewModel = new ProductViewModel
             {
-                Products=products,
+                Products=_mapper.Map<IEnumerable<ProductDto>>(products),
                 Categories=_mapper.Map<IEnumerable<CategoryDto>>(categories)
 
             };
