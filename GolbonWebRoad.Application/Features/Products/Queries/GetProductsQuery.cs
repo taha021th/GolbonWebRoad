@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using GolbonWebRoad.Application.Dtos.Products;
+using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
 
 namespace GolbonWebRoad.Application.Features.Products.Queries
 {
-    public class GetProductsQuery : IRequest<IEnumerable<ProductDto>>
+    public class GetProductsQuery : IRequest<IEnumerable<Product>>
     {
         public string? SearchTerm { get; set; }
         public int? CategoryId { get; set; }
@@ -28,7 +28,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
         }
     }
 
-    public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, IEnumerable<ProductDto>>
+    public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, IEnumerable<Product>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -42,7 +42,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
             _logger = logger;
         }
 
-        public async Task<IEnumerable<ProductDto>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Product>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
         {
             // لاگ اطلاعاتی: ثبت شروع عملیات به همراه تمام پارامترهای ورودی
             _logger.LogInformation(
@@ -59,13 +59,13 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
                     _logger.LogWarning(
                         "هیچ محصولی با فیلترهای مشخص شده یافت نشد: SearchTerm='{SearchTerm}', CategoryId={CategoryId}",
                         request.SearchTerm, request.CategoryId);
-                    return new List<ProductDto>(); // همیشه یک لیست خالی برگردانید، نه null
+                    return new List<Product>(); // همیشه یک لیست خالی برگردانید، نه null
                 }
 
                 // لاگ اطلاعاتی: ثبت نتیجه موفقیت‌آمیز
                 _logger.LogInformation("تعداد {ProductCount} محصول با فیلترهای مشخص شده با موفقیت یافت شد.", products.Count());
 
-                return _mapper.Map<IEnumerable<ProductDto>>(products);
+                return products;
             }
             catch (Exception ex)
             {

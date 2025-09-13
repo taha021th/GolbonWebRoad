@@ -8,6 +8,7 @@ using GolbonWebRoad.Application.Features.Users.Commands;
 using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Web.Areas.Admin.Models.Brands;
 using GolbonWebRoad.Web.Areas.Admin.Models.Categories;
+using GolbonWebRoad.Web.Areas.Admin.Models.Orders;
 using GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels;
 using GolbonWebRoad.Web.Areas.Admin.Models.Users;
 
@@ -60,6 +61,7 @@ namespace GolbonWebRoad.Web.Mapping
 
             #region Brand
             CreateMap<Brand, BrandViewModel>();
+            CreateMap<Brand, EditBrandViewModel>();
             CreateMap<CreateBrandViewModel, CreateBrandCommand>();
             CreateMap<EditBrandViewModel, UpdateBrandCommand>();
             CreateMap<Brand, DeleteBrandViewModel>();
@@ -73,6 +75,23 @@ namespace GolbonWebRoad.Web.Mapping
             CreateMap<RoleDto, RoleViewModel>().ReverseMap();
             // نقشه برای آپدیت کردن نقش‌ها
             CreateMap<ManageUserRolesViewModel, UpdateUserRoleCommand>();
+            #endregion
+
+            #region Order
+            CreateMap<Order, OrderIndexViewModel>()
+                // Gets the user's name from the related IdentityUser entity
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
+                .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate.ToString("yyyy/MM/dd HH:mm")));
+
+            // Mapping for Order detail view
+            CreateMap<Order, OrderDetailViewModel>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
+                .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate.ToString("yyyy/MM/dd HH:mm")));
+
+            // Mapping for order items
+            CreateMap<OrderItem, OrderItemViewModel>()
+                // Gets the product name from the related Product entity
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name));
             #endregion
 
 

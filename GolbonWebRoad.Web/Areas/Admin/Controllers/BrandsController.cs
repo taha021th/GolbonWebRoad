@@ -3,10 +3,13 @@ using GolbonWebRoad.Application.Features.Brands.Commands;
 using GolbonWebRoad.Application.Features.Brands.Queries;
 using GolbonWebRoad.Web.Areas.Admin.Models.Brands;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GolbonWebRoad.Web.Areas.Admin.Controllers
 {
+    [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class BrandsController : Controller
     {
         private readonly IMediator _mediator;
@@ -19,7 +22,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var brands = await _mediator.Send(new GetBrandsQuery());
-            var viewModel = _mapper.Map<BrandViewModel>(brands);
+            var viewModel = _mapper.Map<IEnumerable<BrandViewModel>>(brands);
             return View(viewModel);
 
         }

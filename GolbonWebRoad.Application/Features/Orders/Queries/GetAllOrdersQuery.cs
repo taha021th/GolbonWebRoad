@@ -1,18 +1,17 @@
 ﻿using AutoMapper;
-using GolbonWebRoad.Application.Dtos.Orders;
-using GolbonWebRoad.Application.Interfaces;
+using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
 
 namespace GolbonWebRoad.Application.Features.Orders.Queries
 {
-    public class GetAllOrdersQuery : IRequest<IEnumerable<OrderDto>>
+    public class GetAllOrdersQuery : IRequest<IEnumerable<Order>>
     {
 
     }
 
-    public class GetAllOrdersQueryHandler : IRequestHandler<GetAllOrdersQuery, IEnumerable<OrderDto>>
+    public class GetAllOrdersQueryHandler : IRequestHandler<GetAllOrdersQuery, IEnumerable<Order>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -26,7 +25,7 @@ namespace GolbonWebRoad.Application.Features.Orders.Queries
             _logger = logger;
         }
 
-        public async Task<IEnumerable<OrderDto>> Handle(GetAllOrdersQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Order>> Handle(GetAllOrdersQuery request, CancellationToken cancellationToken)
         {
             // لاگ اطلاعاتی: ثبت شروع عملیات
             _logger.LogInformation("شروع فرآیند دریافت تمام سفارشات.");
@@ -39,13 +38,13 @@ namespace GolbonWebRoad.Application.Features.Orders.Queries
                 {
                     // لاگ هشدار: ثبت یک نتیجه منفی قابل انتظار
                     _logger.LogWarning("هیچ سفارشی در سیستم یافت نشد.");
-                    return new List<OrderDto>(); // همیشه یک لیست خالی برگردانید، نه null
+                    return new List<Order>(); // همیشه یک لیست خالی برگردانید، نه null
                 }
 
                 // لاگ اطلاعاتی: ثبت نتیجه موفقیت‌آمیز
                 _logger.LogInformation("تعداد {OrderCount} سفارش با موفقیت از دیتابیس دریافت شد.", orders.Count());
 
-                return _mapper.Map<IEnumerable<OrderDto>>(orders);
+                return orders;
             }
             catch (Exception ex)
             {

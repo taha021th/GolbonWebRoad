@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using GolbonWebRoad.Application.Dtos.Orders;
-using GolbonWebRoad.Application.Interfaces;
+using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
 
 namespace GolbonWebRoad.Application.Features.Orders.Queries
 {
-    public class GetOrderByIdQuery : IRequest<OrderDto>
+    public class GetOrderByIdQuery : IRequest<Order>
     {
         public int Id { get; set; }
     }
@@ -19,7 +18,7 @@ namespace GolbonWebRoad.Application.Features.Orders.Queries
             RuleFor(o => o.Id).NotEmpty().WithMessage("شناسه سفارش نمی تواند خالی باشد.");
         }
     }
-    public class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, OrderDto>
+    public class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, Order>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -33,7 +32,7 @@ namespace GolbonWebRoad.Application.Features.Orders.Queries
             _logger = logger;
         }
 
-        public async Task<OrderDto> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Order> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
         {
             // لاگ اطلاعاتی: ثبت شروع عملیات
             _logger.LogInformation("شروع فرآیند دریافت سفارش با شناسه {OrderId}.", request.Id);
@@ -52,7 +51,7 @@ namespace GolbonWebRoad.Application.Features.Orders.Queries
                 // لاگ اطلاعاتی: ثبت نتیجه موفقیت‌آمیز
                 _logger.LogInformation("سفارش با شناسه {OrderId} متعلق به کاربر {UserId} با موفقیت یافت شد.", request.Id, order.UserId);
 
-                return _mapper.Map<OrderDto>(order);
+                return order;
             }
             catch (Exception ex)
             {
