@@ -20,7 +20,7 @@ namespace GolbonWebRoad.Web.Mapping
         {
             #region Product
             #region admin
-            CreateMap<Product, ProductViewModel>()
+            CreateMap<Product, Areas.Admin.Models.Products.ViewModels.ProductViewModel>()
             .ForMember(
                 dest => dest.ImageUrl,
                 opt => opt.MapFrom(src =>
@@ -38,6 +38,72 @@ namespace GolbonWebRoad.Web.Mapping
             #endregion
 
             #region Ui
+            CreateMap<Product, Models.Products.ProductViewModel>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
+                .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : null))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src =>
+                    src.Images != null && src.Images.Any() ? src.Images.Where(c => c.IsMainImage==true).First().ImageUrl : null));
+
+            CreateMap<ProductImages, Models.Products.ProductImagesViewModel>();
+            CreateMap<ProductColor, Models.Products.ProductColorViewModel>()
+                .ForMember(dest => dest.ColorId, opt => opt.MapFrom(src => src.ColorId))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Color.Name))
+                .ForMember(dest => dest.HexCode, opt => opt.MapFrom(src => src.Color.HexCode));
+
+            CreateMap<Product, Models.Products.ProductDetailViewModel>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
+                .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : null))
+                .ForMember(dest => dest.ReviewsCount, opt => opt.MapFrom(src => src.Reviews != null ? src.Reviews.Count : 0))
+                .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
+                .ForMember(dest => dest.ProductColors, opt => opt.MapFrom(src => src.ProductColors));
+
+            // Review mapping
+            CreateMap<Review, Models.Products.ReviewViewModel>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.UserName : "کاربر ناشناس"))
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User != null ? src.User.Email : ""));
+
+            // Admin Review mapping
+            CreateMap<Review, Areas.Admin.Models.Reviews.ReviewViewModel>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.UserName : "کاربر ناشناس"))
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User != null ? src.User.Email : ""))
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : "محصول حذف شده"))
+                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId))
+                .ForMember(dest => dest.ProductImageUrl, opt => opt.MapFrom(src => 
+                    src.Product != null && src.Product.Images != null && src.Product.Images.Any() 
+                        ? src.Product.Images.Where(i => i.IsMainImage).Select(i => i.ImageUrl).FirstOrDefault() 
+                            ?? src.Product.Images.Select(i => i.ImageUrl).FirstOrDefault()
+                        : null));
+
+            // Cart view models
+            CreateMap<Product, GolbonWebRoad.Web.Models.Cart.ProductCartViewModel>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src =>
+                    src.Images != null && src.Images.Any()
+                        ? (src.Images.Where(i => i.IsMainImage).Select(i => i.ImageUrl).FirstOrDefault() ?? src.Images.Select(i => i.ImageUrl).FirstOrDefault())
+                        : null))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price));
+
+            CreateMap<GolbonWebRoad.Application.Dtos.Products.ProductDto, GolbonWebRoad.Web.Models.Cart.ProductCartViewModel>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src =>
+                    src.Images != null && src.Images.Any()
+                        ? (src.Images.Where(i => i.IsMainImage).Select(i => i.ImageUrl).FirstOrDefault() ?? src.Images.Select(i => i.ImageUrl).FirstOrDefault())
+                        : null))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price));
+
+            CreateMap<GolbonWebRoad.Application.Dtos.CartItems.CartItemDto, GolbonWebRoad.Web.Models.Cart.CartItemViewModel>();
+
+            // 2. Map Category/Brand DTOs to simple ViewModels for filter lists
+            CreateMap<Category, Models.Products.CategoryViewModel>();
+            CreateMap<Brand, Models.Products.BrandViewModel>();
+
+            // 3. **FIX**: Create a generic map for PagedResult classes
+            // This tells AutoMapper how to convert PagedResult from the Domain/Infrastructure layer
+            // to the PagedResult (or PagedResultViewModel) class defined in the Web layer.
+            CreateMap(typeof(GolbonWebRoad.Domain.Interfaces.Repositories.PagedResult<>), typeof(GolbonWebRoad.Web.Models.Products.PagedResult<>));
 
             #endregion
             #endregion
@@ -45,7 +111,7 @@ namespace GolbonWebRoad.Web.Mapping
 
             #region Category 
             #region admin
-            CreateMap<Category, CategoryViewModel>();
+            CreateMap<Category, GolbonWebRoad.Web.Areas.Admin.Models.Categories.CategoryViewModel>();
             CreateMap<CreateCategoryViewModel, CreateCategoryCommand>();
             CreateMap<Category, EditCategoryViewModel>()
                 .ForMember(dest => dest.ExistingImage, opt => opt.MapFrom(src => src.ImageUrl));
@@ -60,11 +126,13 @@ namespace GolbonWebRoad.Web.Mapping
 
 
             #region Brand
-            CreateMap<Brand, BrandViewModel>();
+            #region admin
+            CreateMap<Brand, GolbonWebRoad.Web.Areas.Admin.Models.Brands.BrandViewModel>();
             CreateMap<Brand, EditBrandViewModel>();
             CreateMap<CreateBrandViewModel, CreateBrandCommand>();
             CreateMap<EditBrandViewModel, UpdateBrandCommand>();
             CreateMap<Brand, DeleteBrandViewModel>();
+            #endregion
             #endregion
 
 

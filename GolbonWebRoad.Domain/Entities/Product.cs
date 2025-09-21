@@ -10,7 +10,7 @@ namespace GolbonWebRoad.Domain.Entities
         public Product()
         {
 
-            Reviews=new HashSet<Reviews>();
+            Reviews=new HashSet<Review>();
             Images=new HashSet<ProductImages>();
             ProductColors=new HashSet<ProductColor>();
         }
@@ -30,7 +30,7 @@ namespace GolbonWebRoad.Domain.Entities
         public int? BrandId { get; set; }
 
         public Category Category { get; set; }
-        public ICollection<Reviews> Reviews { get; set; }
+        public ICollection<Review> Reviews { get; set; }
         public ICollection<ProductImages> Images { get; set; }
         public virtual ICollection<ProductColor> ProductColors { get; set; }
 

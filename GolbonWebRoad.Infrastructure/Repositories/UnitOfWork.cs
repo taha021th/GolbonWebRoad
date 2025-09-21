@@ -17,8 +17,9 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         public ICategoryRepository CategoryRepository { get; private set; }
         public IColorRepository ColorRepository { get; private set; }
         public IBrandRepository BrandRepository { get; private set; }
+        public IReviewsRepository ReviewsRepository { get; private set; }
 
-        public UnitOfWork(GolbonWebRoadDbContext context, ICartItemRepository cartItemRepository, IProductRepository productRepository, IOrderRepository orderRepository, ICategoryRepository categoryRepository, IColorRepository colorRepository, IBrandRepository brandRepository)
+        public UnitOfWork(GolbonWebRoadDbContext context, ICartItemRepository cartItemRepository, IProductRepository productRepository, IOrderRepository orderRepository, ICategoryRepository categoryRepository, IColorRepository colorRepository, IBrandRepository brandRepository, IReviewsRepository reviewsRepository)
         {
             _context=context;
             CartItemRepository = cartItemRepository;
@@ -27,6 +28,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             CategoryRepository= categoryRepository;
             ColorRepository= colorRepository;
             BrandRepository=brandRepository;
+            ReviewsRepository=reviewsRepository;
         }
         public async Task<int> CompleteAsync()
         {

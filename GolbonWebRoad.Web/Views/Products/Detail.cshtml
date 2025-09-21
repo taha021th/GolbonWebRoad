@@ -1,6 +1,5 @@
-﻿@using GolbonWebRoad.Application.Dtos;
-@using GolbonWebRoad.Application.Dtos.Products
-@model ProductDto
+﻿@using GolbonWebRoad.Web.Models.Products
+@model ProductDetailViewModel
 @{
     ViewData["Title"] = "جزئیات محصول";
 }
@@ -10,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صندلی راحتی چوبی - فروشگاه Tecture</title>
+    <title>@Model.Name - فروشگاه Tecture</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -106,12 +105,67 @@
         .product-card h3 { font-size: 1.1rem; margin-bottom: 10px; }
         .product-card .price { font-size: 1.2rem; font-weight: 700; color: var(--accent-color); }
         
+        /* --- Review Form Styles --- */
+        .review-form-container {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .review-form-container:hover {
+            box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+        }
+        
+        .star-label:hover {
+            transform: scale(1.1);
+        }
+        
+        .star-label:active {
+            transform: scale(0.95);
+        }
+        
+        .submit-review-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+        }
+        
+        .clear-form-btn:hover {
+            background-color: var(--border-color);
+            color: var(--primary-text-color);
+        }
+        
+        .login-required {
+            transition: all 0.3s ease;
+        }
+        
+        .login-required:hover {
+            border-color: var(--accent-color);
+        }
+        
+        .login-required a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+        
+        .review-item:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
         /* --- Responsive --- */
         @@media (max-width: 992px) { 
             .main-nav, .header-action-link span { display: none; } 
         }
         @@media (max-width: 768px) {
             .product-detail-layout { grid-template-columns: 1fr; }
+            .review-form-container { padding: 20px; }
+            .form-actions { flex-direction: column; align-items: stretch; }
+            .form-actions button { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -120,15 +174,11 @@
     <!-- [اصلاح شده] هدر کامل مشابه صفحه اصلی -->
     <header class="main-header">
         <div class="container header-container">
-            <a href="./index.html" class="logo">Tecture</a>
+            <a href="/" class="logo">Tecture</a>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="./index.html">خانه</a></li>
-                    <li><a href="#">دسته‌بندی‌ها</a></li>
-                    <li><a href="./product-list.html">محصولات</a></li>
-                    <li><a href="#">تخفیف‌ها</a></li>
-                    <li><a href="#">بلاگ</a></li>
-                    <li><a href="#">تماس با ما</a></li>
+                    <li><a href="/">خانه</a></li>
+                    <li><a asp-controller="Products" asp-action="Index">محصولات</a></li>
                 </ul>
             </nav>
             <div class="header-actions">
@@ -136,8 +186,8 @@
                     <i class="fas fa-moon"></i>
                     <i class="fas fa-sun"></i>
                 </div>
-                <a href="#" class="header-action-link"><i class="fa-solid fa-user"></i><span>ورود / ثبت‌نام</span></a>
-                <a href="Carts.html" class="header-action-link"><i class="fa-solid fa-shopping-bag"></i></a>
+                <a asp-area="Identity" asp-page="/Account/Login" class="header-action-link"><i class="fa-solid fa-user"></i><span>ورود / ثبت‌نام</span></a>
+                <a asp-controller="Cart" asp-action="Index" class="header-action-link"><i class="fa-solid fa-shopping-bag"></i></a>
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <i class="fa-solid fa-bars"></i>
             </div>
@@ -147,7 +197,7 @@
     <main>
         <div class="container">
             <div class="breadcrumb" data-aos="fade-in">
-                <a href="./index.html">خانه</a> / <a href="./product-list.html">مبلمان</a> / <span>صندلی راحتی چوبی</span>
+                <a href="/">خانه</a> / <a asp-controller="Products" asp-action="Index">@Model.CategoryName</a> / <span>@Model.Name</span>
             </div>
         </div>
 
@@ -156,45 +206,80 @@
                 <!-- گالری تصاویر -->
                 <div class="product-gallery" data-aos="fade-right">
                     <div class="main-image">
-                        <img src="https://images.unsplash.com/photo-1592078615290-033ee584e267?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800" alt="صندلی راحتی چوبی - نمای اصلی" id="mainProductImage">
+                        <img src="@(Model.Images?.FirstOrDefault(i => i.IsMainImage)?.ImageUrl ?? Model.Images?.FirstOrDefault()?.ImageUrl ?? "https://placehold.co/800x600/EFEFEF/AAAAAA?text=No+Image")" alt="@Model.Name" id="mainProductImage">
                     </div>
                     <div class="thumbnails">
-                        <img src="https://images.unsplash.com/photo-1592078615290-033ee584e267?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=200" alt="نمای ۱" class="active">
-                        <img src="https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=200" alt="نمای ۲">
-                        <img src="https://images.unsplash.com/photo-1580480055273-228ff5489221?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=200" alt="نمای ۳">
-                        <img src="https://images.unsplash.com/photo-1551291295-d5c4c92a2f13?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=200" alt="نمای ۴">
+                        @if (Model.Images != null && Model.Images.Any())
+                        {
+                            var index = 0;
+                            foreach (var img in Model.Images)
+                            {
+                                var thumbUrl = img.ImageUrl; // assuming backend provides proper sizes
+                                <img src="@thumbUrl" alt="@Model.Name @(++index)" class="@(img.IsMainImage ? "active" : null)">
+                            }
+                        }
                     </div>
                 </div>
 
                 <!-- اطلاعات محصول -->
                 <div class="product-info-main" data-aos="fade-left">
-                    <h1>صندلی راحتی چوبی</h1>
+                    <h1>@Model.Name</h1>
                     <div class="rating-reviews">
                         <span class="stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                            @{
+                                var averageRating = Model.Reviews?.Any() == true ? Model.Reviews.Average(r => r.Rating) : 0;
+                                var fullStars = (int)Math.Round(averageRating);
+                            }
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= fullStars)
+                                {
+                                    <i class="fas fa-star"></i>
+                                }
+                                else
+                                {
+                                    <i class="far fa-star"></i>
+                                }
+                            }
                         </span>
-                        <span>(۱۵ نظر)</span>
+                        <span>(@(Model.Reviews?.Count ?? 0) نظر)</span>
                     </div>
-                    <p class="price-tag">3,200,000 تومان</p>
-                    <p class="short-description">این صندلی با طراحی ارگونومیک و استفاده از چوب راش گرجستان، انتخابی ایده‌آل برای استراحت و مطالعه در گوشه‌ای دنج از خانه شماست.</p>
+                    <p class="price-tag">@Model.Price.ToString("N0") تومان</p>
+                    <p class="stock-info" style="margin-top:8px; color: var(--secondary-text-color);">
+                        موجودی: <strong>@Model.Quantity</strong> عدد
+                    </p>
+                    <p class="short-description">@Model.ShortDescription</p>
                     
                     <div class="options-group">
                         <label>انتخاب رنگ:</label>
                         <div class="color-selector">
-                            <span class="color-swatch active" style="background-color: #c9a784;" title="کرم"></span>
-                            <span class="color-swatch" style="background-color: #5f5f5f;" title="خاکستری"></span>
-                            <span class="color-swatch" style="background-color: #2e3a4d;" title="سرمه‌ای"></span>
+                            @if (Model.ProductColors != null && Model.ProductColors.Any())
+                            {
+                                var first = true;
+                                foreach (var pc in Model.ProductColors)
+                                {
+                                    var hex = pc.HexCode ?? "#cccccc";
+                                    var title = pc.Name ?? "";
+                                    <span class="color-swatch @(first ? "active" : null)" data-color-id="@pc.ColorId" style="background-color: @hex;" title="@title"></span>
+                                    first = false;
+                                }
+                            }
                         </div>
                     </div>
 
-                    <div class="actions">
-                        <div class="quantity-selector">
-                            <button>-</button>
-                            <input type="text" value="1">
-                            <button>+</button>
+                    <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" id="selectedColorId" name="colorId" value="" />
+                        <div class="actions">
+                            <div class="quantity-selector">
+                                <button type="button" id="qtyMinus">-</button>
+                                <input id="qtyInput" name="quantity" type="number" value="1" min="1" max="@Model.Quantity">
+                                <button type="button" id="qtyPlus">+</button>
+                            </div>
+                            <button type="submit" class="add-to-cart-btn" @(Model.Quantity <= 0 ? "disabled" : null)><i class="fas fa-shopping-bag"></i> افزودن به سبد خرید</button>
                         </div>
-                        <button class="add-to-cart-btn"><i class="fas fa-shopping-bag"></i> افزودن به سبد خرید</button>
-                    </div>
+                    </form>
                 </div>
             </div>
         </section>
@@ -205,10 +290,10 @@
                 <nav class="tab-nav">
                     <span class="tab-link active" data-tab="description">توضیحات</span>
                     <span class="tab-link" data-tab="specs">مشخصات</span>
-                    <span class="tab-link" data-tab="reviews">نظرات (۱۵)</span>
+                    <span class="tab-link" data-tab="reviews">نظرات (@(Model.Reviews?.Count ?? 0))</span>
                 </nav>
                 <div id="description" class="tab-content active">
-                    <p>طراحی این صندلی الهام‌گرفته از سبک اسکاندیناوی است که بر سادگی، مینیمالیسم و کارایی تمرکز دارد. پایه‌های محکم و نشیمن‌گاه راحت آن، تجربه‌ای لذت‌بخش از نشستن را برای شما به ارمغان می‌آورد. پارچه استفاده شده در این محصول ضد لک بوده و به راحتی تمیز می‌شود.</p>
+                    <p>@Html.Raw(Model.Description)</p>
                 </div>
                 <div id="specs" class="tab-content">
                     <ul>
@@ -220,7 +305,114 @@
                     </ul>
                 </div>
                 <div id="reviews" class="tab-content">
-                    <p>در حال حاضر ۱۵ نظر برای این محصول ثبت شده است...</p>
+                    <!-- فرم ثبت نظر -->
+                    <div class="review-form-container" style="background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; margin-bottom: 40px; transition: border-color 0.3s ease;">
+                        <h3 style="margin-bottom: 25px; color: var(--primary-text-color); font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-edit" style="color: var(--accent-color);"></i>
+                            ثبت نظر جدید
+                        </h3>
+                        
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <form asp-controller="Products" asp-action="CreateReview" method="post" id="reviewForm">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="ProductId" value="@Model.Id" />
+                                
+                                <div class="form-group" style="margin-bottom: 25px;">
+                                    <label style="display: block; margin-bottom: 10px; color: var(--primary-text-color); font-weight: 600; font-size: 1rem;">امتیاز شما</label>
+                                    <div class="rating-input" style="display: flex; gap: 8px; align-items: center;">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <input type="radio" name="Rating" value="@i" id="rating_@i" style="display: none;" required>
+                                            <label for="rating_@i" class="star-label" style="cursor: pointer; font-size: 2rem; color: #ddd; transition: all 0.2s ease; user-select: none;">
+                                                <i class="far fa-star"></i>
+                                            </label>
+                                        }
+                                        <span class="rating-text" style="margin-right: 15px; color: var(--secondary-text-color); font-size: 0.9rem;">لطفاً امتیاز خود را انتخاب کنید</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group" style="margin-bottom: 25px;">
+                                    <label for="ReviewText" style="display: block; margin-bottom: 10px; color: var(--primary-text-color); font-weight: 600; font-size: 1rem;">نظر شما</label>
+                                    <textarea name="ReviewText" id="ReviewText" rows="5" 
+                                              style="width: 100%; padding: 15px; border: 2px solid var(--border-color); border-radius: 8px; background-color: var(--bg-color); color: var(--primary-text-color); font-size: 1rem; line-height: 1.5; resize: vertical; transition: border-color 0.3s ease; font-family: inherit;"
+                                              placeholder="نظر خود را در مورد این محصول بنویسید..." required></textarea>
+                                </div>
+                                
+                                <div class="form-actions" style="display: flex; gap: 15px; align-items: center;">
+                                    <button type="submit" class="submit-review-btn" 
+                                            style="background: linear-gradient(135deg, var(--accent-color), #357abd); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-paper-plane"></i>
+                                        ارسال نظر
+                                    </button>
+                                    <button type="button" class="clear-form-btn" 
+                                            style="background: transparent; color: var(--secondary-text-color); border: 1px solid var(--border-color); padding: 12px 20px; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s ease;">
+                                        <i class="fas fa-eraser"></i>
+                                        پاک کردن
+                                    </button>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="login-required" style="text-align: center; padding: 30px; background-color: var(--bg-color); border-radius: 8px; border: 1px dashed var(--border-color);">
+                                <i class="fas fa-lock" style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 15px;"></i>
+                                <h4 style="margin-bottom: 10px; color: var(--primary-text-color);">برای ثبت نظر باید وارد حساب کاربری خود شوید</h4>
+                                <p style="margin-bottom: 20px; color: var(--secondary-text-color);">لطفاً ابتدا وارد حساب کاربری خود شوید تا بتوانید نظر خود را ثبت کنید.</p>
+                                <a asp-area="Identity" asp-page="/Account/Login" 
+                                   style="display: inline-flex; align-items: center; gap: 8px; background: var(--accent-color); color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    ورود به حساب کاربری
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- لیست نظرات -->
+                    @if (Model.Reviews != null && Model.Reviews.Any())
+                    {
+                        <div class="reviews-container">
+                            <h4 style="margin-bottom: 20px; color: var(--primary-text-color); font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-comments" style="color: var(--accent-color);"></i>
+                                نظرات کاربران (@Model.Reviews.Count)
+                            </h4>
+                            @foreach (var review in Model.Reviews)
+                            {
+                                <div class="review-item" style="background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 20px; transition: border-color 0.3s ease;">
+                                    <div class="review-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                        <div class="reviewer-info">
+                                            <h4 style="margin: 0; color: var(--primary-text-color); font-size: 1.1rem;">@review.UserName</h4>
+                                            <p style="margin: 5px 0 0 0; color: var(--secondary-text-color); font-size: 0.9rem;">@review.ReviewDate.ToString("yyyy/MM/dd")</p>
+                                        </div>
+                                        <div class="review-rating">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                if (i <= review.Rating)
+                                                {
+                                                    <i class="fas fa-star" style="color: #f5b327; margin-left: 2px;"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="far fa-star" style="color: #f5b327; margin-left: 2px;"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="review-content">
+                                        <p style="margin: 0; color: var(--primary-text-color); line-height: 1.6;">@review.ReviewText</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="no-reviews" style="text-align: center; padding: 40px; color: var(--secondary-text-color);">
+                            <i class="fas fa-comment-slash" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                            <h3 style="margin-bottom: 10px;">هنوز نظری ثبت نشده است</h3>
+                            <p>اولین نفری باشید که برای این محصول نظر می‌دهد!</p>
+                        </div>
+                    }
                 </div>
             </div>
         </section>
@@ -319,6 +511,229 @@
                 1024: { slidesPerView: 4 },
             },
         });
+
+        // Quantity controls with stock limit
+        const qtyInput = document.getElementById('qtyInput');
+        const maxQty = parseInt(qtyInput.getAttribute('max') || '99', 10);
+        document.getElementById('qtyPlus').addEventListener('click', function () {
+            const current = parseInt(qtyInput.value || '1', 10);
+            qtyInput.value = Math.min(maxQty, current + 1);
+        });
+        document.getElementById('qtyMinus').addEventListener('click', function () {
+            const current = parseInt(qtyInput.value || '1', 10);
+            qtyInput.value = Math.max(1, current - 1);
+        });
+
+        // Color selection -> set hidden colorId
+        const selectedColorInput = document.getElementById('selectedColorId');
+        document.querySelectorAll('.color-swatch').forEach(el => {
+            el.addEventListener('click', function () {
+                const active = document.querySelector('.color-swatch.active');
+                if (active) active.classList.remove('active');
+                this.classList.add('active');
+                const colorId = this.getAttribute('data-color-id');
+                selectedColorInput.value = colorId || '';
+            });
+        });
+
+        // Review form functionality
+        (function reviewFormHandler() {
+            const ratingInputs = document.querySelectorAll('input[name="Rating"]');
+            const starLabels = document.querySelectorAll('.star-label');
+            const ratingText = document.querySelector('.rating-text');
+            const clearBtn = document.querySelector('.clear-form-btn');
+            const reviewForm = document.getElementById('reviewForm');
+            const reviewTextarea = document.getElementById('ReviewText');
+
+            // Rating labels text
+            const ratingTexts = [
+                'لطفاً امتیاز خود را انتخاب کنید',
+                'خیلی ضعیف',
+                'ضعیف',
+                'متوسط',
+                'خوب',
+                'عالی'
+            ];
+
+            // Star rating interaction
+            starLabels.forEach((label, index) => {
+                label.addEventListener('click', function() {
+                    const rating = index + 1;
+                    
+                    // Update visual stars
+                    starLabels.forEach((l, i) => {
+                        const icon = l.querySelector('i');
+                        if (i < rating) {
+                            icon.className = 'fas fa-star';
+                            l.style.color = '#f5b327';
+                        } else {
+                            icon.className = 'far fa-star';
+                            l.style.color = '#ddd';
+                        }
+                    });
+                    
+                    // Update text
+                    if (ratingText) {
+                        ratingText.textContent = ratingTexts[rating];
+                        ratingText.style.color = 'var(--accent-color)';
+                    }
+                });
+
+                // Hover effects
+                label.addEventListener('mouseenter', function() {
+                    const rating = index + 1;
+                    starLabels.forEach((l, i) => {
+                        const icon = l.querySelector('i');
+                        if (i < rating) {
+                            icon.className = 'fas fa-star';
+                            l.style.color = '#f5b327';
+                        } else {
+                            icon.className = 'far fa-star';
+                            l.style.color = '#ddd';
+                        }
+                    });
+                });
+            });
+
+            // Reset hover when mouse leaves rating area
+            const ratingContainer = document.querySelector('.rating-input');
+            if (ratingContainer) {
+                ratingContainer.addEventListener('mouseleave', function() {
+                    const checkedRating = document.querySelector('input[name="Rating"]:checked');
+                    if (checkedRating) {
+                        const rating = parseInt(checkedRating.value);
+                        starLabels.forEach((l, i) => {
+                            const icon = l.querySelector('i');
+                            if (i < rating) {
+                                icon.className = 'fas fa-star';
+                                l.style.color = '#f5b327';
+                            } else {
+                                icon.className = 'far fa-star';
+                                l.style.color = '#ddd';
+                            }
+                        });
+                    } else {
+                        starLabels.forEach(l => {
+                            const icon = l.querySelector('i');
+                            icon.className = 'far fa-star';
+                            l.style.color = '#ddd';
+                        });
+                    }
+                });
+            }
+
+            // Clear form button
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    // Reset rating
+                    ratingInputs.forEach(input => input.checked = false);
+                    starLabels.forEach(l => {
+                        const icon = l.querySelector('i');
+                        icon.className = 'far fa-star';
+                        l.style.color = '#ddd';
+                    });
+                    if (ratingText) {
+                        ratingText.textContent = ratingTexts[0];
+                        ratingText.style.color = 'var(--secondary-text-color)';
+                    }
+                    
+                    // Reset textarea
+                    if (reviewTextarea) {
+                        reviewTextarea.value = '';
+                    }
+                });
+            }
+
+            // Form validation
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', function(e) {
+                    const selectedRating = document.querySelector('input[name="Rating"]:checked');
+                    const reviewText = reviewTextarea ? reviewTextarea.value.trim() : '';
+                    
+                    if (!selectedRating) {
+                        e.preventDefault();
+                        alert('لطفاً امتیاز خود را انتخاب کنید');
+                        return false;
+                    }
+                    
+                    if (!reviewText) {
+                        e.preventDefault();
+                        alert('لطفاً نظر خود را بنویسید');
+                        if (reviewTextarea) reviewTextarea.focus();
+                        return false;
+                    }
+                    
+                    if (reviewText.length < 10) {
+                        e.preventDefault();
+                        alert('نظر شما باید حداقل ۱۰ کاراکتر باشد');
+                        if (reviewTextarea) reviewTextarea.focus();
+                        return false;
+                    }
+                });
+            }
+        })();
+
+        // Display success/error messages
+        (function messageHandler() {
+            const successMessage = '@TempData["Success"]';
+            const errorMessage = '@TempData["Error"]';
+            
+            if (successMessage) {
+                showNotification(successMessage, 'success');
+            }
+            
+            if (errorMessage) {
+                showNotification(errorMessage, 'error');
+            }
+            
+            function showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    color: white;
+                    font-weight: 600;
+                    z-index: 10000;
+                    max-width: 400px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    transform: translateX(100%);
+                    transition: transform 0.3s ease;
+                `;
+                
+                if (type === 'success') {
+                    notification.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
+                } else {
+                    notification.style.background = 'linear-gradient(135deg, #f44336, #d32f2f)';
+                }
+                
+                notification.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Animate in
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 100);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 5000);
+            }
+        })();
     </script>
 </body>
 </html>

@@ -1,6 +1,5 @@
-﻿@using GolbonWebRoad.Application.Dtos;
-@using GolbonWebRoad.Application.Dtos.CartItems;
-@model List<CartItemDto>
+﻿@using GolbonWebRoad.Web.Models.Cart
+@model List<CartItemViewModel>
 @{
     ViewData["Title"] = "سبد خرید";
     // Calculate the total price
@@ -98,21 +97,17 @@
     <div class="promo-banner"><p>ارسال رایگان برای خریدهای بالای ۵۰۰ هزار تومان!</p></div>
     <header class="main-header">
         <div class="container header-container">
-            <a href="./index.html" class="logo">Tecture</a>
+            <a href="/" class="logo">Tecture</a>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="./index.html">خانه</a></li>
-                    <li><a href="#">دسته‌بندی‌ها</a></li>
-                    <li><a href="./product-list.html">محصولات</a></li>
-                    <li><a href="#">تخفیف‌ها</a></li>
-                    <li><a href="#">بلاگ</a></li>
-                    <li><a href="#">تماس با ما</a></li>
+                    <li><a href="/">خانه</a></li>
+                    <li><a asp-controller="Products" asp-action="Index">محصولات</a></li>
                 </ul>
             </nav>
             <div class="header-actions">
                 <div id="theme-toggle"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></div>
-                <a href="#" class="header-action-link"><i class="fa-solid fa-user"></i><span>ورود / ثبت‌نام</span></a>
-                <a href="Carts.html" class="header-action-link"><i class="fa-solid fa-shopping-bag"></i></a>
+                <a asp-area="Identity" asp-page="/Account/Login" class="header-action-link"><i class="fa-solid fa-user"></i><span>ورود / ثبت‌نام</span></a>
+                <a asp-controller="Cart" asp-action="Index" class="header-action-link"><i class="fa-solid fa-shopping-bag"></i></a>
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <i class="fa-solid fa-bars"></i>
             </div>
@@ -128,41 +123,37 @@
             <div class="container cart-layout">
                 <!-- لیست محصولات در سبد -->
                 <div class="cart-items" data-aos="fade-up">
-                    <!-- محصول ۱ -->
-                    <div class="cart-item">
-                        <div class="cart-item-image">
-                            <img src="https://images.unsplash.com/photo-1592078615290-033ee584e267?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=200" alt="صندلی راحتی چوبی">
-                        </div>
-                        <div class="cart-item-details">
-                            <h3>صندلی راحتی چوبی</h3>
-                            <p class="price">3,200,000 تومان</p>
-                        </div>
-                        <div class="quantity-selector">
-                            <button>-</button>
-                            <input type="text" value="1">
-                            <button>+</button>
-                        </div>
-                        <p class="item-total-price">3,200,000 تومان</p>
-                        <button class="remove-item-btn" title="حذف محصول"><i class="fas fa-trash"></i></button>
-                    </div>
-
-                    <!-- محصول ۲ -->
-                    <div class="cart-item">
-                        <div class="cart-item-image">
-                            <img src="https://images.unsplash.com/photo-1538688525198-9b88f6f53126?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=200" alt="چراغ مطالعه رومیزی">
-                        </div>
-                        <div class="cart-item-details">
-                            <h3>چراغ مطالعه رومیزی</h3>
-                            <p class="price">1,850,000 تومان</p>
-                        </div>
-                        <div class="quantity-selector">
-                            <button>-</button>
-                            <input type="text" value="2">
-                            <button>+</button>
-                        </div>
-                        <p class="item-total-price">3,700,000 تومان</p>
-                        <button class="remove-item-btn" title="حذف محصول"><i class="fas fa-trash"></i></button>
-                    </div>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            var mainImage = item.Product?.ImageUrl ?? "https://placehold.co/200x200/EFEFEF/AAAAAA?text=No+Image";
+                            var itemTotal = item.Product.Price * item.Quantity;
+                            int? colorId = item.ColorId;
+                            <div class="cart-item">
+                                <div class="cart-item-image">
+                                    <img src="@mainImage" alt="@item.Product?.Name">
+                                </div>
+                                <div class="cart-item-details">
+                                    <h3>@item.Product?.Name</h3>
+                                    <p class="price">@item.Product.Price.ToString("N0") تومان</p>
+                                </div>
+                                <div class="quantity-selector">
+                                    <span style="padding:5px 12px">@item.Quantity</span>
+                                </div>
+                                <p class="item-total-price">@itemTotal.ToString("N0") تومان</p>
+                                <form asp-controller="Cart" asp-action="RemoveFromCart" method="post">
+                                    <input type="hidden" name="id" value="@item.ProductId" />
+                                    <input type="hidden" name="colorId" value="@colorId" />
+                                    <button type="submit" class="remove-item-btn" title="حذف محصول"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>سبد خرید شما خالی است.</p>
+                    }
                 </div>
 
                 <!-- خلاصه سفارش -->
@@ -170,7 +161,7 @@
                     <h2>خلاصه سفارش</h2>
                     <div class="summary-row">
                         <span>جمع کل</span>
-                        <span>6,900,000 تومان</span>
+                        <span>@totalPrice.ToString("N0") تومان</span>
                     </div>
                     <div class="summary-row">
                         <span>هزینه ارسال</span>
@@ -178,14 +169,14 @@
                     </div>
                     <div class="summary-row summary-total">
                         <span>مبلغ قابل پرداخت</span>
-                        <span>6,900,000 تومان</span>
+                        <span>@totalPrice.ToString("N0") تومان</span>
                     </div>
                     <form class="coupon-form">
                         <label>کد تخفیف دارید؟</label>
                         <input type="text" placeholder="کد تخفیف را وارد کنید">
                     </form>
-                    <button class="btn">ادامه جهت تسویه حساب</button>
-                    <a href="./product-list.html" class="btn btn-secondary">ادامه خرید</a>
+                    <a class="btn" asp-controller="Checkout" asp-action="Index">ادامه جهت تسویه حساب</a>
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-secondary">ادامه خرید</a>
                 </aside>
             </div>
         </section>

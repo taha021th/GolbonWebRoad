@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using GolbonWebRoad.Application.Dtos.Orders
+@model IEnumerable<OrderDto>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -87,19 +89,17 @@
     <div class="promo-banner"><p>ارسال رایگان برای خریدهای بالای ۵۰۰ هزار تومان!</p></div>
     <header class="main-header">
         <div class="container header-container">
-            <a href="./index.html" class="logo">Tecture</a>
+            <a href="/" class="logo">Tecture</a>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="./index.html">خانه</a></li>
-                    <li><a href="#">دسته‌بندی‌ها</a></li>
-                    <li><a href="./product-list.html">محصولات</a></li>
-                    <li><a href="#">تخفیف‌ها</a></li>
+                    <li><a href="/">خانه</a></li>
+                    <li><a asp-controller="Products" asp-action="Index">محصولات</a></li>
                 </ul>
             </nav>
             <div class="header-actions">
                 <div id="theme-toggle"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></div>
-                <a href="#" class="header-action-link"><i class="fa-solid fa-user"></i><span>حساب کاربری</span></a>
-                <a href="./cart.html" class="header-action-link"><i class="fa-solid fa-shopping-bag"></i></a>
+                <a asp-controller="Dashboard" asp-action="Index" class="header-action-link"><i class="fa-solid fa-user"></i><span>حساب کاربری</span></a>
+                <a asp-controller="Cart" asp-action="Index" class="header-action-link"><i class="fa-solid fa-shopping-bag"></i></a>
                 <i class="fa-solid fa-magnifying-glass"></i>
             </div>
         </div>
@@ -116,7 +116,7 @@
                 <aside class="dashboard-nav" data-aos="fade-right">
                     <ul>
                         <li><a href="#dashboard" class="dashboard-link active"><i class="fas fa-tachometer-alt"></i> پیشخوان</a></li>
-                        <li><a href="#orders" class="dashboard-link"><i class="fas fa-box"></i> سفارش‌ها</a></li>
+                        <li><a href="#orders" class="dashboard-link"><i class="fas fa-box"></i> سفارش‌ها (@(Model?.Count() ?? 0))</a></li>
                         <li><a href="#addresses" class="dashboard-link"><i class="fas fa-map-marker-alt"></i> آدرس‌ها</a></li>
                         <li><a href="#account-details" class="dashboard-link"><i class="fas fa-user-edit"></i> جزئیات حساب</a></li>
                         <li><a href="#"><i class="fas fa-sign-out-alt"></i> خروج</a></li>
@@ -129,6 +129,7 @@
                     <div id="dashboard" class="dashboard-panel active">
                         <h2>پیشخوان</h2>
                         <p>سلام <strong>کاربر عزیز</strong>، خوش آمدید!</p>
+                        <p>شما تاکنون @((Model?.Count() ?? 0).ToString("N0")) سفارش ثبت کرده‌اید.</p>
                         <p>از طریق پیشخوان حساب کاربری خود می‌توانید سفارش‌های اخیرتان را مشاهده، آدرس‌های حمل و نقل و صورتحساب‌تان را مدیریت و جزئیات حساب کاربری و کلمه عبور خود را ویرایش کنید.</p>
                     </div>
 
@@ -146,20 +147,24 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>#۱۲۳۴۵</td>
-                                    <td>۱۴ شهریور ۱۴۰۴</td>
-                                    <td><span class="status-badge status-completed">تکمیل شده</span></td>
-                                    <td>۶,۹۰۰,۰۰۰ تومان</td>
-                                    <td><a href="#" class="btn">مشاهده</a></td>
-                                </tr>
-                                <tr>
-                                    <td>#۱۲۳۰۰</td>
-                                    <td>۱۰ مرداد ۱۴۰۴</td>
-                                    <td><span class="status-badge status-processing">در حال پردازش</span></td>
-                                    <td>۲,۱۰۰,۰۰۰ تومان</td>
-                                    <td><a href="#" class="btn">مشاهده</a></td>
-                                </tr>
+                                @if (Model != null && Model.Any())
+                                {
+                                    foreach (var order in Model)
+                                    {
+                                        var statusClass = order.OrderStatus == "Completed" ? "status-completed" : "status-processing";
+                                        <tr>
+                                            <td>#@order.Id</td>
+                                            <td>@order.OrderDate.ToString("yyyy/MM/dd HH:mm")</td>
+                                            <td><span class="status-badge @statusClass">@order.OrderStatus</span></td>
+                                            <td>@order.TotalAmount.ToString("N0") تومان</td>
+                                            <td><a asp-controller="Orders" asp-action="Detail" asp-route-id="@order.Id" class="btn">مشاهده</a></td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="5">سفارشی یافت نشد.</td></tr>
+                                }
                             </tbody>
                         </table>
                     </div>

@@ -1,6 +1,6 @@
-﻿@using GolbonWebRoad.Application.Dtos
-@using GolbonWebRoad.Application.Dtos.Products
-@model IEnumerable<ProductDto>
+﻿@using GolbonWebRoad.Web.Models.Products
+
+@model HomeProductViewModel
 @{
     ViewData["Title"] = "صفحه اصلی";
 }
@@ -44,8 +44,15 @@
             --border-color: #e4e4e7;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
 
         body {
             font-family: var(--main-font);
@@ -61,56 +68,186 @@
             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        a { text-decoration: none; color: var(--primary-text-color); transition: color 0.3s ease; }
-        a:hover { color: var(--accent-color); }
-        img { max-width: 100%; height: auto; display: block; }
-        section { padding: 100px 0; }
-        .section-title { font-size: 2.8rem; font-weight: 800; margin-bottom: 50px; text-align: center; }
-        .grid-3-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-        .promo-banner { background-color: var(--accent-color); color: var(--primary-text-color); text-align: center; padding: 8px 0; font-weight: 700; font-size: 0.9rem; }
-        .main-header { background-color: rgba(18, 18, 18, 0.8); border-bottom: 1px solid var(--border-color); padding: 15px 0; position: sticky; top: 0; width: 100%; z-index: 1000; backdrop-filter: blur(10px); }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary-text-color);
+            transition: color 0.3s ease;
+        }
+
+            a:hover {
+                color: var(--accent-color);
+            }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        section {
+            padding: 100px 0;
+        }
+
+        .section-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .grid-3-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .promo-banner {
+            background-color: var(--accent-color);
+            color: var(--primary-text-color);
+            text-align: center;
+            padding: 8px 0;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .main-header {
+            background-color: rgba(18, 18, 18, 0.8);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
 
         body.light-mode .main-header {
             background-color: rgba(229, 231, 235, 0.8);
         }
 
-        .header-container { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
-        .main-nav ul { list-style: none; display: flex; }
-        .main-nav ul li { margin-right: 30px; }
-        .main-nav a { font-weight: 700; }
-        .header-actions { display: flex; align-items: center; gap: 25px; font-size: 1.3rem; }
-        .header-action-link { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 700; }
-        .header-action-link span { display: inline; }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-        #theme-toggle { cursor: pointer; }
-        #theme-toggle .fa-sun { display: none; }
-        body.light-mode #theme-toggle .fa-sun { display: inline-block; }
-        body.light-mode #theme-toggle .fa-moon { display: none; }
-
-        .hero-section { height: 90vh; display: flex; align-items: center; padding: 0; background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=3870') no-repeat center center/cover; position: relative; }
-        .hero-section::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, rgba(0,0,0,0.7), transparent); }
-        .hero-content { z-index: 2; }
-
-        .hero-content h1 {
-            font-size: 4.5rem;
+        .logo {
+            font-size: 2rem;
             font-weight: 800;
-            max-width: 600px;
-            line-height: 1.2;
-            margin-bottom: 20px;
-            color: #FFFFFF;
+            letter-spacing: -1px;
         }
 
-        .hero-content p {
-            max-width: 500px;
-            color: #e0e0e0;
-            margin-bottom: 30px;
+        .main-nav ul {
+            list-style: none;
+            display: flex;
         }
 
-        .hero-content .btn {
+            .main-nav ul li {
+                margin-right: 30px;
+            }
+
+        .main-nav a {
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            font-size: 1.3rem;
+        }
+
+        .header-action-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+            .header-action-link span {
+                display: inline;
+            }
+
+        #theme-toggle {
+            cursor: pointer;
+        }
+
+            #theme-toggle .fa-sun {
+                display: none;
+            }
+
+        body.light-mode #theme-toggle .fa-sun {
+            display: inline-block;
+        }
+
+        body.light-mode #theme-toggle .fa-moon {
+            display: none;
+        }
+
+        .hero-section {
+            height: 90vh;
+            display: flex;
+            align-items: center;
+            padding: 0;
+            background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=3870') no-repeat center center/cover;
+            position: relative;
+        }
+
+            .hero-section::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(to right, rgba(0,0,0,0.7), transparent);
+            }
+
+        .hero-content {
+            z-index: 2;
+        }
+
+            .hero-content h1 {
+                font-size: 4.5rem;
+                font-weight: 800;
+                max-width: 600px;
+                line-height: 1.2;
+                margin-bottom: 20px;
+                color: #FFFFFF;
+            }
+
+            .hero-content p {
+                max-width: 500px;
+                color: #e0e0e0;
+                margin-bottom: 30px;
+            }
+
+            .hero-content .btn {
+                background-color: var(--accent-color);
+                color: #FFFFFF;
+                padding: 12px 30px;
+                border: 2px solid var(--accent-color);
+                font-weight: 700;
+                display: inline-block;
+                transition: all 0.3s ease;
+            }
+
+                .hero-content .btn:hover {
+                    background-color: transparent;
+                    color: #FFFFFF;
+                    border-color: #FFFFFF;
+                }
+
+        .btn {
             background-color: var(--accent-color);
-            color: #FFFFFF;
+            color: var(--primary-text-color);
             padding: 12px 30px;
             border: 2px solid var(--accent-color);
             font-weight: 700;
@@ -118,117 +255,643 @@
             transition: all 0.3s ease;
         }
 
-        .hero-content .btn:hover {
-            background-color: transparent;
-            color: #FFFFFF;
-            border-color: #FFFFFF;
+            .btn:hover {
+                background-color: transparent;
+                color: var(--primary-text-color);
+            }
+
+        body.light-mode .btn:hover {
+            color: var(--accent-color);
         }
 
-        .btn { background-color: var(--accent-color); color: var(--primary-text-color); padding: 12px 30px; border: 2px solid var(--accent-color); font-weight: 700; display: inline-block; transition: all 0.3s ease; }
-        .btn:hover { background-color: transparent; color: var(--primary-text-color); }
-        body.light-mode .btn:hover { color: var(--accent-color); }
+        .category-slider-section {
+            padding: 60px 0;
+        }
 
-        .category-slider-section { padding: 60px 0; }
-        .category-card { background-color: var(--card-bg-color); border: 1px solid var(--border-color); padding: 20px; text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .category-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .category-card img { width: 100%; height: 200px; object-fit: cover; margin-bottom: 15px; }
-        .category-card h3 { font-size: 1.2rem; font-weight: 700; }
-        .category-swiper .swiper-button-next, .category-swiper .swiper-button-prev { color: var(--primary-text-color); background-color: rgba(0, 0, 0, 0.5); width: 44px; height: 44px; border-radius: 50%; }
-        .category-swiper .swiper-pagination-bullet { background-color: var(--secondary-text-color); opacity: 0.7; }
-        .category-swiper .swiper-pagination-bullet-active { background-color: var(--primary-text-color); opacity: 1; }
-        .product-slider-section { padding: 80px 0; background-color: #161616; }
-        body.light-mode .product-slider-section { background-color: #e9e9ed; }
-        .product-card { background-color: var(--card-bg-color); border: 1px solid var(--border-color); transition: transform 0.3s ease; overflow: hidden; }
-        .product-card:hover { transform: translateY(-5px); }
-        .product-card img { width: 100%; height: 220px; object-fit: cover; }
-        .product-card-content { padding: 20px; }
-        .product-card h3 { font-size: 1.1rem; margin-bottom: 10px; }
-        .price { font-size: 1.2rem; font-weight: 700; color: var(--primary-text-color); margin-bottom: 20px; }
-        .btn-product { display: inline-block; background-color: var(--accent-color); border: 1px solid var(--accent-color); color: var(--primary-text-color); padding: 8px 16px; font-size: 0.9rem; font-weight: 700; transition: all 0.3s ease; }
-        .btn-product:hover { background-color: transparent; color: var(--accent-color); }
-        .product-swiper .swiper-button-next, .product-swiper .swiper-button-prev { color: var(--primary-text-color); }
-        .product-swiper .swiper-pagination-bullet { background-color: var(--secondary-text-color); }
-        .product-swiper .swiper-pagination-bullet-active { background-color: var(--primary-text-color); }
-        .features-section { background-color: var(--card-bg-color); }
-        .feature-card { text-align: center; padding: 40px; }
-        .feature-card i { font-size: 3rem; margin-bottom: 20px; color: var(--accent-color); }
-        .feature-card h3 { font-size: 1.5rem; margin-bottom: 15px; }
-        .feature-card p { color: var(--secondary-text-color); }
-        .deal-section { background: #161616; }
-        body.light-mode .deal-section { background-color: #e9e9ed; }
-        .deal-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
-        .deal-image img { border: 10px solid var(--card-bg-color); }
-        .deal-content .section-title { text-align: right; margin-bottom: 20px; }
-        .deal-content h3 { font-size: 2rem; margin-bottom: 15px; }
-        .deal-description { color: var(--secondary-text-color); margin-bottom: 25px; max-width: 450px;}
-        .deal-price { margin-bottom: 30px; }
-        .deal-price .old-price { font-size: 1.5rem; text-decoration: line-through; color: var(--secondary-text-color); margin-left: 15px; }
-        .deal-price .new-price { font-size: 2.2rem; font-weight: 800; color: var(--deal-color); }
-        .countdown-timer { display: flex; gap: 15px; margin-bottom: 30px; }
-        .time-block { background: var(--card-bg-color); border: 1px solid var(--border-color); padding: 15px; text-align: center; min-width: 80px; }
-        .time-block span { font-size: 2rem; font-weight: 800; display: block; }
-        .time-block small { font-size: 0.9rem; color: var(--secondary-text-color); }
-        .btn-deal { background-color: var(--deal-color); border-color: var(--deal-color); }
-        .btn-deal:hover { color: var(--deal-color); }
-        .shop-look-section { background-color: var(--bg-color); }
-        .look-card { position: relative; overflow: hidden; }
-        .look-card img { transition: transform 0.4s ease; }
-        .look-card:hover img { transform: scale(1.05); }
-        .look-card .overlay { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); padding: 30px 20px; color: white; transition: all 0.4s ease; }
-        .look-card .overlay h3 { font-size: 1.4rem; margin-bottom: 10px; }
-        .btn-look { display: inline-block; background: var(--accent-color); padding: 8px 18px; font-weight: 700; font-size: 0.9rem; margin-top: 10px; border: 1px solid var(--accent-color); }
-        .btn-look:hover { background: transparent; color: var(--primary-text-color); }
-        body.light-mode .btn-look:hover { color: var(--accent-color); }
-        .about-section { background-color: #161616; }
-        body.light-mode .about-section { background-color: #e9e9ed; }
-        .about-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
-        .about-image img { border: 10px solid var(--card-bg-color); }
-        .about-text .section-title { text-align: right; }
-        .testimonials-section { background-color: var(--card-bg-color); }
-        .testimonial-card { border: 1px solid var(--border-color); padding: 30px; text-align: center; }
-        .testimonial-card img { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; object-fit: cover; }
-        .testimonial-card .author { font-weight: 700; font-size: 1.1rem; margin-top: 15px; }
-        .testimonial-card .role { color: var(--secondary-text-color); font-size: 0.9rem; }
-        .blog-card { background-color: var(--card-bg-color); }
-        .blog-card-content { padding: 25px; }
-        .blog-card-content h3 { font-size: 1.3rem; margin-bottom: 10px; }
-        .blog-card-content a { font-weight: 700; margin-top: 15px; display: inline-block; color: var(--accent-color); }
-        .main-footer { background-color: #000000; color: var(--secondary-text-color); padding: 80px 0 30px; border-top: 1px solid var(--border-color); }
-        body.light-mode .main-footer { background-color: #18181b; }
-        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; }
-        .footer-section h4 { color: var(--primary-text-color); margin-bottom: 20px; font-size: 1.2rem; }
-        .footer-section ul { list-style: none; }
-        .footer-section li { margin-bottom: 10px; }
-        .newsletter-form { display: flex; margin-top: 20px; }
-        .newsletter-form input { flex-grow: 1; background: #333; border: 1px solid var(--border-color); color: var(--primary-text-color); padding: 10px; border-radius: 0; }
-        body.light-mode .newsletter-form input { background-color: #f4f4f5; border-color: #d4d4d8; }
-        .newsletter-form button { background: var(--accent-color); border: 1px solid var(--accent-color); color: white; padding: 10px 15px; cursor: pointer; font-weight: 700; }
-        .footer-bottom { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--border-color); font-size: 0.9rem; }
-        .trust-badges { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 20px; }
-        .trust-badges img { height: 40px; filter: grayscale(100%); opacity: 0.7; transition: all 0.3s ease; }
-        .trust-badges img:hover { filter: grayscale(0%); opacity: 1; }
-        @@media (max-width: 992px) { .main-nav, .header-action-link span { display: none; } }
+        .category-card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .category-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+
+            .category-card img {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                margin-bottom: 15px;
+            }
+
+            .category-card h3 {
+                font-size: 1.2rem;
+                font-weight: 700;
+            }
+
+        .category-swiper .swiper-button-next, .category-swiper .swiper-button-prev {
+            color: var(--primary-text-color);
+            background-color: rgba(0, 0, 0, 0.5);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+        }
+
+        .category-swiper .swiper-pagination-bullet {
+            background-color: var(--secondary-text-color);
+            opacity: 0.7;
+        }
+
+        .category-swiper .swiper-pagination-bullet-active {
+            background-color: var(--primary-text-color);
+            opacity: 1;
+        }
+
+        .product-slider-section {
+            padding: 80px 0;
+            background-color: #161616;
+        }
+
+        body.light-mode .product-slider-section {
+            background-color: #e9e9ed;
+        }
+
+        .product-card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+            overflow: hidden;
+        }
+
+            .product-card:hover {
+                transform: translateY(-5px);
+            }
+
+            .product-card img {
+                width: 100%;
+                height: 220px;
+                object-fit: cover;
+            }
+
+        .product-card-content {
+            padding: 20px;
+        }
+
+        .product-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-text-color);
+            margin-bottom: 20px;
+        }
+
+        .btn-product {
+            display: inline-block;
+            background-color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            color: var(--primary-text-color);
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+            .btn-product:hover {
+                background-color: transparent;
+                color: var(--accent-color);
+            }
+
+        .product-swiper .swiper-button-next, .product-swiper .swiper-button-prev {
+            color: var(--primary-text-color);
+        }
+
+        .product-swiper .swiper-pagination-bullet {
+            background-color: var(--secondary-text-color);
+        }
+
+        .product-swiper .swiper-pagination-bullet-active {
+            background-color: var(--primary-text-color);
+        }
+
+        .features-section {
+            background-color: var(--card-bg-color);
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 40px;
+        }
+
+            .feature-card i {
+                font-size: 3rem;
+                margin-bottom: 20px;
+                color: var(--accent-color);
+            }
+
+            .feature-card h3 {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+
+            .feature-card p {
+                color: var(--secondary-text-color);
+            }
+
+        .deal-section {
+            background: #161616;
+        }
+
+        body.light-mode .deal-section {
+            background-color: #e9e9ed;
+        }
+
+        .deal-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .deal-image img {
+            border: 10px solid var(--card-bg-color);
+        }
+
+        .deal-content .section-title {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .deal-content h3 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .deal-description {
+            color: var(--secondary-text-color);
+            margin-bottom: 25px;
+            max-width: 450px;
+        }
+
+        .deal-price {
+            margin-bottom: 30px;
+        }
+
+            .deal-price .old-price {
+                font-size: 1.5rem;
+                text-decoration: line-through;
+                color: var(--secondary-text-color);
+                margin-left: 15px;
+            }
+
+            .deal-price .new-price {
+                font-size: 2.2rem;
+                font-weight: 800;
+                color: var(--deal-color);
+            }
+
+        .countdown-timer {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .time-block {
+            background: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            text-align: center;
+            min-width: 80px;
+        }
+
+            .time-block span {
+                font-size: 2rem;
+                font-weight: 800;
+                display: block;
+            }
+
+            .time-block small {
+                font-size: 0.9rem;
+                color: var(--secondary-text-color);
+            }
+
+        .btn-deal {
+            background-color: var(--deal-color);
+            border-color: var(--deal-color);
+        }
+
+            .btn-deal:hover {
+                color: var(--deal-color);
+            }
+
+        .shop-look-section {
+            background-color: var(--bg-color);
+        }
+
+        .look-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+            .look-card img {
+                transition: transform 0.4s ease;
+            }
+
+            .look-card:hover img {
+                transform: scale(1.05);
+            }
+
+            .look-card .overlay {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+                padding: 30px 20px;
+                color: white;
+                transition: all 0.4s ease;
+            }
+
+                .look-card .overlay h3 {
+                    font-size: 1.4rem;
+                    margin-bottom: 10px;
+                }
+
+        .btn-look {
+            display: inline-block;
+            background: var(--accent-color);
+            padding: 8px 18px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            border: 1px solid var(--accent-color);
+        }
+
+            .btn-look:hover {
+                background: transparent;
+                color: var(--primary-text-color);
+            }
+
+        body.light-mode .btn-look:hover {
+            color: var(--accent-color);
+        }
+
+        .about-section {
+            background-color: #161616;
+        }
+
+        body.light-mode .about-section {
+            background-color: #e9e9ed;
+        }
+
+        .about-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .about-image img {
+            border: 10px solid var(--card-bg-color);
+        }
+
+        .about-text .section-title {
+            text-align: right;
+        }
+
+        .testimonials-section {
+            background-color: var(--card-bg-color);
+        }
+
+        .testimonial-card {
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            text-align: center;
+        }
+
+            .testimonial-card img {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                margin: 0 auto 20px;
+                object-fit: cover;
+            }
+
+            .testimonial-card .author {
+                font-weight: 700;
+                font-size: 1.1rem;
+                margin-top: 15px;
+            }
+
+            .testimonial-card .role {
+                color: var(--secondary-text-color);
+                font-size: 0.9rem;
+            }
+
+        .blog-card {
+            background-color: var(--card-bg-color);
+        }
+
+        .blog-card-content {
+            padding: 25px;
+        }
+
+            .blog-card-content h3 {
+                font-size: 1.3rem;
+                margin-bottom: 10px;
+            }
+
+            .blog-card-content a {
+                font-weight: 700;
+                margin-top: 15px;
+                display: inline-block;
+                color: var(--accent-color);
+            }
+
+        .main-footer {
+            background-color: #000000;
+            color: var(--secondary-text-color);
+            padding: 80px 0 30px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        body.light-mode .main-footer {
+            background-color: #18181b;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-section h4 {
+            color: var(--primary-text-color);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            margin-bottom: 10px;
+        }
+
+        .newsletter-form {
+            display: flex;
+            margin-top: 20px;
+        }
+
+            .newsletter-form input {
+                flex-grow: 1;
+                background: #333;
+                border: 1px solid var(--border-color);
+                color: var(--primary-text-color);
+                padding: 10px;
+                border-radius: 0;
+            }
+
+        body.light-mode .newsletter-form input {
+            background-color: #f4f4f5;
+            border-color: #d4d4d8;
+        }
+
+        .newsletter-form button {
+            background: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+            .trust-badges img {
+                height: 40px;
+                filter: grayscale(100%);
+                opacity: 0.7;
+                transition: all 0.3s ease;
+            }
+
+                .trust-badges img:hover {
+                    filter: grayscale(0%);
+                    opacity: 1;
+                }
+
+        @@media (max-width: 992px) {
+            .main-nav, .header-action-link span {
+                display: none;
+            }
+        }
+
         @@media (max-width: 768px) {
-            .grid-3-col, .about-layout, .deal-layout { grid-template-columns: 1fr; }
-            .section-title, .hero-content h1 { font-size: 2.5rem; }
-            .header-actions { gap: 20px; }
-            .about-text .section-title, .deal-content .section-title { text-align: center; }
+            .grid-3-col, .about-layout, .deal-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title, .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .header-actions {
+                gap: 20px;
+            }
+
+            .about-text .section-title, .deal-content .section-title {
+                text-align: center;
+            }
+        }
+        /* =================================== */
+        /* === استایل‌های جدید برای اسلایدر دسته‌بندی === */
+        /* =================================== */
+        .category-slider-section {
+            background-color: var(--card-bg-color);
+            padding: 80px 0;
+            overflow: hidden; /* جلوگیری از نمایش ناخواسته اسلایدها */
         }
 
+        .category-swiper {
+            width: 100%;
+            padding-top: 50px;
+            padding-bottom: 50px;
+        }
+
+            .category-swiper .swiper-slide {
+                background-position: center;
+                background-size: cover;
+                width: 300px;
+                height: 400px;
+                filter: grayscale(80%);
+                transition: filter 0.5s ease;
+            }
+
+                /* حالت فعال و هاور شده اسلاید */
+                .category-swiper .swiper-slide-active,
+                .category-swiper .swiper-slide:hover {
+                    filter: grayscale(0%);
+                }
+
+        .category-slide-card {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px; /* گوشه‌های گرد برای زیبایی بیشتر */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+            .category-slide-card img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.4s ease;
+            }
+
+            .category-slide-card:hover img {
+                transform: scale(1.05);
+            }
+
+        .category-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
+            padding: 25px 20px;
+            color: #fff;
+            text-align: right;
+            transition: all 0.4s ease;
+        }
+
+            /* ================================================= */
+            /* === استایل جدید برای نمایش دائمی محتوای کارت === */
+            /* ================================================= */
+
+            .category-overlay h3,
+            .category-overlay span {
+                /* نمایش دائمی محتوا با یک انیمیشن نرم */
+                opacity: 1;
+                transform: translateY(0);
+                transition: all 0.4s ease;
+            }
+
+            .category-overlay h3 {
+                font-size: 1.8rem;
+                font-weight: 800;
+                margin-bottom: 5px;
+            }
+
+            .category-overlay span {
+                font-size: 1rem;
+                font-weight: 700;
+                color: var(--accent-color);
+                display: inline-block;
+            }
+
+        /* استایل اسلایدهای غیرفعال */
+        .category-swiper .swiper-slide:not(.swiper-slide-active) .category-overlay {
+            /* کمی محو کردن پس‌زمینه برای خوانایی بهتر متن */
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.1) 100%);
+        }
+
+            .category-swiper .swiper-slide:not(.swiper-slide-active) .category-overlay h3 {
+                /* کوچک کردن و کمی محو کردن عنوان */
+                transform: scale(0.8);
+                opacity: 0.7;
+            }
+
+            .category-swiper .swiper-slide:not(.swiper-slide-active) .category-overlay span {
+                /* مخفی کردن متن "مشاهده محصولات" */
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+        /* وقتی روی اسلاید غیرفعال هاور می‌شود، آن را شبیه اسلاید فعال می‌کنیم */
+        .category-swiper .swiper-slide:not(.swiper-slide-active):hover .category-overlay h3,
+        .category-swiper .swiper-slide:not(.swiper-slide-active):hover .category-overlay span {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .category-swiper .swiper-pagination-bullet {
+            background: var(--secondary-text-color);
+            opacity: 0.8;
+            width: 10px;
+            height: 10px;
+        }
+
+        .category-swiper .swiper-pagination-bullet-active {
+            background: var(--accent-color);
+            opacity: 1;
+        }
+
+        /* رسپانسیو کردن اسلایدر برای موبایل */
+        @@media (max-width: 768px) {
+            .category-swiper .swiper-slide {
+                width: 260px;
+                height: 350px;
+            }
+        }
+        /* ================================================= */
+        /* === بهبود ظاهر اسلایدر دسته‌بندی در دارک مود === */
+        /* ================================================= */
+
+        /* این کد فقط زمانی اعمال می‌شود که کلاس light-mode روی body نباشد */
+        body:not(.light-mode) .category-slider-section {
+            position: relative; /* این برای کنترل بهتر پس‌زمینه لازم است */
+            /* افکت نوری با استفاده از گرادینت‌های شعاعی */
+            background:
+            /* نور آبی (رنگ اصلی سایت) از گوشه بالا راست */
+            radial-gradient(circle at 85% 20%, hsla(217, 76%, 60%, 0.15), transparent 40%),
+            /* یک نور ملایم سفید از گوشه پایین چپ برای ایجاد تعادل */
+            radial-gradient(circle at 15% 85%, hsla(0, 0%, 100%, 0.08), transparent 40%),
+            /* رنگ پس‌زمینه اصلی کارت‌ها در دارک مود */
+            var(--card-bg-color);
+        }
+
+        /* برای اینکه کارت‌ها در دارک مود بیشتر به چشم بیایند، یک سایه و حاشیه نوری به آن‌ها اضافه می‌کنیم */
+        body:not(.light-mode) .category-slide-card {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
     </style>
 </head>
 <body>
     <div class="promo-banner"><p>ارسال رایگان برای خریدهای بالای ۵۰۰ هزار تومان!</p></div>
     <header class="main-header">
         <div class="container header-container">
-            <a href="#" class="logo" data-aos="fade-down">Tecture</a><nav class="main-nav"><ul><li><a href="#home">خانه</a></li><li><a href="#categories">دسته‌بندی‌ها</a></li><li><a href="Products.html">محصولات</a></li><li><a href="#">تخفیف‌ها</a></li><li><a href="#blog">بلاگ</a></li><li><a href="#">تماس با ما</a></li></ul></nav>
+            <a href="/" class="logo" data-aos="fade-down">Tecture</a><nav class="main-nav"><ul><li><a href="#home">خانه</a></li><li><a href="#categories">دسته‌بندی‌ها</a></li><li><a asp-controller="Products" asp-action="Index">محصولات</a></li><li><a href="#deal-of-the-day">تخفیف‌ها</a></li><li><a href="#blog">بلاگ</a></li><li><a asp-controller="Contactus" asp-action="Index">تماس با ما</a></li></ul></nav>
             <div class="header-actions" data-aos="fade-down">
                 <div id="theme-toggle">
                     <i class="fas fa-moon"></i>
                     <i class="fas fa-sun"></i>
                 </div>
-                <a href="#" class="header-action-link"><i class="fa-solid fa-user"></i><span>ورود / ثبت‌نام</span></a>
-                <a href="Carts.html" class="header-action-link"><i class="fa-solid fa-shopping-bag"></i></a>
+                <a asp-controller="Auth" asp-action="Login" class="header-action-link"><i class="fa-solid fa-user"></i><span>ورود / ثبت‌نام</span></a>
+                <a asp-controller="Cart" asp-action="Index" class="header-action-link"><i class="fa-solid fa-shopping-bag"></i></a>
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <i class="fa-solid fa-bars"></i>
             </div>
@@ -239,11 +902,100 @@
 
         <section id="features" class="features-section"><div class="container" data-aos="fade-up"><h2 class="section-title">چرا ما را انتخاب کنید؟</h2><div class="grid-3-col"><div class="feature-card" data-aos="fade-up" data-aos-delay="100"><i class="fa-solid fa-truck-fast"></i><h3>ارسال سریع و مطمئن</h3><p>سفارش شما در سریع‌ترین زمان ممکن و با بسته‌بندی ایمن به دستتان خواهد رسید.</p></div><div class="feature-card" data-aos="fade-up" data-aos-delay="200"><i class="fa-solid fa-shield-halved"></i><h3>پرداخت امن</h3><p>با استفاده از درگاه‌های پرداخت امن، خریدی آسوده و مطمئن را تجربه کنید.</p></div><div class="feature-card" data-aos="fade-up" data-aos-delay="300"><i class="fa-solid fa-award"></i><h3>تضمین کیفیت کالا</h3><p>ما بهترین محصولات را از برندهای معتبر برای شما فراهم کرده‌ایم و کیفیت آن‌ها را تضمین می‌کنیم.</p></div></div></div></section>
 
-        <section id="deal-of-the-day" class="deal-section"><div class="container" data-aos="fade-up"><div class="deal-layout"><div class="deal-image" data-aos="fade-right"><img src="https://images.unsplash.com/photo-1594026112272-cb454b3842b2?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=3870" alt="کاناپه مخمل آبی"></div><div class="deal-content" data-aos="fade-left"><h2 class="section-title">پیشنهاد شگفت‌انگیز</h2><h3>کاناپه سه نفره مخمل آبی</h3><p class="deal-description">این کاناپه با طراحی مدرن و پارچه مخمل درجه یک، زیبایی و راحتی را به خانه شما هدیه می‌دهد.</p><div class="deal-price"><span class="old-price">15,000,000 تومان</span><span class="new-price">12,500,000 تومان</span></div><p>زمان باقی‌مانده تا پایان تخفیف:</p><div id="countdown-timer" class="countdown-timer"><div class="time-block"><span id="days">0</span><small>روز</small></div><div class="time-block"><span id="hours">0</span><small>ساعت</small></div><div class="time-block"><span id="minutes">0</span><small>دقیقه</small></div><div class="time-block"><span id="seconds">0</span><small>ثانیه</small></div></div><a href="#" class="btn btn-deal">همین حالا بخرید</a></div></div></div></section>
+        @if (Model.ProductIsFeatured != null)
+        {
+            var featuredProduct = Model.ProductIsFeatured;
 
-        <section id="products" class="product-slider-section"><div class="container" data-aos="fade-up"><h2 class="section-title">محصولات منتخب ما</h2><div class="swiper product-swiper"><div class="swiper-wrapper"><div class="swiper-slide"><div class="product-card"><img src="https://images.unsplash.com/photo-1592078615290-033ee584e267?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="صندلی راحتی چوبی"><div class="product-card-content"><h3>صندلی راحتی چوبی</h3><p class="price">3,200,000 تومان</p><a href="#" class="btn-product">مشاهده جزئیات</a></div></div></div><div class="swiper-slide"><div class="product-card"><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="کاناپه مدرن سبز"><div class="product-card-content"><h3>کاناپه مدرن سبز</h3><p class="price">8,500,000 تومان</p><a href="#" class="btn-product">مشاهده جزئیات</a></div></div></div><div class="swiper-slide"><div class="product-card"><img src="https://images.unsplash.com/photo-1538688525198-9b88f6f53126?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="چراغ مطالعه رومیزی"><div class="product-card-content"><h3>چراغ مطالعه رومیزی</h3><p class="price">1,850,000 تومان</p><a href="#" class="btn-product">مشاهده جزئیات</a></div></div></div><div class="swiper-slide"><div class="product-card"><img src="https://images.unsplash.com/photo-1540932239986-30128078f3c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="آباژور ایستاده"><div class="product-card-content"><h3>آباژور ایستاده</h3><p class="price">2,100,000 تومان</p><a href="#" class="btn-product">مشاهده جزئیات</a></div></div></div><div class="swiper-slide"><div class="product-card"><img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="صندلی تک نفره کرم"><div class="product-card-content"><h3>صندلی تک نفره کرم</h3><p class="price">4,600,000 تومان</p><a href="#" class="btn-product">مشاهده جزئیات</a></div></div></div></div><div class="swiper-button-next"></div><div class="swiper-button-prev"></div><div class="swiper-pagination"></div></div></div></section>
+            <section id="deal-of-the-day" class="deal-section">
+                <div class="container" data-aos="fade-up">
+                    <div class="deal-layout">
+                        <div class="deal-image" data-aos="fade-right">
+                            <a asp-controller="Products" asp-action="Detail" asp-route-slog="@featuredProduct.Slog">
+                                <img src="@(string.IsNullOrEmpty(featuredProduct.ImageUrl) ? $"https://placehold.co/600x600/EFEFEF/AAAAAA?text={featuredProduct.Name}" : $"{featuredProduct.ImageUrl}")" alt="@featuredProduct.Name">
+                            </a>
+                        </div>
+                        <div class="deal-content" data-aos="fade-left">
+                            <h2 class="section-title">پیشنهاد شگفت‌انگیز</h2>
+                            <h3><a asp-controller="Products" asp-action="Detail" asp-route-slog="@featuredProduct.Slog">@featuredProduct.Name</a></h3>
+                            <p class="deal-description">@featuredProduct.ShortDescription</p>
+                            <div class="deal-price">
+                                @if (featuredProduct.OldPrice.HasValue && featuredProduct.OldPrice > featuredProduct.Price)
+                                {
+                                    <span class="old-price">@featuredProduct.OldPrice.Value.ToString("N0") تومان</span>
+                                }                                
+                                
+                                <span class="new-price">@featuredProduct.Price.ToString("N0") تومان</span>
+                            </div>
+                            <p>زمان باقی‌مانده تا پایان تخفیف:</p>
+                            <div id="countdown-timer" class="countdown-timer">
+                                <div class="time-block"><span id="days">0</span><small>روز</small></div>
+                                <div class="time-block"><span id="hours">0</span><small>ساعت</small></div>
+                                <div class="time-block"><span id="minutes">0</span><small>دقیقه</small></div>
+                                <div class="time-block"><span id="seconds">0</span><small>ثانیه</small></div>
+                            </div>
+                            <a asp-controller="Products" asp-action="Detail" asp-route-slog="@featuredProduct.Slog" class="btn btn-deal">همین حالا بخرید</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        }
 
-        <section id="shop-the-look" class="shop-look-section"><div class="container" data-aos="fade-up"><h2 class="section-title">از این چیدمان‌ها ایده بگیرید</h2><div class="grid-3-col"><div class="look-card" data-aos="fade-up" data-aos-delay="100"><img src="https://images.unsplash.com/photo-1554995207-c18c203602cb?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=3870" alt="چیدمان اتاق نشیمن مدرن"><div class="overlay"><h3>اتاق نشیمن مدرن</h3><a href="#" class="btn-look">مشاهده محصولات</a></div></div><div class="look-card" data-aos="fade-up" data-aos-delay="200"><img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=3871" alt="اتاق خواب دنج و آرام"><div class="overlay"><h3>اتاق خواب دنج و آرام</h3><a href="#" class="btn-look">مشاهده محصولات</a></div></div><div class="look-card" data-aos="fade-up" data-aos-delay="300"><img src="https://images.unsplash.com/photo-1617806118233-18e1de247200?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=3871" alt="گوشه مطالعه مینیمال"><div class="overlay"><h3>گوشه مطالعه مینیمال</h3><a href="#" class="btn-look">مشاهده محصولات</a></div></div></div></div></section>
+        <section id="products" class="product-slider-section">
+            <div class="container" data-aos="fade-up">
+                <h2 class="section-title">محصولات منتخب ما</h2>
+                <div class="swiper product-swiper">
+                    <div class="swiper-wrapper">
+                        @if (Model.Products != null && Model.Products.Any())
+                        {
+                            @foreach (var product in Model.Products)
+                            {
+                                <div class="swiper-slide">
+                                    <div class="product-card">
+                                        <a asp-controller="Products" asp-action="Detail" asp-route-slog="@product.Slog">
+                                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? $"https://placehold.co/400x300/EFEFEF/AAAAAA?text={product.Name}" : $"{product.ImageUrl}")" alt="@product.Name">
+                                        </a>
+                                        <div class="product-card-content">
+                                            <h3><a asp-controller="Products" asp-action="Detail" asp-route-slog="@product.Slog">@product.Name</a></h3>                                            
+                                            <p class="price">@product.Price.ToString("N0") تومان</p>
+                                            <a asp-controller="Products" asp-action="Detail" asp-route-slog="@product.Slog" class="btn-product">مشاهده جزئیات</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-pagination"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="categories" class="category-slider-section">
+            <div class="container" data-aos="fade-up">
+                <h2 class="section-title">خرید بر اساس دسته‌بندی</h2>
+                <div class="swiper category-swiper">
+                    <div class="swiper-wrapper">
+                        @if (Model.Categories != null)
+                        {
+                            @foreach (var category in Model.Categories)
+                            {
+                                <div class="swiper-slide">
+                                    <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@category.Id" class="category-slide-card">
+                                        <img src="@(string.IsNullOrEmpty(category.ImageUrl) ? $"https://placehold.co/600x750/EFEFEF/AAAAAA?text={category.Name}" : $"{category.ImageUrl}")" alt="@category.Name">
+                                        <div class="category-overlay">
+                                            <h3>@category.Name</h3>
+                                            <span>مشاهده محصولات <i class="fa-solid fa-arrow-left-long"></i></span>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div class="swiper-pagination"></div>
+                </div>
+            </div>
+        </section>
 
         <section id="about" class="about-section"><div class="container" data-aos="fade-up"><div class="about-layout"><div class="about-text" data-aos="fade-left"><h2 class="section-title">داستان ما: عشق به طراحی و کیفیت</h2><p>ما در Tecture معتقدیم که خانه، قلب زندگی است. جایی برای آرامش، خاطره‌سازی و ابراز شخصیت. به همین دلیل، با وسواس و علاقه، مجموعه‌ای از بهترین و باکیفیت‌ترین محصولات دکوراسیون داخلی را گرد هم آورده‌ایم تا به شما کمک کنیم فضایی منحصربه‌فرد و الهام‌بخش خلق کنید.</p><br><p>هدف ما فراتر از فروش یک محصول است؛ ما می‌خواهیم همراه شما در مسیر زیباسازی خانه‌تان باشیم.</p></div><div class="about-image" data-aos="fade-right"><img src="https://images.unsplash.com/photo-1618220179428-22790b461013?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=3774" alt="Minimalist Interior"></div></div></div></section>
 
@@ -264,14 +1016,12 @@
             once: true, // انیمیشن فقط یک بار اجرا شود
         });
 
-        // Swiper Sliders
-        const categorySwiper = new Swiper('.category-swiper', { loop: true, spaceBetween: 30, slidesPerView: 1, breakpoints: { 640: { slidesPerView: 2, spaceBetween: 20 }, 768: { slidesPerView: 3, spaceBetween: 30 }, 1024: { slidesPerView: 4, spaceBetween: 30 }, }, pagination: { el: '.category-swiper .swiper-pagination', clickable: true, }, navigation: { nextEl: '.category-swiper .swiper-button-next', prevEl: '.category-swiper .swiper-button-prev', }, });
-        const productSwiper = new Swiper('.product-swiper', { loop: true, spaceBetween: 30, slidesPerView: 1, breakpoints: { 640: { slidesPerView: 2, spaceBetween: 20 }, 768: { slidesPerView: 3, spaceBetween: 30 }, 1024: { slidesPerView: 4, spaceBetween: 30 }, }, pagination: { el: '.product-swiper .swiper-pagination', clickable: true, }, navigation: { nextEl: '.product-swiper .swiper-button-next', prevEl: '.product-swiper .swiper-button-prev', }, });
+        
 
         // Countdown Timer
         (function startCountdown() {
             const today = new Date(); const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1); tomorrow.setHours(0, 0, 0, 0); const countDownDate = tomorrow.getTime();
-            const timer = setInterval(function() {
+            const timer = setInterval(function () {
                 const now = new Date().getTime(); const distance = countDownDate - now;
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24)); const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)); const seconds = Math.floor((distance % (1000 * 60)) / 1000);
                 document.getElementById("days").innerText = days; document.getElementById("hours").innerText = hours; document.getElementById("minutes").innerText = minutes; document.getElementById("seconds").innerText = seconds;
@@ -289,7 +1039,7 @@
                 body.classList.add('light-mode');
             }
 
-            themeToggleBtn.addEventListener('click', function() {
+            themeToggleBtn.addEventListener('click', function () {
                 body.classList.toggle('light-mode');
 
                 if (body.classList.contains('light-mode')) {
@@ -299,6 +1049,12 @@
                 }
             });
         })();
+        // Swiper Sliders
+        // این خط جدید را اضافه کنید
+        const categorySwiper = new Swiper('.category-swiper', { effect: 'coverflow', grabCursor: true, centeredSlides: true, slidesPerView: 'auto', loop: true, coverflowEffect: { rotate: 50, stretch: 0, depth: 100, modifier: 1, slideShadows: true, }, pagination: { el: '.swiper-pagination', }, });
+
+        // این کد از قبل وجود داشت
+        const productSwiper = new Swiper('.product-swiper', { loop: true, spaceBetween: 30, slidesPerView: 1, breakpoints: { 640: { slidesPerView: 2, spaceBetween: 20 }, 768: { slidesPerView: 3, spaceBetween: 30 }, 1024: { slidesPerView: 4, spaceBetween: 30 }, }, pagination: { el: '.product-swiper .swiper-pagination', clickable: true, }, navigation: { nextEl: '.product-swiper .swiper-button-next', prevEl: '.product-swiper .swiper-button-prev', }, });
     </script>
 </body>
 </html>

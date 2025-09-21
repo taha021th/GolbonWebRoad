@@ -329,6 +329,9 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("Status")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -612,15 +615,13 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GolbonWebRoad.Domain.Entities.Product", "Product")
+                    b.HasOne("GolbonWebRoad.Domain.Entities.Product", null)
                         .WithMany("ProductColors")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Color");
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.ProductImages", b =>
@@ -634,7 +635,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Reviews", b =>
                 {
-                    b.HasOne("GolbonWebRoad.Domain.Entities.Product", null)
+                    b.HasOne("GolbonWebRoad.Domain.Entities.Product", "Product")
                         .WithMany("Reviews")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -645,6 +646,8 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Product");
 
                     b.Navigation("User");
                 });

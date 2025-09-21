@@ -1,138 +1,114 @@
-﻿//using GolbonWebRoad.Application.Dtos.CartItems;
-//using GolbonWebRoad.Application.Features.Orders.Commands;
-//using GolbonWebRoad.Application.Features.Products.Queries;
+﻿using AutoMapper;
+using GolbonWebRoad.Application.Dtos.CartItems;
+using GolbonWebRoad.Application.Dtos.Products;
+using GolbonWebRoad.Application.Features.Products.Queries;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
-//using MediatR;
-//using Microsoft.AspNetCore.Mvc;
-//using System.Security.Claims;
-//using System.Text.Json;
+namespace GolbonWebRoad.Web.Controllers
+{
+    public class CartController : Controller
+    {
+        private readonly IMediator _mediator;
+        private readonly IMapper _mapper;
+        private const string CartSessionKey = "Cart";
 
-//namespace GolbonWebRoad.Web.Controllers
-//{
-//    public class CartController : Controller
-//    {
-//        private readonly IMediator _mediator;
-//        private const string CartSessionKey = "Cart";
+        public CartController(IMediator mediator, IMapper mapper)
+        {
+            _mediator = mediator;
+            _mapper = mapper;
+        }
 
-//        public CartController(IMediator mediator)
-//        {
-//            _mediator = mediator;
-//        }
+        public IActionResult Index()
+        {
+            var cart = GetCart();
+            // Map product inside each cart item to lightweight ProductCartViewModel
+            var mapped = cart.Select(ci => new GolbonWebRoad.Web.Models.Cart.CartItemViewModel
+            {
+                ProductId = ci.ProductId,
+                ColorId = ci.ColorId,
+                Quantity = ci.Quantity,
+                Price = ci.Price,
+                Product = _mapper.Map<GolbonWebRoad.Web.Models.Cart.ProductCartViewModel>(ci.Product)
+            }).ToList();
+            return View(mapped);
+        }
 
-//        // Your existing Index action - it's perfect.
-//        public IActionResult Index()
-//        {
-//            var cart = GetCart();
-//            // This is the view we designed in the previous step.
-//            return View(cart);
-//        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToCart(int id, int? colorId, int quantity = 1)
+        {
+            if (quantity < 1) quantity = 1;
 
-//        // ==========================================================
-//        // === ADDING THE MISSING ACTIONS TO YOUR CONTROLLER      ===
-//        // ==========================================================
+            var product = await _mediator.Send(new GetProductByIdQuery
+            {
+                Id = id,
+                JoinImages = true,
+                JoinBrand = false,
+                JoinCategory = false,
+                JoinColors = false,
+                JoinReviews = false
+            });
+            if (product == null)
+            {
+                return NotFound();
+            }
+            var productDto = _mapper.Map<ProductDto>(product);
 
-//        [HttpPost]
-//        public async Task<IActionResult> AddToCart(int id, int quantity = 1)
-//        {
-//            var product = await _mediator.Send(new GetProductByIdQuery { Id = id });
-//            if (product == null)
-//            {
-//                return NotFound();
-//            }
+            var cart = GetCart();
 
-//            var cart = GetCart();
-//            var cartItem = cart.FirstOrDefault(c => c.ProductId == id);
+            // key by product and color selection (nullable)
+            var existing = cart.FirstOrDefault(c => c.ProductId == id && c.ColorId == colorId);
 
-//            if (cartItem != null)
-//            {
-//                cartItem.Quantity += quantity;
-//            }
-//            else
-//            {
-//                // Note: Your CartItemDto has a `Price` property. Let's populate it.
-//                cart.Add(new CartItemDto
-//                {
-//                    ProductId = id,
-//                    Quantity = quantity,
-//                    Price = product.Price, // Populating the price
-//                    Product = product      // Populating the product details for the view
-//                });
-//            }
+            if (existing != null)
+            {
+                existing.Quantity += quantity;
+            }
+            else
+            {
+                cart.Add(new CartItemDto
+                {
+                    ProductId = id,
+                    ColorId = colorId,
+                    Quantity = quantity,
+                    Price = product.Price,
+                    Product = productDto
+                });
+            }
 
-//            SaveCart(cart);
-//            return Redirect(Request.Headers["Referer"].ToString() ?? "/");
-//        }
+            SaveCart(cart);
+            return Redirect(Request.Headers["Referer"].ToString() ?? "/");
+        }
 
-//        public IActionResult RemoveFromCart(int id)
-//        {
-//            var cart = GetCart();
-//            var cartItem = cart.FirstOrDefault(c => c.ProductId == id);
+        public IActionResult RemoveFromCart(int id, int? colorId)
+        {
+            var cart = GetCart();
+            var existing = cart.FirstOrDefault(c => c.ProductId == id && c.ColorId == colorId);
+            if (existing != null)
+            {
+                cart.Remove(existing);
+                SaveCart(cart);
+            }
+            return RedirectToAction("Index");
+        }
 
-//            if (cartItem != null)
-//            {
-//                cart.Remove(cartItem);
-//                SaveCart(cart);
-//            }
+        private List<CartItemDto> GetCart()
+        {
+            var cartJson = HttpContext.Session.GetString(CartSessionKey);
+            if (string.IsNullOrEmpty(cartJson))
+            {
+                return new List<CartItemDto>();
+            }
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            return JsonSerializer.Deserialize<List<CartItemDto>>(cartJson, options) ?? new List<CartItemDto>();
+        }
 
-//            return RedirectToAction("Index");
-//        }
+        private void SaveCart(List<CartItemDto> cart)
+        {
+            var cartJson = JsonSerializer.Serialize(cart);
+            HttpContext.Session.SetString(CartSessionKey, cartJson);
+        }
+    }
 
-//        // ==========================================================
-//        // === YOUR EXISTING ACTIONS AND HELPERS - NO CHANGES NEEDED ===
-//        // ==========================================================
-
-//        [HttpPost]
-//        public async Task<IActionResult> PlaceOrder()
-//        {
-//            var cart = GetCart();
-//            // For this to work, the user MUST be logged in.
-//            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-//            if (!cart.Any() || string.IsNullOrEmpty(userId))
-//            {
-//                // If not logged in, maybe redirect to login page?
-//                return RedirectToAction("Index", "Home");
-//            }
-
-//            var command = new CreateOrderCommand
-//            {
-//                UserId = userId,
-
-//                CartItems = cart.Select(c => new CartItemSummaryDto
-//                {
-//                    ProductId = c.ProductId,
-//                    Quantity = c.Quantity,
-//                    Price = c.Price
-//                }).ToList()
-//            };
-
-//            var orderId = await _mediator.Send(command);
-//            HttpContext.Session.Remove(CartSessionKey);
-//            return RedirectToAction("Success", new { orderId = orderId });
-//        }
-
-//        public IActionResult Success(int orderId)
-//        {
-//            ViewBag.OrderId = orderId;
-//            return View();
-//        }
-
-//        private List<CartItemDto> GetCart()
-//        {
-//            var cartJson = HttpContext.Session.GetString(CartSessionKey);
-//            if (string.IsNullOrEmpty(cartJson))
-//            {
-//                return new List<CartItemDto>();
-//            }
-//            // We need to handle the Product property which might not be in the session
-//            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-//            return JsonSerializer.Deserialize<List<CartItemDto>>(cartJson, options) ?? new List<CartItemDto>();
-//        }
-
-//        private void SaveCart(List<CartItemDto> cart)
-//        {
-//            var cartJson = JsonSerializer.Serialize(cart);
-//            HttpContext.Session.SetString(CartSessionKey, cartJson);
-//        }
-//    }
-//}
+}

@@ -1,0 +1,425 @@
+@model GolbonWebRoad.Web.Areas.Admin.Models.Reviews.ReviewIndexViewModel
+@{
+    ViewData["Title"] = "مدیریت نظرات";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-comments text-primary me-2"></i>
+                مدیریت نظرات
+            </h1>
+            <p class="text-muted">مدیریت و تایید نظرات کاربران</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">کل نظرات</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalReviews</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">در انتظار تایید</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.PendingReviews</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">تایید شده</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ApprovedReviews</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">نرخ تایید</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @(Model.TotalReviews > 0 ? Math.Round((double)Model.ApprovedReviews / Model.TotalReviews * 100, 1) : 0)%
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter and Actions -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">فیلتر و عملیات</h6>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-success btn-sm" onclick="bulkApprove()">
+                    <i class="fas fa-check"></i> تایید انتخاب شده‌ها
+                </button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="bulkReject()">
+                    <i class="fas fa-times"></i> رد انتخاب شده‌ها
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="btn-group" role="group">
+                        <a href="@Url.Action("Index", new { status = "all" })" 
+                           class="btn @(Model.FilterStatus == "all" ? "btn-primary" : "btn-outline-primary")">
+                            <i class="fas fa-list"></i> همه (@Model.TotalReviews)
+                        </a>
+                        <a href="@Url.Action("Index", new { status = "pending" })" 
+                           class="btn @(Model.FilterStatus == "pending" ? "btn-warning" : "btn-outline-warning")">
+                            <i class="fas fa-clock"></i> در انتظار (@Model.PendingReviews)
+                        </a>
+                        <a href="@Url.Action("Index", new { status = "approved" })" 
+                           class="btn @(Model.FilterStatus == "approved" ? "btn-success" : "btn-outline-success")">
+                            <i class="fas fa-check"></i> تایید شده (@Model.ApprovedReviews)
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="selectAll">
+                        <label class="form-check-label" for="selectAll">
+                            انتخاب همه
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews List -->
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">لیست نظرات</h6>
+        </div>
+        <div class="card-body">
+            @if (Model.Reviews.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="reviewsTable">
+                        <thead>
+                            <tr>
+                                <th width="50">
+                                    <input type="checkbox" id="selectAllTable" onchange="toggleAll(this)">
+                                </th>
+                                <th>محصول</th>
+                                <th>کاربر</th>
+                                <th>امتیاز</th>
+                                <th>نظر</th>
+                                <th>تاریخ</th>
+                                <th>وضعیت</th>
+                                <th width="150">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var review in Model.Reviews)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="review-checkbox" value="@review.Id">
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrEmpty(review.ProductImageUrl))
+                                            {
+                                                <img src="@review.ProductImageUrl" alt="@review.ProductName" 
+                                                     class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                            }
+                                            <div>
+                                                <a href="@Url.Action("Detail", "Products", new { area = "", id = review.ProductId })" target="_blank" class="font-weight-bold">@review.ProductName</a>
+                                                <small class="text-muted">ID: @review.ProductId</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <div class="font-weight-bold">@review.UserName</div>
+                                            <small class="text-muted">@review.UserEmail</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                if (i <= review.Rating)
+                                                {
+                                                    <i class="fas fa-star text-warning"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="far fa-star text-warning"></i>
+                                                }
+                                            }
+                                            <span class="ms-1">(@review.Rating)</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="review-text" style="max-width: 300px;">
+                                            @if (review.ReviewText.Length > 100)
+                                            {
+                                                <span class="review-preview">@review.ReviewText.Substring(0, 100)...</span>
+                                                <button type="button" class="btn btn-link btn-sm p-0" onclick="toggleReviewText(this)">
+                                                    بیشتر
+                                                </button>
+                                                <span class="review-full d-none">@review.ReviewText</span>
+                                            }
+                                            else
+                                            {
+                                                @review.ReviewText
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>@review.ReviewDate.ToString("yyyy/MM/dd")</div>
+                                        <small class="text-muted">@review.ReviewDate.ToString("HH:mm")</small>
+                                    </td>
+                                    <td>
+                                        @if (review.Status)
+                                        {
+                                            <span class="btn btn-sm btn-success" style="--bs-btn-bg: rgba(40, 167, 69, 0.1); --bs-btn-border-color: rgba(40, 167, 69, 0.4); --bs-btn-color: #28a745; pointer-events: none;">
+                                                <i class="fas fa-check"></i> تایید شده
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="btn btn-sm btn-warning" style="--bs-btn-bg: rgba(255, 193, 7, 0.1); --bs-btn-border-color: rgba(255, 193, 7, 0.4); --bs-btn-color: #ffc107; pointer-events: none;">
+                                                <i class="fas fa-times"></i> تایید نشده
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            @if (!review.Status)
+                                            {
+                                                <button type="button" class="btn btn-success" 
+                                                        onclick="updateStatus(@review.Id, true)" title="تایید">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="button" class="btn btn-warning" 
+                                                        onclick="updateStatus(@review.Id, false)" title="رد">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            }
+                                            <a href="@Url.Action("Detail", "Products", new { area = "", id=review.ProductId })" target="_blank" class="btn btn-info" title="مشاهده محصول">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">هیچ نظری یافت نشد</h5>
+                    <p class="text-muted">در حال حاضر نظری برای نمایش وجود ندارد.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات نظر</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="reviewModalBody">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle all checkboxes
+        function toggleAll(checkbox) {
+            const checkboxes = document.querySelectorAll('.review-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+        }
+
+        // Update single review status
+        function updateStatus(reviewId, status) {
+            if (confirm(status ? 'آیا می‌خواهید این نظر را تایید کنید؟' : 'آیا می‌خواهید این نظر را رد کنید؟')) {
+                fetch('@Url.Action("UpdateStatus")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: `reviewId=${reviewId}&status=${status}`
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('خطایی در به‌روزرسانی وضعیت رخ داد.');
+                    }
+                });
+            }
+        }
+
+        // Bulk approve
+        function bulkApprove() {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) {
+                alert('لطفاً حداقل یک نظر را انتخاب کنید.');
+                return;
+            }
+            
+            if (confirm(`آیا می‌خواهید ${selectedIds.length} نظر را تایید کنید؟`)) {
+                bulkUpdateStatus(selectedIds, true);
+            }
+        }
+
+        // Bulk reject
+        function bulkReject() {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) {
+                alert('لطفاً حداقل یک نظر را انتخاب کنید.');
+                return;
+            }
+            
+            if (confirm(`آیا می‌خواهید ${selectedIds.length} نظر را رد کنید؟`)) {
+                bulkUpdateStatus(selectedIds, false);
+            }
+        }
+
+        // Get selected review IDs
+        function getSelectedIds() {
+            const checkboxes = document.querySelectorAll('.review-checkbox:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        // Bulk update status
+        function bulkUpdateStatus(reviewIds, status) {
+            const formData = new FormData();
+            reviewIds.forEach(id => formData.append('reviewIds', id));
+            formData.append('status', status);
+
+            fetch('@Url.Action("BulkUpdateStatus")', {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('خطایی در به‌روزرسانی دسته‌ای رخ داد.');
+                }
+            });
+        }
+
+        // Toggle review text
+        function toggleReviewText(button) {
+            const preview = button.previousElementSibling;
+            const full = button.nextElementSibling;
+            
+            if (preview.classList.contains('d-none')) {
+                preview.classList.remove('d-none');
+                full.classList.add('d-none');
+                button.textContent = 'بیشتر';
+            } else {
+                preview.classList.add('d-none');
+                full.classList.remove('d-none');
+                button.textContent = 'کمتر';
+            }
+        }
+
+        // View review details
+        function viewReview(reviewId) {
+            // This would typically load review details via AJAX
+            // For now, we'll just show an alert
+            alert('نمایش جزئیات نظر - ID: ' + reviewId);
+        }
+
+        // Show success/error messages
+        @if (TempData["Success"] != null)
+        {
+            <text>
+            showNotification('@TempData["Success"]', 'success');
+            </text>
+        }
+        
+        @if (TempData["Error"] != null)
+        {
+            <text>
+            showNotification('@TempData["Error"]', 'error');
+            </text>
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+        }
+    </script>
+}

@@ -9,6 +9,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Queries
     public class GetCategoriesQuery : IRequest<IEnumerable<Category>>
     {
         public bool? JoinProducts { get; set; }
+        public int Take { get; set; } = 0;
     }
 
     public class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQuery, IEnumerable<Category>>
@@ -32,7 +33,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Queries
 
             try
             {
-                var categories = await _unitOfWork.CategoryRepository.GetAllAsync(request.JoinProducts);
+                var categories = await _unitOfWork.CategoryRepository.GetAllAsync(request.JoinProducts, request.Take);
 
                 if (categories == null || !categories.Any())
                 {

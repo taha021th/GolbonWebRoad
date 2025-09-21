@@ -21,7 +21,7 @@ namespace GolbonWebRoad.Application.Dtos.Products
         public int CategoryId { get; set; }
         public int? BrandId { get; set; }
         public CategorySummaryDto Category { get; set; }
-        public ICollection<Reviews> Reviews { get; set; }
+        public ICollection<Review> Reviews { get; set; }
         public ICollection<ProductImageDto> Images { get; set; }
         public ICollection<ProductColorDto> ProductColors { get; set; }
 

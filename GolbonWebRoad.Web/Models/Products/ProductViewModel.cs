@@ -1,0 +1,130 @@
+﻿namespace GolbonWebRoad.Web.Models.Products
+{
+    public class HomeProductViewModel
+    {
+        public IEnumerable<ProductViewModel> Products { get; set; }
+        public ProductViewModel ProductIsFeatured { get; set; }
+        public IEnumerable<CategoryViewModel> Categories { get; set; }
+    }
+
+    public class ProductViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Slog { get; set; }
+        public string ShortDescription { get; set; }
+        public decimal Price { get; set; }
+        public decimal? OldPrice { get; set; }
+        public string ImageUrl { get; set; }
+        public string CategoryName { get; set; }
+        public string BrandName { get; set; }
+    }
+    public class ProductIndexViewModel
+    {
+        public PagedResult<ProductViewModel> Products { get; set; }
+        public List<CategoryViewModel> Categories { get; set; }
+        public List<BrandViewModel> Brands { get; set; }
+
+        // To keep track of current filters
+        public int? CurrentCategoryId { get; set; }
+        public int? CurrentBrandId { get; set; }
+        public string SearchTerm { get; set; }
+        public string CurrentSortOrder { get; set; }
+    }
+
+    // Simple ViewModels for filter lists
+    public class CategoryViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string ImageUrl { get; set; }
+    }
+
+    public class BrandViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    // A generic class for paged results to be used in views    
+    public class PagedResult<T>
+    {
+        public List<T> Items { get; set; }
+        public int PageNumber { get; set; }
+        public int TotalPages { get; set; }
+        public int TotalCount { get; set; } // It's good practice to have TotalCount as well
+
+        // Add these two properties to fix the error
+        public bool HasPreviousPage => PageNumber > 1;
+        public bool HasNextPage => PageNumber < TotalPages;
+    }
+    public class ProductImagesViewModel
+    {
+        public int Id { get; set; }
+        public string ImageUrl { get; set; }
+        public bool IsMainImage { get; set; }
+
+    }
+
+    public class ProductColorViewModel
+    {
+        public int ColorId { get; set; }
+        public string Name { get; set; }
+        public string HexCode { get; set; }
+    }
+
+    public class ReviewViewModel
+    {
+        public int Id { get; set; }
+        public string ReviewText { get; set; }
+        public int Rating { get; set; }
+        public DateTime ReviewDate { get; set; }
+        public string UserName { get; set; }
+        public string UserEmail { get; set; }
+    }
+
+    public class ReviewFormViewModel
+    {
+        public int ProductId { get; set; }
+        public string ReviewText { get; set; }
+        public int Rating { get; set; }
+    }
+
+    public class ProductDetailViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string ShortDescription { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+        public int Quantity { get; set; }
+
+        public string CategoryName { get; set; }
+        public string BrandName { get; set; }
+        public int ReviewsCount { get; set; }
+
+        public List<ProductImagesViewModel> Images { get; set; }
+        public List<ProductColorViewModel> ProductColors { get; set; }
+        public List<ReviewViewModel> Reviews { get; set; } = new List<ReviewViewModel>();
+    }
+}
+
+namespace GolbonWebRoad.Web.Models.Cart
+{
+    public class ProductCartViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+        public string ImageUrl { get; set; }
+    }
+
+    public class CartItemViewModel
+    {
+        public int ProductId { get; set; }
+        public int? ColorId { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+        public ProductCartViewModel Product { get; set; }
+    }
+}

@@ -36,6 +36,7 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddAutoMapper(config =>
 {
     config.AddProfile<GolbonWebRoad.Web.Mapping.MappingProfile>();
+    config.AddProfile<GolbonWebRoad.Application.Mapping.MappingProfile>();
 }
             );
 
@@ -49,6 +50,33 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 
 
 builder.Services.AddControllersWithViews();
+
+// Payment gateways registration
+builder.Services.AddSingleton(provider =>
+{
+    var cfg = provider.GetRequiredService<IConfiguration>();
+    var options = new GolbonWebRoad.Web.Services.Payments.AqayepardakhtOptions
+    {
+        MerchantId = cfg["Payments:Aqayepardakht:MerchantId"],
+        Pin = cfg["Payments:Aqayepardakht:Pin"] ?? "sandbox",
+        BaseUrl = cfg["Payments:Aqayepardakht:BaseUrl"] ?? "https://panel.aqayepardakht.ir",
+        StartPath = cfg["Payments:Aqayepardakht:StartPath"] ?? "/api/v2/create",
+        VerifyPath = cfg["Payments:Aqayepardakht:VerifyPath"] ?? "/api/v2/verify",
+        RedirectTemplate = cfg["Payments:Aqayepardakht:RedirectTemplate"] ?? "/startpay/sandbox/{transid}"
+    };
+    return options;
+});
+builder.Services.AddHttpClient<GolbonWebRoad.Web.Services.Payments.AqayepardakhtSandboxGateway>()
+    .ConfigurePrimaryHttpMessageHandler(() =>
+    {
+        var handler = new HttpClientHandler();
+        handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+        handler.SslProtocols = System.Security.Authentication.SslProtocols.Tls | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13;
+        return handler;
+    });
+builder.Services.AddSingleton<GolbonWebRoad.Web.Services.Payments.IPaymentGateway>(sp =>
+    sp.GetRequiredService<GolbonWebRoad.Web.Services.Payments.AqayepardakhtSandboxGateway>());
+builder.Services.AddSingleton<GolbonWebRoad.Web.Services.Payments.IPaymentGatewayResolver, GolbonWebRoad.Web.Services.Payments.PaymentGatewayResolver>();
 
 var app = builder.Build();
 

@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
-using GolbonWebRoad.Application.Dtos.Categories;
-using GolbonWebRoad.Application.Dtos.Products;
+using GolbonWebRoad.Application.Features.Brands.Queries;
 using GolbonWebRoad.Application.Features.Categories.Queries;
 using GolbonWebRoad.Application.Features.Products.Queries;
-using GolbonWebRoad.Web.Models;
+using GolbonWebRoad.Application.Features.Reviews.Queries;
+using GolbonWebRoad.Application.Features.Reviews.Commands;
+using GolbonWebRoad.Web.Models.Products;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace GolbonWebRoad.Web.Controllers
 {
@@ -18,20 +21,36 @@ namespace GolbonWebRoad.Web.Controllers
             _mediator=mediator;
             _mapper=mapper;
         }
-        public async Task<IActionResult> Index(string? searchTerm, int? categoryId, string? sortOrder)
+        public async Task<IActionResult> Index(int? categoryId, int? brandId, string searchTerm, string sortOrder, int page = 1)
         {
-
-            var products = await _mediator.Send(new GetProductsQuery { SearchTerm=searchTerm, CategoryId=categoryId, SortOrder=sortOrder });
-            var categories = await _mediator.Send(new GetCategoriesQuery());
-            var viewModel = new ProductViewModel
+            // 1. Fetch raw product entities using the new query
+            var pagedProducts = await _mediator.Send(new GetPagedProductsQuery
             {
-                Products=_mapper.Map<IEnumerable<ProductDto>>(products),
-                Categories=_mapper.Map<IEnumerable<CategoryDto>>(categories)
+                CategoryId = categoryId,
+                BrandId = brandId,
+                SearchTerm = searchTerm,
+                SortOrder=sortOrder,
+                PageNumber = page,
+                PageSize = 6
+            });
 
+            // 2. Fetch categories and brands for the filter sidebar
+            var categories = await _mediator.Send(new GetCategoriesQuery());
+            var brands = await _mediator.Send(new GetBrandsQuery());
+
+            // 3. Map everything to the final ViewModel here in the Controller
+            var viewModel = new ProductIndexViewModel
+            {
+                // The mapping now happens on the paged result of entities
+                Products = _mapper.Map<PagedResult<ProductViewModel>>(pagedProducts),
+                Categories = _mapper.Map<List<CategoryViewModel>>(categories),
+                Brands = _mapper.Map<List<BrandViewModel>>(brands),
+                CurrentCategoryId = categoryId,
+                CurrentBrandId = brandId,
+                SearchTerm = searchTerm,
+                CurrentSortOrder=sortOrder
             };
-            ViewData["CurrentFilter"] = searchTerm;
-            ViewData["CurrentCategory"]=categoryId;
-            ViewData["CurrentSort"]=sortOrder;
+
             return View(viewModel);
         }
         public async Task<IActionResult> Detail(int id)
@@ -41,12 +60,68 @@ namespace GolbonWebRoad.Web.Controllers
                 return NotFound();
             }
 
-            var product = await _mediator.Send(new GetProductByIdQuery { Id=id });
+            var product = await _mediator.Send(new GetProductByIdQuery
+            {
+                Id = id,
+                JoinImages = true,
+                JoinColors = true,
+                JoinBrand = true,
+                JoinCategory = true,
+                JoinReviews = true
+            });
             if (product==null)
             {
                 return NotFound();
             }
-            return View(product);
+            
+            // Fetch approved reviews for this product
+            var reviews = await _mediator.Send(new GetReviewsByProductIdQuery
+            {
+                ProductId = id,
+                JoinUser = true
+            });
+            
+            var viewModel = _mapper.Map<GolbonWebRoad.Web.Models.Products.ProductDetailViewModel>(product);
+            viewModel.Reviews = _mapper.Map<List<ReviewViewModel>>(reviews);
+            
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> CreateReview(ReviewFormViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "لطفاً تمام فیلدها را به درستی پر کنید.";
+                return RedirectToAction("Detail", new { id = model.ProductId });
+            }
+
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    TempData["Error"] = "لطفاً ابتدا وارد حساب کاربری خود شوید.";
+                    return RedirectToAction("Detail", new { id = model.ProductId });
+                }
+
+                await _mediator.Send(new CreateReviewCommand
+                {
+                    ProductId = model.ProductId,
+                    ReviewText = model.ReviewText,
+                    Rating = model.Rating,
+                    UserId = userId
+                });
+
+                TempData["Success"] = "نظر شما با موفقیت ثبت شد و پس از تایید نمایش داده خواهد شد.";
+                return RedirectToAction("Detail", new { id = model.ProductId });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "خطایی در ثبت نظر رخ داد. لطفاً دوباره تلاش کنید.";
+                return RedirectToAction("Detail", new { id = model.ProductId });
+            }
         }
     }
 }

@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using GolbonWebRoad.Web.Models.Cart
+@model List<CartItemViewModel>
+@{
+    var total = Model?.Sum(i => i.Product.Price * i.Quantity) ?? 0;
+}
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -87,10 +92,10 @@
     <div class="promo-banner"><p>ارسال رایگان برای خریدهای بالای ۵۰۰ هزار تومان!</p></div>
     <header class="main-header">
         <div class="container header-container">
-            <a href="./index.html" class="logo">Tecture</a>
+            <a href="/" class="logo">Tecture</a>
             <div class="header-actions">
                 <div id="theme-toggle"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></div>
-                <a href="./cart.html" class="header-action-link"><span>بازگشت به سبد خرید</span> <i class="fa-solid fa-arrow-left"></i></a>
+                <a asp-controller="Cart" asp-action="Index" class="header-action-link"><span>بازگشت به سبد خرید</span> <i class="fa-solid fa-arrow-left"></i></a>
             </div>
         </div>
     </header>
@@ -163,24 +168,28 @@
                 <aside class="order-summary" data-aos="fade-left">
                     <h2>خلاصه سفارش</h2>
                     <div class="summary-items">
-                        <div class="summary-item">
-                            <img src="https://images.unsplash.com/photo-1592078615290-033ee584e267?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=200" alt="صندلی راحتی چوبی">
-                            <div class="summary-item-details">
-                                <span>صندلی راحتی چوبی (۱ عدد)</span>
-                                <p class="price">3,200,000 تومان</p>
-                            </div>
-                        </div>
-                        <div class="summary-item">
-                            <img src="https://images.unsplash.com/photo-1538688525198-9b88f6f53126?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=200" alt="چراغ مطالعه رومیزی">
-                            <div class="summary-item-details">
-                                <span>چراغ مطالعه رومیزی (۲ عدد)</span>
-                                <p class="price">3,700,000 تومان</p>
-                            </div>
-                        </div>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                var img = item.Product?.ImageUrl ?? "https://placehold.co/200x200/EFEFEF/AAAAAA?text=No+Image";
+                                <div class="summary-item">
+                                    <img src="@img" alt="@item.Product?.Name">
+                                    <div class="summary-item-details">
+                                        <span>@item.Product?.Name (@item.Quantity عدد)</span>
+                                        <p class="price">@((item.Product.Price * item.Quantity).ToString("N0")) تومان</p>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>سبد خرید شما خالی است.</p>
+                        }
                     </div>
                     <div class="summary-row" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 10px;">
                         <span>جمع کل</span>
-                        <span>6,900,000 تومان</span>
+                        <span>@total.ToString("N0") تومان</span>
                     </div>
                     <div class="summary-row">
                         <span>هزینه ارسال</span>
@@ -188,9 +197,14 @@
                     </div>
                     <div class="summary-row summary-total">
                         <span>مبلغ قابل پرداخت</span>
-                        <span>6,900,000 تومان</span>
+                        <span>@total.ToString("N0") تومان</span>
                     </div>
-                    <button class="btn">پرداخت و ثبت نهایی سفارش</button>
+                    <form asp-controller="Payment" asp-action="Start" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="orderId" value="@ViewBag.TempOrderId" />
+                        <input type="hidden" name="amount" value="@((long)total)" />
+                        <button type="submit" class="btn">پرداخت و ثبت نهایی سفارش</button>
+                    </form>
                     <p class="secure-checkout-notice">
                         <i class="fas fa-lock"></i> پرداخت امن و رمزنگاری شده
                     </p>

@@ -1,5 +1,8 @@
-﻿using GolbonWebRoad.Application.Dtos.CartItems;
+﻿using AutoMapper;
+using GolbonWebRoad.Application.Dtos.CartItems;
 using GolbonWebRoad.Application.Features.Orders.Commands;
+using GolbonWebRoad.Web.Models.Cart;
+using GolbonWebRoad.Web.Models.Transactions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +15,13 @@ namespace GolbonWebRoad.Web.Controllers
     public class CheckoutController : Controller
     {
         private readonly IMediator _mediator;
+        private readonly IMapper _mapper;
         private const string CartSessionKey = "Cart";
 
-        public CheckoutController(IMediator mediator)
+        public CheckoutController(IMediator mediator, IMapper mapper)
         {
             _mediator = mediator;
+            _mapper = mapper;
         }
 
         public IActionResult Index()
@@ -26,11 +31,22 @@ namespace GolbonWebRoad.Web.Controllers
             {
                 return RedirectToAction("Index", "Cart");
             }
-            return View(cart);
+            var mapped = cart.Select(ci => new CartItemViewModel
+            {
+                ProductId = ci.ProductId,
+                ColorId = ci.ColorId,
+                Quantity = ci.Quantity,
+                Price = ci.Price,
+                Product = _mapper.Map<ProductCartViewModel>(ci.Product)
+            }).ToList();
+            ViewBag.TotalAmount = mapped.Sum(i => (long)(i.Price * i.Quantity));
+            ViewBag.TempOrderId = Guid.NewGuid().ToString("N");
+            return View(mapped);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> PlaceOrder()
+        [HttpGet]
+        //[IgnoreAntiforgeryToken]
+        public async Task<IActionResult> PlaceOrder(CallbackMessageViewModel messageViewModel)
         {
             var cart = GetCart();
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -38,6 +54,12 @@ namespace GolbonWebRoad.Web.Controllers
             if (!cart.Any() || string.IsNullOrEmpty(userId))
             {
                 return RedirectToAction("Index", "Home");
+            }
+            if (messageViewModel.PaymentStatus!=true)
+            {
+                messageViewModel.MessageTransAction="تراکنش ناموفق";
+                messageViewModel.MessageCreateOrder="سفارش شما ثبت نشد";
+                return RedirectToAction("Success", messageViewModel);
             }
 
             var command = new CreateOrderCommand
@@ -51,16 +73,30 @@ namespace GolbonWebRoad.Web.Controllers
                 }).ToList()
             };
 
-            var orderId = await _mediator.Send(command);
-            HttpContext.Session.Remove(CartSessionKey);
+            try
+            {
+                var orderId = await _mediator.Send(command);
+                HttpContext.Session.Remove(CartSessionKey);
 
-            return RedirectToAction("Success", new { orderId = orderId });
+                messageViewModel.MessageTransAction="تراکنش موفق";
+                messageViewModel.MessageCreateOrder="ثبت سفارش با موفقیت انجام شد";
+
+                return RedirectToAction("Success", messageViewModel);
+            }
+            catch (Exception ex)
+            {
+                messageViewModel.MessageTransAction="تراکنش موفق";
+                messageViewModel.MessageCreateOrder="ثبت سفارش با مشکل مواجه شد";
+                return RedirectToAction("Success", messageViewModel);
+            }
         }
 
-        public IActionResult Success(int orderId)
+
+        [HttpGet]
+        public IActionResult Success(CallbackMessageViewModel viewmodel)
         {
-            ViewBag.OrderId = orderId;
-            return View();
+
+            return View(viewmodel);
         }
 
         private List<CartItemDto> GetCart()

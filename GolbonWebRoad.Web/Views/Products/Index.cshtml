@@ -1,18 +1,24 @@
-﻿@using GolbonWebRoad.Web.Models
-@model ProductViewModel
+﻿@using GolbonWebRoad.Web.Models.Products
+@model ProductIndexViewModel
 @{
-    ViewData["Title"] = "فروشگاه آنلاین Tecture";
+    ViewData["Title"] = "محصولات";
+    // Using a more specific layout for the public site if it exists, otherwise the default one.
+    Layout = null; 
+
+    // Helper to preserve existing query string parameters for links
+    var queryParams = Context.Request.Query.ToDictionary(q => q.Key, q => q.Value.ToString());
 }
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محصولات - فروشگاه Tecture</title>
+    <title>@ViewData["Title"] - فروشگاه Tecture</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
@@ -20,17 +26,16 @@
 
     <style>
         :root {
-            /* حالت پیش‌فرض: تیره */
             --bg-color: #121212;
             --primary-text-color: #FFFFFF;
             --secondary-text-color: #a0a0a0;
             --card-bg-color: #1a1a1a;
             --border-color: #333333;
             --accent-color: #4a90e2; 
+            --main-font: 'Vazirmatn', sans-serif;
         }
         
         body.light-mode {
-            /* حالت روشن */
             --bg-color: #f4f4f5;
             --card-bg-color: #FFFFFF;
             --primary-text-color: #18181b;
@@ -45,7 +50,7 @@
             font-family: var(--main-font); 
             background-color: var(--bg-color); 
             color: var(--primary-text-color); 
-            line-height: 1.7; 
+            line-height: 2.2; 
             overflow-x: hidden;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
@@ -59,8 +64,7 @@
         a:hover { color: var(--accent-color); }
         img { max-width: 100%; height: auto; display: block; }
         
-        /* --- هدر و فوتر مشابه صفحه اصلی --- */
-        .promo-banner { background-color: var(--accent-color); color: var(--primary-text-color); text-align: center; padding: 8px 0; font-weight: 700; font-size: 0.9rem; }
+        .promo-banner { background-color: var(--accent-color); color: white; text-align: center; padding: 8px 0; font-weight: 700; font-size: 0.9rem; }
         .main-header { background-color: rgba(18, 18, 18, 0.8); border-bottom: 1px solid var(--border-color); padding: 15px 0; position: sticky; top: 0; width: 100%; z-index: 1000; backdrop-filter: blur(10px); }
         body.light-mode .main-header { background-color: rgba(229, 231, 235, 0.8); }
         .header-container { display: flex; justify-content: space-between; align-items: center; }
@@ -81,7 +85,6 @@
         .footer-section li { margin-bottom: 10px; }
         .footer-bottom { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--border-color); font-size: 0.9rem; }
         
-        /* --- استایل‌های اصلی صفحه لیست محصولات --- */
         .page-header {
             padding: 60px 0;
             background-color: var(--card-bg-color);
@@ -99,9 +102,6 @@
         .breadcrumb a {
             color: var(--secondary-text-color);
         }
-        .breadcrumb a:hover {
-            color: var(--accent-color);
-        }
 
         .main-content {
             display: flex;
@@ -109,7 +109,6 @@
             padding: 50px 0;
         }
 
-        /* ستون کناری فیلترها */
         .filters-sidebar {
             width: 280px;
             flex-shrink: 0;
@@ -149,7 +148,6 @@
             width: 100%;
         }
 
-        /* بخش اصلی محصولات */
         .products-area {
             flex-grow: 1;
         }
@@ -169,13 +167,11 @@
             padding: 8px;
             font-family: var(--main-font);
         }
-
         .product-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 30px;
         }
-
         .plp-product-card {
             background-color: var(--card-bg-color);
             border: 1px solid var(--border-color);
@@ -203,7 +199,7 @@
             padding: 15px;
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 150px;
             transform: translateY(100%);
             transition: transform 0.3s ease;
         }
@@ -211,8 +207,9 @@
             transform: translateY(0);
         }
         .overlay-btn {
-            background-color: var(--primary-text-color);
-            color: var(--bg-color);
+            background-color: white;
+            color: #121212;
+            border-radius: 50%;
             border: none;
             padding: 10px;
             font-size: 1.1rem;
@@ -220,12 +217,10 @@
             width: 40px;
             height: 40px;
             line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-        body.light-mode .overlay-btn {
-            background-color: var(--primary-text-color);
-            color: var(--bg-color);
-        }
-        
         .product-info {
             padding: 20px;
         }
@@ -238,74 +233,86 @@
             color: var(--accent-color);
             margin-top: 10px;
         }
-        
-        /* صفحه‌بندی */
         .pagination {
             display: flex;
             justify-content: center;
             align-items: center;
             margin-top: 50px;
+            list-style: none;
+            padding: 0;
         }
-        .pagination a {
+        .pagination a, .pagination span {
             color: var(--primary-text-color);
             padding: 10px 15px;
             border: 1px solid var(--border-color);
             margin: 0 5px;
             transition: all 0.3s ease;
         }
-        .pagination a:hover, .pagination a.active {
+        .pagination li.active a {
             background-color: var(--accent-color);
             border-color: var(--accent-color);
             color: white;
         }
+        .pagination li:not(.active) a:hover {
+             background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+        .pagination li.disabled span {
+            color: var(--secondary-text-color);
+        }
         
-        /* --- Responsive --- */
         @@media (max-width: 992px) {
             .main-nav { display: none; }
-            .main-content {
-                flex-direction: column;
-            }
-            .filters-sidebar {
-                width: 100%;
-            }
-            .product-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .main-content { flex-direction: column; }
+            .filters-sidebar { width: 100%; }
+            .product-grid { grid-template-columns: repeat(2, 1fr); }
         }
          @@media (max-width: 576px) {
-            .product-grid {
-                grid-template-columns: 1fr;
-            }
-            .toolbar {
-                flex-direction: column;
-                gap: 15px;
-            }
+            .product-grid { grid-template-columns: 1fr; }
+            .toolbar { flex-direction: column; gap: 15px; }
         }
-
     </style>
 </head>
 <body>
     <div class="promo-banner"><p>ارسال رایگان برای خریدهای بالای ۵۰۰ هزار تومان!</p></div>
-    <header class="main-header"><div class="container header-container"><a href="./index.html" class="logo">Tecture</a><nav class="main-nav"><ul><li><a href="./index.html">خانه</a></li><li><a href="#">دسته‌بندی‌ها</a></li><li><a href="./product-list.html">محصولات</a></li></ul></nav><div class="header-actions"><div id="theme-toggle"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></div><a href="#" class="header-action-link"><i class="fa-solid fa-user"></i></a><a href="#" class="header-action-link"><i class="fa-solid fa-shopping-bag"></i></a><i class="fa-solid fa-magnifying-glass"></i></div></div></header>
+    <header class="main-header">
+        <div class="container header-container">
+            <a href="/" class="logo">Tecture</a>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="/">خانه</a></li>
+                    <li><a href="#">دسته‌بندی‌ها</a></li>
+                    <li><a asp-controller="Products" asp-action="Index">محصولات</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <div id="theme-toggle"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></div>
+                <a href="#" class="header-action-link"><i class="fa-solid fa-user"></i></a>
+                <a href="#" class="header-action-link"><i class="fa-solid fa-shopping-bag"></i></a>
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+        </div>
+    </header>
     
     <main>
         <header class="page-header" data-aos="fade-in">
-            <h1>مبلمان</h1>
+            
+            <h1>همه محصولات</h1>
             <div class="breadcrumb">
-                <a href="./index.html">خانه</a> / <span>مبلمان</span>
+                <a asp-action="Index" asp-controller="Home">خانه</a> / <span>همه محصولات</span>
             </div>
         </header>
 
         <div class="container main-content">
-            <!-- ستون کناری فیلترها -->
             <aside class="filters-sidebar card-like" data-aos="fade-right">
                 <div class="filter-group card-like">
                     <h3>دسته‌بندی‌ها</h3>
                     <ul>
-                        <li><label><input type="checkbox" checked> صندلی</label></li>
-                        <li><label><input type="checkbox"> کاناپه</label></li>
-                        <li><label><input type="checkbox"> میز</label></li>
-                        <li><label><input type="checkbox"> تخت‌خواب</label></li>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <li><label><input type="checkbox" name="categoryId" value="@category.Id" @(Model.CurrentCategoryId == category.Id ? "checked" : "")> @category.Name</label></li>
+                        }
                     </ul>
                 </div>
                 <div class="filter-group card-like">
@@ -321,71 +328,87 @@
                 <div class="filter-group card-like">
                     <h3>برند</h3>
                     <ul>
-                        <li><label><input type="checkbox"> ایکیا</label></li>
-                        <li><label><input type="checkbox"> هارمونی</label></li>
-                        <li><label><input type="checkbox"> مدرن دیزاین</label></li>
+                        @foreach (var brand in Model.Brands)
+                        {
+                            <li><label><input type="checkbox" name="brandId" value="@brand.Id" @(Model.CurrentBrandId == brand.Id ? "checked" : "")> @brand.Name</label></li>
+                        }
                     </ul>
                 </div>
             </aside>
 
-            <!-- بخش اصلی محصولات -->
             <section class="products-area">
                 <div class="toolbar card-like" data-aos="fade-in">
-                    <p>نمایش ۹ از ۲۷ محصول</p>
+                    <p>
+                        @if (Model.Products.TotalCount > 0)
+                        {
+                            <span>نمایش @Model.Products.Items.Count از @Model.Products.TotalCount محصول</span>
+                        }
+                        else
+                        {
+                            <span>هیچ محصولی یافت نشد</span>
+                        }
+                    </p>
                     <div class="sort-by">
-                        <label for="sort">مرتب‌سازی بر اساس: </label>
-                        <select id="sort">
-                            <option value="newest">جدیدترین</option>
-                            <option value="popularity">پرفروش‌ترین</option>
-                            <option value="price-asc">ارزان‌ترین</option>
-                            <option value="price-desc">گران‌ترین</option>
-                        </select>
+                        <form id="sort-form" asp-action="Index" method="get">
+                            @foreach (var param in queryParams.Where(q => q.Key != "sortOrder"))
+                            {
+                                <input type="hidden" name="@param.Key" value="@param.Value" />
+                            }
+                            <label for="sortOrder">مرتب‌سازی بر اساس: </label>
+                            <select name="sortOrder" id="sortOrder" onchange="this.form.submit()">
+                                <option value="" selected="@(string.IsNullOrEmpty(Model.CurrentSortOrder))">جدیدترین</option>
+                                <option value="popularity">پرفروش‌ترین</option>
+                                <option value="price_asc" selected="@(Model.CurrentSortOrder == "price_asc")">ارزان‌ترین</option>
+                                <option value="price_desc" selected="@(Model.CurrentSortOrder == "price_desc")">گران‌ترین</option>
+                            </select>
+                        </form>
                     </div>
                 </div>
 
                 <div class="product-grid">
-                    <!-- محصول ۱ -->
-                    <div class="plp-product-card card-like" data-aos="fade-up" data-aos-delay="100">
-                        <div class="image-container">
-                            <img src="https://images.unsplash.com/photo-1592078615290-033ee584e267?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="صندلی راحتی چوبی">
-                            <div class="product-overlay">
-                                <button class="overlay-btn" title="افزودن به سبد خرید"><i class="fas fa-shopping-bag"></i></button>
-                                <button class="overlay-btn" title="مشاهده سریع"><i class="fas fa-eye"></i></button>
+                    @foreach (var product in Model.Products.Items)
+                    {
+                        <div class="plp-product-card card-like" data-aos="fade-up" data-aos-delay="@((Model.Products.Items.IndexOf(product) % 3) * 100)">
+                            <div class="image-container">
+                                <a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Id">
+                                    <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? $"https://placehold.co/400x280/EFEFEF/AAAAAA?text={product.Name}" : $"{product.ImageUrl}")" alt="@product.Name">
+                                </a>
+                                <div class="product-overlay">
+                                    <button class="overlay-btn" title="افزودن به سبد خرید"><i class="fas fa-shopping-bag"></i></button>
+                                    <a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Id" class="overlay-btn" title="مشاهده جزئیات"><i class="fas fa-eye"></i></a>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h4><a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Id">@product.Name</a></h4>
+                                <p class="price">@product.Price.ToString("N0") تومان</p>
                             </div>
                         </div>
-                        <div class="product-info">
-                            <h4>صندلی راحتی چوبی</h4>
-                            <p class="price">3,200,000 تومان</p>
-                        </div>
-                    </div>
-                    <!-- محصول ۲ -->
-                    <div class="plp-product-card card-like" data-aos="fade-up" data-aos-delay="200">
-                         <div class="image-container">
-                            <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="کاناپه مدرن سبز">
-                            <div class="product-overlay">
-                                <button class="overlay-btn" title="افزودن به سبد خرید"><i class="fas fa-shopping-bag"></i></button>
-                                <button class="overlay-btn" title="مشاهده سریع"><i class="fas fa-eye"></i></button>
-                            </div>
-                        </div>
-                        <div class="product-info">
-                            <h4>کاناپه مدرن سبز</h4>
-                            <p class="price">8,500,000 تومان</p>
-                        </div>
-                    </div>
-                    <!-- سایر محصولات ... -->
-                    <div class="plp-product-card card-like" data-aos="fade-up" data-aos-delay="300"><div class="image-container"><img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="صندلی تک نفره کرم"><div class="product-overlay"><button class="overlay-btn" title="افزودن به سبد خرید"><i class="fas fa-shopping-bag"></i></button><button class="overlay-btn" title="مشاهده سریع"><i class="fas fa-eye"></i></button></div></div><div class="product-info"><h4>صندلی تک نفره کرم</h4><p class="price">4,600,000 تومان</p></div></div>
-                    <div class="plp-product-card card-like" data-aos="fade-up" data-aos-delay="100"><div class="image-container"><img src="https://images.unsplash.com/photo-1540518614846-7eded433c457?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="صندلی تک نفره کرم"><div class="product-overlay"><button class="overlay-btn" title="افزودن به سبد خرید"><i class="fas fa-shopping-bag"></i></button><button class="overlay-btn" title="مشاهده سریع"><i class="fas fa-eye"></i></button></div></div><div class="product-info"><h4>صندلی هارمونی</h4><p class="price">2,950,000 تومان</p></div></div>
-                    <div class="plp-product-card card-like" data-aos="fade-up" data-aos-delay="200"><div class="image-container"><img src="https://images.unsplash.com/photo-1512212675883-4a1a5b82a884?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="صندلی تک نفره کرم"><div class="product-overlay"><button class="overlay-btn" title="افزودن به سبد خرید"><i class="fas fa-shopping-bag"></i></button><button class="overlay-btn" title="مشاهده سریع"><i class="fas fa-eye"></i></button></div></div><div class="product-info"><h4>صندلی چرمی کلاسیک</h4><p class="price">5,100,000 تومان</p></div></div>
-                    <div class="plp-product-card card-like" data-aos="fade-up" data-aos-delay="300"><div class="image-container"><img src="https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="صندلی تک نفره کرم"><div class="product-overlay"><button class="overlay-btn" title="افزودن به سبد خرید"><i class="fas fa-shopping-bag"></i></button><button class="overlay-btn" title="مشاهده سریع"><i class="fas fa-eye"></i></button></div></div><div class="product-info"><h4>صندلی پایه چوبی</h4><p class="price">1,900,000 تومان</p></div></div>
+                    }
                 </div>
 
-                <!-- صفحه‌بندی -->
-                <nav class="pagination" data-aos="fade-up">
-                    <a href="#" class="active">1</a>
-                    <a href="#">2</a>
-                    <a href="#">3</a>
-                    <a href="#">&raquo;</a>
-                </nav>
+                @if (Model.Products.TotalPages > 1)
+                {
+                    <nav class="pagination" data-aos="fade-up">
+                         <ul class="pagination" style="list-style:none; padding:0;">
+                            @if (Model.Products.HasPreviousPage)
+                            {
+                                <li class="page-item"><a class="page-link" asp-all-route-data="queryParams" asp-route-page="@(Model.Products.PageNumber - 1)">&laquo;</a></li>
+                            }
+
+                            @for (int i = 1; i <= Model.Products.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.Products.PageNumber ? "active" : "")">
+                                    <a class="page-link" asp-all-route-data="queryParams" asp-route-page="@i">@i</a>
+                                </li>
+                            }
+                            
+                            @if (Model.Products.HasNextPage)
+                            {
+                                <li class="page-item"><a class="page-link" asp-all-route-data="queryParams" asp-route-page="@(Model.Products.PageNumber + 1)">&raquo;</a></li>
+                            }
+                        </ul>
+                    </nav>
+                }
             </section>
         </div>
     </main>
@@ -398,6 +421,7 @@
 
         (function themeSwitcher() {
             const themeToggleBtn = document.getElementById('theme-toggle');
+            if (!themeToggleBtn) return;
             const body = document.body;
             const currentTheme = localStorage.getItem('theme');
             if (currentTheme === 'light') { body.classList.add('light-mode'); }
@@ -406,6 +430,36 @@
                 localStorage.setItem('theme', body.classList.contains('light-mode') ? 'light' : 'dark');
             });
         })();
+
+        // Simple script to handle checkbox filters
+        // NOTE: This basic version only supports one filter at a time.
+        // A full implementation would require more advanced JavaScript to handle multiple selections.
+        document.querySelectorAll('.filters-sidebar input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const form = document.createElement('form');
+                form.method = 'get';
+                form.action = '@Url.Action("Index", "Products")';
+
+                // Add other existing filters to the form
+                 document.querySelectorAll('#sort-form input[type="hidden"]').forEach(hidden => {
+                    if(hidden.name !== this.name) {
+                        form.appendChild(hidden.cloneNode(true));
+                    }
+                });
+
+                if (this.checked) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = this.name;
+                    input.value = this.value;
+                    form.appendChild(input);
+                }
+                
+                document.body.appendChild(form);
+                form.submit();
+            });
+        });
+
     </script>
 </body>
 </html>

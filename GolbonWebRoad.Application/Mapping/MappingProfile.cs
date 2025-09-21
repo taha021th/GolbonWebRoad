@@ -14,6 +14,7 @@ using GolbonWebRoad.Application.Features.Categories.Commands;
 using GolbonWebRoad.Application.Features.Categories.Queries;
 using GolbonWebRoad.Application.Features.Orders.Commands;
 using GolbonWebRoad.Application.Features.Products.Commands;
+using GolbonWebRoad.Application.Features.Reviews.Commands;
 using GolbonWebRoad.Domain.Entities;
 
 namespace GolbonWebRoad.Application.Mapping
@@ -43,6 +44,9 @@ namespace GolbonWebRoad.Application.Mapping
             CreateMap<CartItem, CartItemSummaryDto>();
             #endregion
 
+            #region Reviews
+            CreateMap<CreateReviewCommand, Review>();
+            #endregion
 
             #region Categories
             // --- نگاشت‌های مربوط به دسته‌بندی‌ها ---

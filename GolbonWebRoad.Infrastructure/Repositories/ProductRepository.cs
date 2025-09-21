@@ -6,13 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GolbonWebRoad.Infrastructure.Repositories
 {
-    //public class JoinProp
-    //{
-    //    public bool Category { get; set; }
-    //    public bool Reviews { get; set; }
-    //    public bool Images { get; set; }
-    //}
-
     public class ProductRepository : IProductRepository
     {
         private readonly GolbonWebRoadDbContext _context;
@@ -20,7 +13,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         {
             _context = context;
         }
-        public async Task<ICollection<Product>> GetAllAsync(string? searchTerm = null, int? categoryId = null, string? sortOrder = null, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false, bool? joinColors = false)
+        public async Task<ICollection<Product>> GetAllAsync(string? searchTerm = null, int? categoryId = null, string? sortOrder = null, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false, bool? joinColors = false, int count = 0)
         {
             var query = _context.Products.AsQueryable();
             if (!string.IsNullOrEmpty(searchTerm))
@@ -39,6 +32,9 @@ namespace GolbonWebRoad.Infrastructure.Repositories
                     _ => query.OrderBy(p => p.Name)
                 };
 
+            if (count>0)
+                query=query.Take(count);
+
             if (joinCategory==true)
                 query= query.Include(c => c.Category);
 
@@ -54,6 +50,58 @@ namespace GolbonWebRoad.Infrastructure.Repositories
 
 
             return await query.ToListAsync();
+        }
+        public async Task<PagedResult<Product>> GetPagedProductsAsync(int pageNumber, int pageSize, string searchTerm = null, int? categoryId = null, int? brandId = null, string sortOrder = null)
+        {
+            IQueryable<Product> query = _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Images); // Always include necessary related data
+
+            // Filtering
+            if (categoryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            if (brandId.HasValue) // Brand filter added
+            {
+                query = query.Where(p => p.BrandId == brandId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(p => p.Name.Contains(searchTerm) || p.ShortDescription.Contains(searchTerm));
+            }
+
+            // Sorting
+            switch (sortOrder)
+            {
+                case "price_desc":
+                    query = query.OrderByDescending(p => p.Price);
+                    break;
+                case "price_asc":
+                    query = query.OrderBy(p => p.Price);
+                    break;
+                default:
+                    query = query.OrderByDescending(p => p.CreatedAt);
+                    break;
+            }
+
+            // Pagination
+            var totalCount = await query.CountAsync();
+            var items = await query.Skip((pageNumber - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .AsNoTracking()
+                                   .ToListAsync();
+
+            return new PagedResult<Product>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
         public async Task<Product?> GetByIdAsync(int id, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false, bool? joinColors = false)
         {
@@ -90,6 +138,11 @@ namespace GolbonWebRoad.Infrastructure.Repositories
                 throw new NotFoundException("محصولی برای حذف یافت نشد.");
             }
             _context.Products.Remove(product);
+        }
+
+        public Task<Product> GetProductByIsFeaturedAsync()
+        {
+            return _context.Products.Include(p => p.Images).FirstOrDefaultAsync(p => p.IsFeatured);
         }
     }
 }

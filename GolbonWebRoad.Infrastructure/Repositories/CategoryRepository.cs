@@ -32,11 +32,15 @@ namespace GolbonWebRoad.Infrastructure.Repositories
 
         }
 
-        public async Task<IEnumerable<Category>> GetAllAsync(bool? joinProducts = false)
+        public async Task<IEnumerable<Category>> GetAllAsync(bool? joinProducts = false, int take = 0)
         {
             var query = _context.Categories.AsQueryable();
+            if (take>0)
+                query= query.Take(take);
+
             if (joinProducts==true)
                 query=query.Include(p => p.Products);
+
             return await query.ToListAsync();
 
         }
