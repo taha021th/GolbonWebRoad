@@ -21,4 +21,8 @@
     <ProjectReference Include="..\GolbonWebRoad.Application\GolbonWebRoad.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>
