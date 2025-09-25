@@ -129,7 +129,7 @@
                         {
                             var mainImage = item.Product?.ImageUrl ?? "https://placehold.co/200x200/EFEFEF/AAAAAA?text=No+Image";
                             var itemTotal = item.Product.Price * item.Quantity;
-                            int? colorId = item.ColorId;
+                            int? variantId = item.VariantId;
                             <div class="cart-item">
                                 <div class="cart-item-image">
                                     <img src="@mainImage" alt="@item.Product?.Name">

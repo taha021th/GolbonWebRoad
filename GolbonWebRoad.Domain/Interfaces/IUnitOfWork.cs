@@ -11,6 +11,9 @@ namespace GolbonWebRoad.Domain.Interfaces
         IBrandRepository BrandRepository { get; }
         IColorRepository ColorRepository { get; }
         IReviewsRepository ReviewsRepository { get; }
+        IProductAttributeRepository ProductAttributeRepository { get; }
+        IProductAttributeValueRepository ProductAttributeValueRepository { get; }
+        IProductVariantRepository ProductVariantRepository { get; }
         Task<int> CompleteAsync();
     }
 }

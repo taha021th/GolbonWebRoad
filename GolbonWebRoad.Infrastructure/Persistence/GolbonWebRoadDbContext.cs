@@ -20,6 +20,9 @@ namespace GolbonWebRoad.Infrastructure.Persistence
         public DbSet<Color> Colors { get; set; }
         public DbSet<Log> Logs { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<ProductAttribute> ProductAttributes { get; set; }
+        public DbSet<ProductAttributeValue> ProductAttributeValues { get; set; }
+        public DbSet<ProductVariant> ProductVariants { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

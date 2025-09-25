@@ -53,11 +53,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
         [Display(Name = "تصاویر محصول")]
         public List<IFormFile>? Images { get; set; }
 
-        [Display(Name = "رنگ های موجود محصول")]
-        /// <summary>
-        /// Used to receive color data from the dynamic form.
-        /// </summary>
-        public List<ColorInputDto> Colors { get; set; } = new List<ColorInputDto>();
+        // Colors removed in favor of attributes/variants
 
         // --- Properties for Populating Dropdowns ---
 
@@ -72,5 +68,19 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
         /// This is populated in the controller.
         /// </summary>
         public SelectList? BrandOptions { get; set; }
+
+        // --- Variants ---
+        [Display(Name = "ورینت‌ها")]
+        public List<VariantInputViewModel> Variants { get; set; } = new List<VariantInputViewModel>();
+
+        /// <summary>
+        /// Options for choosing attribute values in variant rows
+        /// </summary>
+        public SelectList? AttributeValueOptions { get; set; }
+
+        /// <summary>
+        /// Grouped options by attribute for better UX
+        /// </summary>
+        public List<AttributeGroupOptionViewModel> AttributeGroups { get; set; } = new();
     }
 }

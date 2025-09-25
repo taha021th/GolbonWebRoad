@@ -28,8 +28,9 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         public int? BrandId { get; set; }
         public List<IFormFile> NewImages { get; set; } = new();
         public List<string> ImagesToDelete { get; set; } = new();
-        public List<ColorInputDto> NewColors { get; set; } = new();
-        public List<int> ColorsToDelete { get; set; } = new();
+        // Colors removed in favor of attribute-based variants
+        // public List<ColorInputDto> NewColors { get; set; } = new();
+        // public List<int> ColorsToDelete { get; set; } = new();
 
     }
 
@@ -100,7 +101,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
                     foreach (var imageFile in request.NewImages)
                     {
                         var newImageUrl = await _fileStorageService.SaveFileAsync(imageFile, "products");
-                        productToUpdate.Images.Add(new ProductImages
+                        productToUpdate.Images.Add(new ProductImage
                         {
                             ImageUrl = newImageUrl,
                             // اگر محصول هیچ تصویر اصلی ندارد، این را اصلی قرار بده
@@ -111,46 +112,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
                 #endregion
 
 
-                #region Colors
-                if (request.ColorsToDelete != null && request.ColorsToDelete.Any())
-                {
-                    // لیستی از آیتم‌های ProductColor که باید حذف شوند را پیدا کن
-                    var colorsToRemove = productToUpdate.ProductColors
-                        .Where(pc => request.ColorsToDelete.Contains(pc.ColorId))
-                        .ToList();
-
-                    foreach (var productColor in colorsToRemove)
-                    {
-                        productToUpdate.ProductColors.Remove(productColor);
-                    }
-                }
-
-                // ب) افزودن رنگ‌های جدید
-                if (request.NewColors != null && request.NewColors.Any())
-                {
-                    foreach (var newColor in request.NewColors.Where(c => !string.IsNullOrWhiteSpace(c.Name)))
-                    {
-                        var trimmedColorName = newColor.Name.Trim();
-
-                        // چک کن که این رنگ از قبل به محصول اضافه نشده باشد
-                        if (productToUpdate.ProductColors.Any(pc => pc.Color.Name == trimmedColorName))
-                        {
-                            continue; // اگر بود، برو سراغ رنگ بعدی
-                        }
-
-                        var existingColor = await _unitOfWork.ColorRepository.FindByNameAsync(trimmedColorName);
-
-                        if (existingColor == null) // اگر رنگ در دیتابیس نبود، بسازش
-                        {
-                            existingColor = new Color { Name = trimmedColorName, HexCode = newColor.HexCode?.Trim() };
-                            await _unitOfWork.ColorRepository.AddAsync(existingColor);
-                        }
-
-                        // رابطه جدید را به محصول اضافه کن
-                        productToUpdate.ProductColors.Add(new ProductColor { Color = existingColor });
-                    }
-                }
-                #endregion
+                // Colors removed; variants handle options now
 
                 // ۶. ذخیره تمام تغییرات در یک تراکنش واحد
                 await _unitOfWork.CompleteAsync();

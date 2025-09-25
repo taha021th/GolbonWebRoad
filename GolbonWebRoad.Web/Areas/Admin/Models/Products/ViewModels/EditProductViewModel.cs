@@ -67,15 +67,14 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
         /// </summary>
         public List<string> ImagesToDelete { get; set; } = new List<string>();
 
-        [Display(Name = "رنگ های فعلی محصول")]
-        public List<ExistingColorViewModel> ExistingColors { get; set; } = new();
-        [Display(Name = "حذف رنگ ها")]
-        public List<int> ColorsToDelete { get; set; } = new();
-        // --- مدیریت رنگ‌ها ---
-        [Display(Name = "رنگ های موجود محصول")]
-        public List<ColorInputDto> NewColors { get; set; } = new List<ColorInputDto>();
+        // Colors removed in favor of attributes/variants
         // --- پراپرتی برای دراپ‌داون‌ها ---
         public SelectList? CategoryOptions { get; set; }
         public SelectList? BrandOptions { get; set; }
+
+        // --- Variants ---
+        public List<VariantRowViewModel> Variants { get; set; } = new List<VariantRowViewModel>();
+        public SelectList? AttributeValueOptions { get; set; }
+        public List<AttributeGroupOptionViewModel> AttributeGroups { get; set; } = new();
     }
 }

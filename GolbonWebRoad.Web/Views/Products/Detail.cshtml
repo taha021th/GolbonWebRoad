@@ -251,26 +251,32 @@
                     <p class="short-description">@Model.ShortDescription</p>
                     
                     <div class="options-group">
-                        <label>انتخاب رنگ:</label>
-                        <div class="color-selector">
-                            @if (Model.ProductColors != null && Model.ProductColors.Any())
+                        <label>انتخاب ویژگی‌ها:</label>
+                        <div class="row g-2">
+                            @if (Model.AttributeGroups != null && Model.AttributeGroups.Any())
                             {
-                                var first = true;
-                                foreach (var pc in Model.ProductColors)
+                                foreach (var grp in Model.AttributeGroups)
                                 {
-                                    var hex = pc.HexCode ?? "#cccccc";
-                                    var title = pc.Name ?? "";
-                                    <span class="color-swatch @(first ? "active" : null)" data-color-id="@pc.ColorId" style="background-color: @hex;" title="@title"></span>
-                                    first = false;
+                                    <div class="col-md-4">
+                                        <label class="form-label">@grp.AttributeName</label>
+                                        <select class="form-select pd-attr" data-attribute-id="@grp.AttributeId">
+                                            <option value="">-- انتخاب --</option>
+                                            @foreach (var val in grp.Values)
+                                            {
+                                                <option value="@val.Id">@val.Value</option>
+                                            }
+                                        </select>
+                                    </div>
                                 }
                             }
                         </div>
+                        <small id="variantPrice" style="display:block; margin-top:10px; color: var(--secondary-text-color);"></small>
                     </div>
 
                     <form asp-controller="Cart" asp-action="AddToCart" method="post">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="@Model.Id" />
-                        <input type="hidden" id="selectedColorId" name="colorId" value="" />
+                        <input type="hidden" id="selectedVariantId" name="variantId" value="" />
                         <div class="actions">
                             <div class="quantity-selector">
                                 <button type="button" id="qtyMinus">-</button>
@@ -524,17 +530,36 @@
             qtyInput.value = Math.max(1, current - 1);
         });
 
-        // Color selection -> set hidden colorId
-        const selectedColorInput = document.getElementById('selectedColorId');
-        document.querySelectorAll('.color-swatch').forEach(el => {
-            el.addEventListener('click', function () {
-                const active = document.querySelector('.color-swatch.active');
-                if (active) active.classList.remove('active');
-                this.classList.add('active');
-                const colorId = this.getAttribute('data-color-id');
-                selectedColorInput.value = colorId || '';
+        // Variant selection logic: pick 1 value per attribute, find matching variant
+        const variants = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Variants));
+        const selects = document.querySelectorAll('.pd-attr');
+        const variantPriceEl = document.getElementById('variantPrice');
+        const selectedVariantInput = document.getElementById('selectedVariantId');
+
+        function getSelectedValueIds() {
+            const ids = [];
+            selects.forEach(sel => { if (sel.value) ids.push(parseInt(sel.value)); });
+            return ids.sort((a,b)=>a-b);
+        }
+
+        function findMatchingVariant() {
+            const sel = getSelectedValueIds();
+            if (sel.length === 0) { selectedVariantInput.value = ''; variantPriceEl.textContent = ''; return; }
+            const match = variants.find(v => {
+                const vals = (v.attributeValueIds || []).slice().sort((a,b)=>a-b);
+                // match when selected is subset of variant's attributes (or exact)
+                return sel.every(id => vals.includes(id));
             });
-        });
+            if (match) {
+                selectedVariantInput.value = match.id;
+                variantPriceEl.textContent = `قیمت ورینت: ${match.price.toLocaleString()} تومان`;
+            } else {
+                selectedVariantInput.value = '';
+                variantPriceEl.textContent = 'هیچ ورینتی با انتخاب‌های شما موجود نیست';
+            }
+        }
+
+        selects.forEach(sel => sel.addEventListener('change', findMatchingVariant));
 
         // Review form functionality
         (function reviewFormHandler() {

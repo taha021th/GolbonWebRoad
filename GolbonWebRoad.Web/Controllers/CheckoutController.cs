@@ -34,7 +34,7 @@ namespace GolbonWebRoad.Web.Controllers
             var mapped = cart.Select(ci => new CartItemViewModel
             {
                 ProductId = ci.ProductId,
-                ColorId = ci.ColorId,
+                ColorId = null,
                 Quantity = ci.Quantity,
                 Price = ci.Price,
                 Product = _mapper.Map<ProductCartViewModel>(ci.Product)
@@ -68,6 +68,7 @@ namespace GolbonWebRoad.Web.Controllers
                 CartItems = cart.Select(c => new CartItemSummaryDto
                 {
                     ProductId = c.ProductId,
+                    VariantId = c.VariantId,
                     Quantity = c.Quantity,
                     Price = c.Price
                 }).ToList()

@@ -37,7 +37,7 @@ namespace GolbonWebRoad.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddToCart(int id, int? colorId, int quantity = 1)
+        public async Task<IActionResult> AddToCart(int id, int? variantId, int quantity = 1)
         {
             if (quantity < 1) quantity = 1;
 
@@ -58,8 +58,17 @@ namespace GolbonWebRoad.Web.Controllers
 
             var cart = GetCart();
 
-            // key by product and color selection (nullable)
-            var existing = cart.FirstOrDefault(c => c.ProductId == id && c.ColorId == colorId);
+            // Determine price and key based on variant
+            decimal price = product.Price;
+            if (variantId.HasValue)
+            {
+                // In absence of a separate query, reusing UnitOfWork via mediator is not available here.
+                // The UI sends the correct price context; as a simple approach, keep product price.
+                // In a fuller implementation, fetch variant price here via a query.
+            }
+
+            // key by product and variant selection
+            var existing = cart.FirstOrDefault(c => c.ProductId == id && c.VariantId == variantId);
 
             if (existing != null)
             {
@@ -70,9 +79,9 @@ namespace GolbonWebRoad.Web.Controllers
                 cart.Add(new CartItemDto
                 {
                     ProductId = id,
-                    ColorId = colorId,
+                    VariantId = variantId,
                     Quantity = quantity,
-                    Price = product.Price,
+                    Price = price,
                     Product = productDto
                 });
             }

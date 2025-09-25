@@ -75,31 +75,72 @@
                 </div>
             </div>
 
-            <div class="card shadow-sm">
+            
+
+            <div class="card shadow-sm mt-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>مدیریت رنگ‌ها</span>
-                    <button type="button" id="add-color-btn" class="btn btn-sm btn-outline-secondary">افزودن رنگ جدید</button>
+                    <span>ورینت‌ها</span>
+                    <button type="button" id="add-variant-btn" class="btn btn-sm btn-outline-primary">افزودن ورینت</button>
                 </div>
                 <div class="card-body">
-                    @if (Model.ExistingColors != null && Model.ExistingColors.Any())
-                    {
-                        <div class="mb-4">
-                            <label class="form-label">رنگ‌های فعلی (برای حذف، تیک بزنید):</label>
-                            @foreach (var color in Model.ExistingColors)
+                    <div id="variants-container" class="vstack gap-3">
+                        @if (Model.Variants != null && Model.Variants.Any())
+                        {
+                            var i = 0;
+                            foreach (var v in Model.Variants)
                             {
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="ColorsToDelete" value="@color.Id" id="color-del-@color.Id">
-                                    <label class="form-check-label" for="color-del-@color.Id">
-                                        <span class="d-inline-block rounded-circle border me-2" style="width: 1rem; height: 1rem; background-color:@color.HexCode"></span>
-                                        @color.Name
-                                    </label>
+                                <div class="border rounded p-3 mb-2">
+                                    <input type="hidden" name="Variants[@i].Id" value="@v.Id" />
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-md-3">
+                                            <label class="form-label">SKU</label>
+                                            <input type="text" name="Variants[@i].Sku" class="form-control" value="@v.Sku" required />
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">قیمت</label>
+                                            <input type="number" name="Variants[@i].Price" class="form-control" value="@v.Price" min="1" step="0.01" required />
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">قیمت قدیم</label>
+                                            <input type="number" name="Variants[@i].OldPrice" class="form-control" value="@v.OldPrice" step="0.01" />
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">موجودی</label>
+                                            <input type="number" name="Variants[@i].StockQuantity" class="form-control" value="@v.StockQuantity" min="0" />
+                                        </div>
+                                        <div class="col-md-7">
+                                            <div class="row g-2">
+                                                @if (Model.AttributeGroups != null)
+                                                {
+                                                    foreach (var grp in Model.AttributeGroups)
+                                                    {
+                                                        <div class="col-md-4">
+                                                            <label class="form-label">@grp.AttributeName</label>
+                                                            <select name="Variants[@i].AttributeValueIds" class="form-select">
+                                                                <option value="">-- انتخاب --</option>
+                                                                @foreach (var opt in grp.Values)
+                                                                {
+                                                                    var selected = v.AttributeValueIds != null && v.AttributeValueIds.Contains(int.Parse(opt.Value));
+                                                                    <option value="@opt.Value" selected="@(selected ? "selected" : null)">@opt.Text</option>
+                                                                }
+                                                            </select>
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mt-2 d-flex justify-content-between">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="Variants[@i].MarkForDeletion" id="del-@i">
+                                                <label class="form-check-label" for="del-@i">حذف این ورینت</label>
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-variant-btn">حذف از فرم</button>
+                                        </div>
+                                    </div>
                                 </div>
+                                i++;
                             }
-                        </div>
-                        <hr class="my-4">
-                    }
-                    <div id="new-colors-container" class="vstack gap-3">
-                        <!-- Dynamic new color rows will be added here -->
+                        }
                     </div>
                 </div>
             </div>
@@ -163,36 +204,58 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const container = document.getElementById('new-colors-container');
-            let colorIndex = 0;
+            const variantsContainer = document.getElementById('variants-container');
+            let variantIndex = @((Model.Variants?.Count ?? 0));
 
-            function addColorRow() {
-                const newRow = document.createElement('div');
-                newRow.classList.add('input-group');
-                newRow.innerHTML = `
-                            <input type="text" name="NewColors[${colorIndex}].Name" class="form-control" placeholder="نام رنگ جدید" required />
-                            <input type="color" class="form-control form-control-color" id="new-color-picker-${colorIndex}" value="#000000" title="انتخاب رنگ">
-                            <input type="text" name="NewColors[${colorIndex}].HexCode" id="new-color-hex-${colorIndex}" value="#000000" class="form-control" style="max-width: 120px;" />
-                            <button class="btn btn-outline-danger remove-color-btn" type="button">&times;</button>
-                        `;
-                container.appendChild(newRow);
-
-                const colorPicker = newRow.querySelector(`#new-color-picker-${colorIndex}`);
-                const hexInput = newRow.querySelector(`#new-color-hex-${colorIndex}`);
-
-                colorPicker.addEventListener('input', (e) => hexInput.value = e.target.value);
-                hexInput.addEventListener('input', (e) => colorPicker.value = e.target.value);
-
-                colorIndex++;
+            function addVariantRow() {
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('border', 'rounded', 'p-3', 'mb-2');
+                wrapper.innerHTML = `
+<div class="row g-2 align-items-end">
+  <div class="col-md-3">
+    <label class="form-label">SKU</label>
+    <input type="text" name="Variants[${variantIndex}].Sku" class="form-control" required />
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">قیمت</label>
+    <input type="number" name="Variants[${variantIndex}].Price" class="form-control" min="1" step="0.01" required />
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">قیمت قدیم</label>
+    <input type="number" name="Variants[${variantIndex}].OldPrice" class="form-control" step="0.01" />
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">موجودی</label>
+    <input type="number" name="Variants[${variantIndex}].StockQuantity" class="form-control" min="0" />
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">مقادیر ویژگی‌ها</label>
+    <select name="Variants[${variantIndex}].AttributeValueIds" multiple class="form-select">
+      @if (Model.AttributeValueOptions != null)
+      {
+          foreach (var opt in Model.AttributeValueOptions)
+          {
+              <option value="@opt.Value">@opt.Text</option>
+          }
+      }
+    </select>
+  </div>
+  <div class="col-12 text-end mt-2">
+    <button type="button" class="btn btn-sm btn-outline-danger remove-variant-btn">حذف ورینت</button>
+  </div>
+</div>`;
+                variantsContainer.appendChild(wrapper);
+                variantIndex++;
             }
 
-            document.getElementById('add-color-btn').addEventListener('click', addColorRow);
-
-            container.addEventListener('click', function (e) {
-                if (e.target.classList.contains('remove-color-btn')) {
-                    e.target.closest('.input-group').remove();
+            document.getElementById('add-variant-btn').addEventListener('click', addVariantRow);
+            variantsContainer.addEventListener('click', function (e) {
+                if (e.target.classList.contains('remove-variant-btn')) {
+                    e.target.closest('.border').remove();
                 }
             });
         });

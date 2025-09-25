@@ -66,12 +66,7 @@
 
     }
 
-    public class ProductColorViewModel
-    {
-        public int ColorId { get; set; }
-        public string Name { get; set; }
-        public string HexCode { get; set; }
-    }
+    // Removed ProductColorViewModel (colors are deprecated)
 
     public class ReviewViewModel
     {
@@ -104,8 +99,11 @@
         public int ReviewsCount { get; set; }
 
         public List<ProductImagesViewModel> Images { get; set; }
-        public List<ProductColorViewModel> ProductColors { get; set; }
         public List<ReviewViewModel> Reviews { get; set; } = new List<ReviewViewModel>();
+
+        // --- Variants & Attributes (for new structure) ---
+        public List<VariantDisplayViewModel> Variants { get; set; } = new List<VariantDisplayViewModel>();
+        public List<AttributeGroupDisplayViewModel> AttributeGroups { get; set; } = new List<AttributeGroupDisplayViewModel>();
     }
 }
 

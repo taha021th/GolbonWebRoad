@@ -24,13 +24,13 @@ namespace GolbonWebRoad.Infrastructure.Repositories
                 query=query.Where(p => p.CategoryId==categoryId);
 
 
-            if (sortOrder != null)
-                query = sortOrder switch
-                {
-                    "price_desc" => query.OrderByDescending(p => p.Price),
-                    "price_asc" => query.OrderBy(p => p.Price),
-                    _ => query.OrderBy(p => p.Name)
-                };
+            //if (sortOrder != null)
+            //    query = sortOrder switch
+            //    {
+            //        "price_desc" => query.OrderByDescending(p => p.Price),
+            //        "price_asc" => query.OrderBy(p => p.Price),
+            //        _ => query.OrderBy(p => p.Name)
+            //    };
 
             if (count>0)
                 query=query.Take(count);
@@ -45,8 +45,6 @@ namespace GolbonWebRoad.Infrastructure.Repositories
 
             if (joinBrand==true)
                 query=query.Include(b => b.Brand);
-            if (joinColors==true)
-                query=query.Include(c => c.ProductColors).ThenInclude(c => c.Color);
 
 
             return await query.ToListAsync();
@@ -75,18 +73,18 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             }
 
             // Sorting
-            switch (sortOrder)
-            {
-                case "price_desc":
-                    query = query.OrderByDescending(p => p.Price);
-                    break;
-                case "price_asc":
-                    query = query.OrderBy(p => p.Price);
-                    break;
-                default:
-                    query = query.OrderByDescending(p => p.CreatedAt);
-                    break;
-            }
+            //switch (sortOrder)
+            //{
+            //    case "price_desc":
+            //        query = query.OrderByDescending(p => p.Price);
+            //        break;
+            //    case "price_asc":
+            //        query = query.OrderBy(p => p.Price);
+            //        break;
+            //    default:
+            //        query = query.OrderByDescending(p => p.CreatedAt);
+            //        break;
+            //}
 
             // Pagination
             var totalCount = await query.CountAsync();
@@ -115,8 +113,6 @@ namespace GolbonWebRoad.Infrastructure.Repositories
                 query=query.Include(i => i.Images);
             if (joinBrand==true)
                 query=query.Include(b => b.Brand);
-            if (joinColors==true)
-                query=query.Include(c => c.ProductColors).ThenInclude(c => c.Color);
 
             return await query.FirstOrDefaultAsync(p => p.Id==id);
         }

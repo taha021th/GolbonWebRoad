@@ -31,9 +31,9 @@ namespace GolbonWebRoad.Web.Mapping
                 )
             );
             CreateMap<CreateProductViewModel, CreateProductCommand>();
-            CreateMap<Product, EditProductViewModel>().ForMember(dest => dest.ExistingColors, opt => opt.MapFrom(src => src.ProductColors.Select(pc => new ExistingColorViewModel { Id=pc.Color.Id, Name=pc.Color.Name, HexCode=pc.Color.HexCode }).ToList()));
+            CreateMap<Product, EditProductViewModel>();
             CreateMap<EditProductViewModel, UpdateProductCommand>();
-            CreateMap<ProductImages, ProductImageDto>();
+            CreateMap<ProductImage, ProductImageDto>();
             CreateMap<Product, DeleteProductViewModel>();
             #endregion
 
@@ -44,19 +44,15 @@ namespace GolbonWebRoad.Web.Mapping
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src =>
                     src.Images != null && src.Images.Any() ? src.Images.Where(c => c.IsMainImage==true).First().ImageUrl : null));
 
-            CreateMap<ProductImages, Models.Products.ProductImagesViewModel>();
-            CreateMap<ProductColor, Models.Products.ProductColorViewModel>()
-                .ForMember(dest => dest.ColorId, opt => opt.MapFrom(src => src.ColorId))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Color.Name))
-                .ForMember(dest => dest.HexCode, opt => opt.MapFrom(src => src.Color.HexCode));
+            CreateMap<ProductImage, Models.Products.ProductImagesViewModel>();
+            // Removed ProductColor mapping
 
             CreateMap<Product, Models.Products.ProductDetailViewModel>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
                 .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : null))
                 .ForMember(dest => dest.ReviewsCount, opt => opt.MapFrom(src => src.Reviews != null ? src.Reviews.Count : 0))
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
-                .ForMember(dest => dest.ProductColors, opt => opt.MapFrom(src => src.ProductColors));
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images));
 
             // Review mapping
             CreateMap<Review, Models.Products.ReviewViewModel>()

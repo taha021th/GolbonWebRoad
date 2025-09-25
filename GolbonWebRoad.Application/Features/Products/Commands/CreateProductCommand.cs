@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging; // ۱. این using را برای دسترس
 
 namespace GolbonWebRoad.Application.Features.Products.Commands
 {
-    public class CreateProductCommand : IRequest
+    public class CreateProductCommand : IRequest<int>
     {
         public string? Slog { get; set; }
         public string Name { get; set; }
@@ -24,7 +24,8 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
 
         public int CategoryId { get; set; }
         public int? BrandId { get; set; }
-        public List<ColorInputDto> Colors { get; set; } = new();
+        // Colors removed in favor of attribute-based variants
+        // public List<ColorInputDto> Colors { get; set; } = new();
         public List<IFormFile> Images { get; set; } = new();
     }
 
@@ -44,7 +45,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         }
     }
 
-    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand>
+    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, int>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -60,7 +61,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
             _fileStorageService=fileStorageService;
         }
 
-        public async Task Handle(CreateProductCommand request, CancellationToken cancellationToken)
+        public async Task<int> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("شروع فرآیند ایجاد محصول جدید با نام '{ProductName}'.", request.Name);
 
@@ -75,7 +76,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
                     foreach (var imageFile in request.Images)
                     {
                         var imageUrl = await _fileStorageService.SaveFileAsync(imageFile, "products");
-                        product.Images.Add(new ProductImages
+                        product.Images.Add(new ProductImage
                         {
                             ImageUrl = imageUrl,
                             IsMainImage = isFirstImage
@@ -84,28 +85,12 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
                     }
                 }
 
-                if (request.Colors != null && request.Colors.Any())
-                {
-                    foreach (var colorInput in request.Colors.Where(c => !string.IsNullOrWhiteSpace(c.Name)))
-                    {
-                        var trimmedColorName = colorInput.Name.Trim();
-                        var existingColor = await _unitOfWork.ColorRepository.FindByNameAsync(trimmedColorName);
-
-                        if (existingColor == null)
-                        {
-                            existingColor = new Color { Name = trimmedColorName, HexCode = colorInput.HexCode?.Trim() };
-                            await _unitOfWork.ColorRepository.AddAsync(existingColor);
-                        }
-
-                        product.ProductColors.Add(new ProductColor { Color = existingColor });
-                    }
-                }
+                // Removed legacy color binding; attributes/variants handle options now
                 _unitOfWork.ProductRepository.Add(product);
                 await _unitOfWork.CompleteAsync();
 
                 _logger.LogInformation("محصول '{ProductName}' با شناسه {ProductId} با موفقیت ایجاد شد.", product.Name, product.Id);
-
-
+                return product.Id;
             }
             catch (Exception ex)
             {

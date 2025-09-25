@@ -117,7 +117,7 @@ namespace GolbonWebRoad.Application.Mapping
             //                   ? src.Images.FirstOrDefault(i => i.IsMainImage)?.ImageUrl
             //                   : null));
             CreateMap<UpdateProductCommand, Product>();
-            CreateMap<ProductImages, ProductImageDto>();
+            CreateMap<ProductImage, ProductImageDto>();
 
 
             #endregion

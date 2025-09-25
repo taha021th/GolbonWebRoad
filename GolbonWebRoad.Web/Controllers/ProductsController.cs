@@ -82,6 +82,31 @@ namespace GolbonWebRoad.Web.Controllers
             });
             
             var viewModel = _mapper.Map<GolbonWebRoad.Web.Models.Products.ProductDetailViewModel>(product);
+
+            // Map variants and attribute groups from repositories
+            var variants = await _unitOfWork.ProductVariantRepository.GetByProductIdAsync(id);
+            viewModel.Variants = variants.Select(v => new Models.Products.VariantDisplayViewModel
+            {
+                Id = v.Id,
+                Sku = v.Sku,
+                Price = v.Price,
+                OldPrice = v.OldPrice,
+                StockQuantity = v.StockQuantity,
+                AttributeValueIds = v.SelectedAttributes?.Select(a => a.Id).ToList() ?? new List<int>()
+            }).ToList();
+
+            var attrs = await _unitOfWork.ProductAttributeRepository.GetAllAsync(1, int.MaxValue);
+            var values = await _unitOfWork.ProductAttributeValueRepository.GetAllAsync(1, int.MaxValue);
+            viewModel.AttributeGroups = values.Items
+                .GroupBy(v => v.AttributeId)
+                .Select(g => new Models.Products.AttributeGroupDisplayViewModel
+                {
+                    AttributeId = g.Key,
+                    AttributeName = attrs.Items.FirstOrDefault(a => a.Id == g.Key)?.Name ?? $"Attribute {g.Key}",
+                    Values = g.Select(v => new Models.Products.AttributeValueDisplayViewModel { Id = v.Id, Value = v.Value }).ToList()
+                })
+                .OrderBy(gr => gr.AttributeName)
+                .ToList();
             viewModel.Reviews = _mapper.Map<List<ReviewViewModel>>(reviews);
             
             return View(viewModel);
