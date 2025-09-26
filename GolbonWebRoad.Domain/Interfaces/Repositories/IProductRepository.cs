@@ -12,8 +12,8 @@ namespace GolbonWebRoad.Domain.Interfaces.Repositories
     }
     public interface IProductRepository
     {
-        Task<Product?> GetByIdAsync(int id, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false, bool? joinColors = false);
-        Task<ICollection<Product>> GetAllAsync(string? searchTerm = null, int? categoryId = null, string? sortOrder = null, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false, bool? joinColors = false, int count = 0);
+        Task<Product?> GetByIdAsync(int id, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false);
+        Task<ICollection<Product>> GetAllAsync(string? searchTerm = null, int? categoryId = null, string? sortOrder = null, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false, int count = 0);
         Task<PagedResult<Product>> GetPagedProductsAsync(int pageNumber, int pageSize, string searchTerm = null, int? categoryId = null, int? brandId = null, string sortOrder = null);
         Task<Product> GetProductByIsFeaturedAsync();
         Product Add(Product product);

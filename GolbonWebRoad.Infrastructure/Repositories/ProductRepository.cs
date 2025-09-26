@@ -13,7 +13,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         {
             _context = context;
         }
-        public async Task<ICollection<Product>> GetAllAsync(string? searchTerm = null, int? categoryId = null, string? sortOrder = null, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false, bool? joinColors = false, int count = 0)
+        public async Task<ICollection<Product>> GetAllAsync(string? searchTerm = null, int? categoryId = null, string? sortOrder = null, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false, int count = 0)
         {
             var query = _context.Products.AsQueryable();
             if (!string.IsNullOrEmpty(searchTerm))
@@ -45,6 +45,8 @@ namespace GolbonWebRoad.Infrastructure.Repositories
 
             if (joinBrand==true)
                 query=query.Include(b => b.Brand);
+
+            query=query.Include(p => p.Variants);
 
 
             return await query.ToListAsync();
@@ -101,7 +103,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
                 PageSize = pageSize
             };
         }
-        public async Task<Product?> GetByIdAsync(int id, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false, bool? joinColors = false)
+        public async Task<Product?> GetByIdAsync(int id, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false)
         {
             var query = _context.Products.AsQueryable();
 
@@ -113,6 +115,8 @@ namespace GolbonWebRoad.Infrastructure.Repositories
                 query=query.Include(i => i.Images);
             if (joinBrand==true)
                 query=query.Include(b => b.Brand);
+
+            query=query.Include(p => p.Variants);
 
             return await query.FirstOrDefaultAsync(p => p.Id==id);
         }
@@ -138,7 +142,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
 
         public Task<Product> GetProductByIsFeaturedAsync()
         {
-            return _context.Products.Include(p => p.Images).FirstOrDefaultAsync(p => p.IsFeatured);
+            return _context.Products.Include(p => p.Images).Include(p => p.Variants).FirstOrDefaultAsync(p => p.IsFeatured);
         }
     }
 }

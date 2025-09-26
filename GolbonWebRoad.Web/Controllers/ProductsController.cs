@@ -2,12 +2,12 @@
 using GolbonWebRoad.Application.Features.Brands.Queries;
 using GolbonWebRoad.Application.Features.Categories.Queries;
 using GolbonWebRoad.Application.Features.Products.Queries;
-using GolbonWebRoad.Application.Features.Reviews.Queries;
 using GolbonWebRoad.Application.Features.Reviews.Commands;
+using GolbonWebRoad.Application.Features.Reviews.Queries;
 using GolbonWebRoad.Web.Models.Products;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace GolbonWebRoad.Web.Controllers
@@ -55,60 +55,24 @@ namespace GolbonWebRoad.Web.Controllers
         }
         public async Task<IActionResult> Detail(int id)
         {
-            if (id==0)
+            if (id == 0)
             {
                 return NotFound();
             }
 
-            var product = await _mediator.Send(new GetProductByIdQuery
-            {
-                Id = id,
-                JoinImages = true,
-                JoinColors = true,
-                JoinBrand = true,
-                JoinCategory = true,
-                JoinReviews = true
-            });
-            if (product==null)
+
+            var productEntity = await _mediator.Send(new GetProductByIdQuery { Id = id });
+            if (productEntity == null)
             {
                 return NotFound();
             }
-            
-            // Fetch approved reviews for this product
-            var reviews = await _mediator.Send(new GetReviewsByProductIdQuery
-            {
-                ProductId = id,
-                JoinUser = true
-            });
-            
-            var viewModel = _mapper.Map<GolbonWebRoad.Web.Models.Products.ProductDetailViewModel>(product);
+            var reviews = await _mediator.Send(new GetReviewsByProductIdQuery { ProductId = id, JoinUser = true });
+            // ۵. مپ کردن انتیتی اصلی به ViewModel
+            var viewModel = _mapper.Map<ProductDetailViewModel>(productEntity);
 
-            // Map variants and attribute groups from repositories
-            var variants = await _unitOfWork.ProductVariantRepository.GetByProductIdAsync(id);
-            viewModel.Variants = variants.Select(v => new Models.Products.VariantDisplayViewModel
-            {
-                Id = v.Id,
-                Sku = v.Sku,
-                Price = v.Price,
-                OldPrice = v.OldPrice,
-                StockQuantity = v.StockQuantity,
-                AttributeValueIds = v.SelectedAttributes?.Select(a => a.Id).ToList() ?? new List<int>()
-            }).ToList();
-
-            var attrs = await _unitOfWork.ProductAttributeRepository.GetAllAsync(1, int.MaxValue);
-            var values = await _unitOfWork.ProductAttributeValueRepository.GetAllAsync(1, int.MaxValue);
-            viewModel.AttributeGroups = values.Items
-                .GroupBy(v => v.AttributeId)
-                .Select(g => new Models.Products.AttributeGroupDisplayViewModel
-                {
-                    AttributeId = g.Key,
-                    AttributeName = attrs.Items.FirstOrDefault(a => a.Id == g.Key)?.Name ?? $"Attribute {g.Key}",
-                    Values = g.Select(v => new Models.Products.AttributeValueDisplayViewModel { Id = v.Id, Value = v.Value }).ToList()
-                })
-                .OrderBy(gr => gr.AttributeName)
-                .ToList();
+            // ۶. پردازش و آماده‌سازی ViewModel با اطلاعات دریافتی از کوئری‌ها
             viewModel.Reviews = _mapper.Map<List<ReviewViewModel>>(reviews);
-            
+
             return View(viewModel);
         }
 

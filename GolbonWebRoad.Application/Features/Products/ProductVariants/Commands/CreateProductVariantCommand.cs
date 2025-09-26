@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 
@@ -74,7 +73,7 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
                     var value = await _unitOfWork.ProductAttributeValueRepository.GetByIdAsync(valueId);
                     if (value != null)
                     {
-                        variant.SelectedAttributes.Add(value);
+                        variant.AttributeValues.Add(value);
                     }
                 }
             }

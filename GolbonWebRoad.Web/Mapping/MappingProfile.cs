@@ -48,10 +48,7 @@ namespace GolbonWebRoad.Web.Mapping
             // Removed ProductColor mapping
 
             CreateMap<Product, Models.Products.ProductDetailViewModel>()
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
-                .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : null))
                 .ForMember(dest => dest.ReviewsCount, opt => opt.MapFrom(src => src.Reviews != null ? src.Reviews.Count : 0))
-                .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images));
 
             // Review mapping
@@ -65,9 +62,9 @@ namespace GolbonWebRoad.Web.Mapping
                 .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User != null ? src.User.Email : ""))
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : "محصول حذف شده"))
                 .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId))
-                .ForMember(dest => dest.ProductImageUrl, opt => opt.MapFrom(src => 
-                    src.Product != null && src.Product.Images != null && src.Product.Images.Any() 
-                        ? src.Product.Images.Where(i => i.IsMainImage).Select(i => i.ImageUrl).FirstOrDefault() 
+                .ForMember(dest => dest.ProductImageUrl, opt => opt.MapFrom(src =>
+                    src.Product != null && src.Product.Images != null && src.Product.Images.Any()
+                        ? src.Product.Images.Where(i => i.IsMainImage).Select(i => i.ImageUrl).FirstOrDefault()
                             ?? src.Product.Images.Select(i => i.ImageUrl).FirstOrDefault()
                         : null));
 
@@ -78,8 +75,9 @@ namespace GolbonWebRoad.Web.Mapping
                         ? (src.Images.Where(i => i.IsMainImage).Select(i => i.ImageUrl).FirstOrDefault() ?? src.Images.Select(i => i.ImageUrl).FirstOrDefault())
                         : null))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price));
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+
 
             CreateMap<GolbonWebRoad.Application.Dtos.Products.ProductDto, GolbonWebRoad.Web.Models.Cart.ProductCartViewModel>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src =>
@@ -155,7 +153,7 @@ namespace GolbonWebRoad.Web.Mapping
             // Mapping for order items
             CreateMap<OrderItem, OrderItemViewModel>()
                 // Gets the product name from the related Product entity
-                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name));
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.ProductVariant.Product.Name));
             #endregion
 
 

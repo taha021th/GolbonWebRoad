@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using GolbonWebRoad.Application.Dtos.Colors;
 using GolbonWebRoad.Application.Exceptions;
 using GolbonWebRoad.Application.Interfaces.Services;
 using GolbonWebRoad.Domain.Entities;
@@ -66,8 +65,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
 
 
             var productToUpdate = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id,
-                joinImages: true,
-                joinColors: true);
+                joinImages: true);
 
             if (productToUpdate == null)
             {

@@ -197,7 +197,7 @@
     <main>
         <div class="container">
             <div class="breadcrumb" data-aos="fade-in">
-                <a href="/">خانه</a> / <a asp-controller="Products" asp-action="Index">@Model.CategoryName</a> / <span>@Model.Name</span>
+                <a href="/">خانه</a> / <a asp-controller="Products" asp-action="Index">@Model.Category.Name</a> / <span>@Model.Name</span>
             </div>
         </div>
 
@@ -244,9 +244,9 @@
                         </span>
                         <span>(@(Model.Reviews?.Count ?? 0) نظر)</span>
                     </div>
-                    <p class="price-tag">@Model.Price.ToString("N0") تومان</p>
+                    <p class="price-tag">@Model.Variants[0].Price.ToString("N0") تومان</p>
                     <p class="stock-info" style="margin-top:8px; color: var(--secondary-text-color);">
-                        موجودی: <strong>@Model.Quantity</strong> عدد
+                        موجودی: <strong>@Model.Variants[0].StockQuantity</strong> عدد
                     </p>
                     <p class="short-description">@Model.ShortDescription</p>
                     
@@ -280,10 +280,10 @@
                         <div class="actions">
                             <div class="quantity-selector">
                                 <button type="button" id="qtyMinus">-</button>
-                                <input id="qtyInput" name="quantity" type="number" value="1" min="1" max="@Model.Quantity">
+                                <input id="qtyInput" name="quantity" type="number" value="1" min="1" max="@Model.Variants[0].StockQuantity">
                                 <button type="button" id="qtyPlus">+</button>
                             </div>
-                            <button type="submit" class="add-to-cart-btn" @(Model.Quantity <= 0 ? "disabled" : null)><i class="fas fa-shopping-bag"></i> افزودن به سبد خرید</button>
+                            <button type="submit" class="add-to-cart-btn" @(Model.Variants[0].StockQuantity <= 0 ? "disabled" : null)><i class="fas fa-shopping-bag"></i> افزودن به سبد خرید</button>
                         </div>
                     </form>
                 </div>

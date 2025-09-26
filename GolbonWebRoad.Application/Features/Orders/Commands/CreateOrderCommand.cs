@@ -37,7 +37,6 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
 
         public async Task<int> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
-            // لاگ اطلاعاتی: ثبت شروع یک عملیات مهم
             _logger.LogInformation("شروع فرآیند ایجاد سفارش برای کاربر {UserId} با {ItemCount} آیتم.", request.UserId, request.CartItems.Count);
 
             try
@@ -47,46 +46,51 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
 
                 foreach (var item in request.CartItems)
                 {
-                    // لاگ دیباگ: ثبت جزئیات فنی برای توسعه‌دهندگان
-                    _logger.LogDebug("پردازش محصول {ProductId} با تعداد {Quantity} برای سفارش کاربر {UserId}.", item.ProductId, item.Quantity, request.UserId);
-
-                    var product = await _unitOfWork.ProductRepository.GetByIdAsync(item.ProductId);
-                    if (product == null)
+                    // اگر واریانتی برای آیتم سبد خرید مشخص نشده بود، از آن صرف نظر کن
+                    if (!item.VariantId.HasValue || item.VariantId.Value == 0)
                     {
-                        // لاگ هشدار: ثبت یک رویداد غیرمنتظره اما قابل مدیریت
-                        _logger.LogWarning("محصول با شناسه {ProductId} برای سفارش کاربر {UserId} یافت نشد. از این آیتم صرف نظر می‌شود.", item.ProductId, request.UserId);
+                        _logger.LogWarning("آیتم سبد خرید برای محصول {ProductId} فاقد شناسه واریانت معتبر است. از این آیتم صرف نظر می‌شود.", item.ProductId);
                         continue;
                     }
 
-                    if (product.Quantity >= item.Quantity)
+                    _logger.LogDebug("پردازش واریانت محصول {VariantId} با تعداد {Quantity} برای سفارش.", item.VariantId.Value, item.Quantity);
+
+                    // واریانت را به همراه اطلاعات محصول اصلی از دیتابیس بخوان
+                    var variant = await _unitOfWork.ProductVariantRepository.GetByIdWithProductAsync(item.VariantId.Value);
+                    if (variant == null)
                     {
-                        var price = product.Price;
+                        _logger.LogWarning("واریانت محصول با شناسه {VariantId} یافت نشد. از این آیتم صرف نظر می‌شود.", item.VariantId.Value);
+                        continue;
+                    }
+
+                    // موجودی انبار واریانت را چک کن
+                    if (variant.StockQuantity >= item.Quantity)
+                    {
+                        var price = variant.Price;
                         totalAmount += price * item.Quantity;
                         orderItems.Add(new OrderItem
                         {
-                            ProductId = item.ProductId,
+                            ProductVariantId = variant.Id,
                             Quantity = item.Quantity,
-                            Price = price // قیمت از دیتابیس خوانده می‌شود
+                            Price = price
                         });
-                        product.Quantity -= item.Quantity;
-                        _unitOfWork.ProductRepository.Update(product); // این متد باید async باشد
+
+                        // از موجودی انبار کم کن
+                        variant.StockQuantity -= item.Quantity;
+                        _unitOfWork.ProductVariantRepository.Update(variant);
                     }
                     else
                     {
-                        // لاگ خطا: ثبت یک خطای کسب‌وکار مشخص که باعث شکست عملیات شده
-                        _logger.LogError("موجودی محصول {ProductId} ({ProductName}) برای کاربر {UserId} کافی نیست. موجودی: {Stock}, درخواست: {Quantity}",
-                            product.Id, product.Name, request.UserId, product.Quantity, item.Quantity);
+                        _logger.LogError("موجودی واریانت محصول {VariantId} ({ProductName}) کافی نیست. موجودی: {Stock}, درخواست: {Quantity}",
+                            variant.Id, variant.Product.Name, variant.StockQuantity, item.Quantity);
 
-                        // استفاده از Exception سفارشی و استاندارد
-                        throw new InsufficientStockException($"تعداد درخواست شما برای محصول {product.Name} بیشتر از موجودی محصول می باشد. تعداد باقی مانده از محصول :{product.Quantity} درخواست شما: {item.Quantity}");
+                        throw new InsufficientStockException($"موجودی محصول {variant.Product.Name} کافی نیست. موجودی فعلی: {variant.StockQuantity}، درخواست شما: {item.Quantity}");
                     }
-
                 }
 
                 if (!orderItems.Any())
                 {
-                    _logger.LogWarning("هیچ محصول معتبری برای ایجاد سفارش برای کاربر {UserId} یافت نشد. عملیات لغو شد.", request.UserId);
-                    // شما می‌توانید یک Exception سفارشی برای این حالت پرتاب کنید
+                    _logger.LogWarning("هیچ محصول معتبری برای ایجاد سفارش برای کاربر {UserId} یافت نشد.", request.UserId);
                     throw new BadRequestException("هیچکدام از محصولات موجود در سبد خرید شما، معتبر یا دارای موجودی کافی نبودند.");
                 }
 
@@ -99,19 +103,17 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
                     TotalAmount = totalAmount
                 };
 
-                var newOrder = _unitOfWork.OrderRepository.Add(order); // متد باید async باشد
+                var newOrder = _unitOfWork.OrderRepository.Add(order);
                 await _unitOfWork.CompleteAsync();
 
-                // لاگ اطلاعاتی: ثبت نتیجه موفقیت‌آمیز عملیات
-                _logger.LogInformation("سفارش با شناسه {OrderId} برای کاربر {UserId} با مبلغ کل {TotalAmount} با موفقیت ایجاد شد.", newOrder.Id, request.UserId, totalAmount);
+                _logger.LogInformation("سفارش با شناسه {OrderId} برای کاربر {UserId} با موفقیت ایجاد شد.", newOrder.Id, request.UserId);
 
                 return newOrder.Id;
             }
             catch (Exception ex) when (ex is not InsufficientStockException and not BadRequestException)
             {
-                // لاگ بحرانی: ثبت خطاهای پیش‌بینی نشده که نیاز به بررسی فوری توسط توسعه‌دهنده دارد
-                _logger.LogCritical(ex, "خطای بحرانی و پیش‌بینی نشده در هنگام ایجاد سفارش برای کاربر {UserId}.", request.UserId);
-                throw; // Exception را دوباره پرتاب کن تا Middleware آن را به 500 تبدیل کند
+                _logger.LogCritical(ex, "خطای پیش‌بینی نشده در هنگام ایجاد سفارش برای کاربر {UserId}.", request.UserId);
+                throw;
             }
         }
     }

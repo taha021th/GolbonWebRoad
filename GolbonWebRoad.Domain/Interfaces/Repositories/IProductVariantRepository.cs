@@ -1,6 +1,4 @@
-﻿using GolbonWebRoad.Domain.Entities;
-
-namespace GolbonWebRoad.Domain.Interfaces.Repositories
+﻿namespace GolbonWebRoad.Domain.Interfaces.Repositories
 {
     public interface IProductVariantRepository
     {
@@ -10,5 +8,6 @@ namespace GolbonWebRoad.Domain.Interfaces.Repositories
         Task<PagedResult<ProductVariant>> GetAllAsync(int pageNumber, int pageSize);
         Task<ProductVariant> GetByIdAsync(int id);
         Task<ICollection<ProductVariant>> GetByProductIdAsync(int productId);
+        public Task<ProductVariant> GetByIdWithProductAsync(int variantId);
     }
 }

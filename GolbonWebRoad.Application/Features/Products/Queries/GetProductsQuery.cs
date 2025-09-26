@@ -17,7 +17,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
         public bool? JoinReviews { get; set; }
         public bool? JoinImages { get; set; }
         public bool? JoinBrand { get; set; }
-        public bool? JoinColors { get; set; }
+
 
 
 
@@ -55,7 +55,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
 
             try
             {
-                var products = await _unitOfWork.ProductRepository.GetAllAsync(request.SearchTerm, request.CategoryId, request.SortOrder, joinCategory: request.JoinCategory, joinReviews: request.JoinReviews, joinImages: request.JoinImages, joinBrand: request.JoinBrand, joinColors: request.JoinColors, count: request.Count);
+                var products = await _unitOfWork.ProductRepository.GetAllAsync(request.SearchTerm, request.CategoryId, request.SortOrder, joinCategory: request.JoinCategory, joinReviews: request.JoinReviews, joinImages: request.JoinImages, joinBrand: request.JoinBrand, count: request.Count);
 
                 if (products == null || !products.Any())
                 {

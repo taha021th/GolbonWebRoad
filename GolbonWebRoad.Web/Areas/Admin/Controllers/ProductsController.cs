@@ -5,6 +5,7 @@ using GolbonWebRoad.Application.Exceptions;
 using GolbonWebRoad.Application.Features.Brands.Queries;
 using GolbonWebRoad.Application.Features.Categories.Queries;
 using GolbonWebRoad.Application.Features.Products.Commands;
+using GolbonWebRoad.Application.Features.Products.ProductVariants.Commands;
 using GolbonWebRoad.Application.Features.Products.Queries;
 using GolbonWebRoad.Application.Interfaces.Services;
 using GolbonWebRoad.Domain.Interfaces;
@@ -13,8 +14,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using GolbonWebRoad.Application.Features.Products.ProductAttributes.Queries;
-using GolbonWebRoad.Application.Features.Products.ProductVariants.Commands;
 
 namespace GolbonWebRoad.Web.Areas.Admin.Controllers
 {
@@ -103,7 +102,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var product = await _mediator.Send(new GetProductByIdQuery { Id=id, JoinBrand=true, JoinCategory =true, JoinColors=true, JoinImages=true, JoinReviews=true });
+            var product = await _mediator.Send(new GetProductByIdQuery { Id=id, JoinBrand=true, JoinCategory =true, JoinImages=true, JoinReviews=true });
             if (product==null) NotFound();
             var viewModel = _mapper.Map<EditProductViewModel>(product);
             // Load variants
@@ -115,7 +114,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
                 Price = v.Price,
                 OldPrice = v.OldPrice,
                 StockQuantity = v.StockQuantity,
-                AttributeValueIds = v.SelectedAttributes?.Select(av => av.Id).ToList() ?? new List<int>()
+                AttributeValueIds = v.AttributeValues?.Select(av => av.Id).ToList() ?? new List<int>()
             }).ToList();
             await PopulateDropdownsAsync(viewModel);
             await PopulateAttributeValuesAsync(viewModel);

@@ -70,7 +70,7 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
             variant.StockQuantity = request.StockQuantity;
 
             // به‌روزرسانی ویژگی‌های انتخاب‌شده: حذف همه و اضافه‌کردن جدیدها (ساده)
-            variant.SelectedAttributes.Clear();
+            variant.AttributeValues.Clear();
             if (request.AttributeValueIds != null && request.AttributeValueIds.Any())
             {
                 foreach (var valueId in request.AttributeValueIds.Distinct())
@@ -78,7 +78,7 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
                     var value = await _unitOfWork.ProductAttributeValueRepository.GetByIdAsync(valueId);
                     if (value != null)
                     {
-                        variant.SelectedAttributes.Add(value);
+                        variant.AttributeValues.Add(value);
                     }
                 }
             }

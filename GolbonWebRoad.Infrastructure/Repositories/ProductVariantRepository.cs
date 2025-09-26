@@ -1,5 +1,4 @@
-﻿using GolbonWebRoad.Domain.Entities;
-using GolbonWebRoad.Domain.Interfaces.Repositories;
+﻿using GolbonWebRoad.Domain.Interfaces.Repositories;
 using GolbonWebRoad.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -55,10 +54,16 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         public async Task<ICollection<ProductVariant>> GetByProductIdAsync(int productId)
         {
             return await _context.ProductVariants
-                .Include(v => v.SelectedAttributes)
+                .Include(v => v.AttributeValues)
                 .Where(v => v.ProductId == productId)
                 .AsNoTracking()
                 .ToListAsync();
+        }
+        public async Task<ProductVariant> GetByIdWithProductAsync(int variantId)
+        {
+            return await _context.ProductVariants
+                .Include(v => v.Product) // اطلاعات محصول را همراه با واریانت لود می‌کند
+                .FirstOrDefaultAsync(v => v.Id == variantId);
         }
     }
 }

@@ -951,13 +951,13 @@
                             {
                                 <div class="swiper-slide">
                                     <div class="product-card">
-                                        <a asp-controller="Products" asp-action="Detail" asp-route-slog="@product.Slog">
+                                        <a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Id">
                                             <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? $"https://placehold.co/400x300/EFEFEF/AAAAAA?text={product.Name}" : $"{product.ImageUrl}")" alt="@product.Name">
                                         </a>
                                         <div class="product-card-content">
-                                            <h3><a asp-controller="Products" asp-action="Detail" asp-route-slog="@product.Slog">@product.Name</a></h3>                                            
+                                            <h3><a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Slog">@product.Name</a></h3>                                            
                                             <p class="price">@product.Price.ToString("N0") تومان</p>
-                                            <a asp-controller="Products" asp-action="Detail" asp-route-slog="@product.Slog" class="btn-product">مشاهده جزئیات</a>
+                                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Slog" class="btn-product">مشاهده جزئیات</a>
                                         </div>
                                     </div>
                                 </div>

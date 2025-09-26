@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GolbonWebRoad.Infrastructure.Repositories
 {
-    public class ProductAttributeValueValueRepository
+    public class ProductAttributeValueRepository : IProductAttributeValueRepository
     {
         private readonly GolbonWebRoadDbContext _context;
-        public ProductAttributeValueValueRepository(GolbonWebRoadDbContext context)
+        public ProductAttributeValueRepository(GolbonWebRoadDbContext context)
         {
             _context = context;
         }

@@ -24,7 +24,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
         }
         public async Task<IEnumerable<Product>> Handle(GetProductsForAdminQuery request, CancellationToken cancellationToken)
         {
-            var products = await _unitOfWork.ProductRepository.GetAllAsync(joinCategory: request.JoinCategory, joinImages: request.JoinImages, joinReviews: request.JoinReviews, joinBrand: request.JoinBrand, joinColors: request.JoinColors);
+            var products = await _unitOfWork.ProductRepository.GetAllAsync(joinCategory: request.JoinCategory, joinImages: request.JoinImages, joinReviews: request.JoinReviews, joinBrand: request.JoinBrand);
 
             return products;
         }

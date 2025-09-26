@@ -144,7 +144,7 @@
                                 <p class="item-total-price">@itemTotal.ToString("N0") تومان</p>
                                 <form asp-controller="Cart" asp-action="RemoveFromCart" method="post">
                                     <input type="hidden" name="id" value="@item.ProductId" />
-                                    <input type="hidden" name="colorId" value="@colorId" />
+                                    
                                     <button type="submit" class="remove-item-btn" title="حذف محصول"><i class="fas fa-trash"></i></button>
                                 </form>
                             </div>

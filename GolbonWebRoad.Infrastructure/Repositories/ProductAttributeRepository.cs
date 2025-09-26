@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GolbonWebRoad.Infrastructure.Repositories
 {
-    public class ProductAttributeRepository
+    public class ProductAttributeRepository : IProductAttributeRepository
     {
         private readonly GolbonWebRoadDbContext _context;
         public ProductAttributeRepository(GolbonWebRoadDbContext context)

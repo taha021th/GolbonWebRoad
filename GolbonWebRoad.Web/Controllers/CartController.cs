@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
-using GolbonWebRoad.Application.Dtos.CartItems;
-using GolbonWebRoad.Application.Dtos.Products;
-using GolbonWebRoad.Application.Features.Products.Queries;
+using GolbonWebRoad.Application.Features.Products.ProductVariants.Queries; // ۳. using برای کوئری
+using GolbonWebRoad.Web.Models.Cart;           // ۲. using برای ViewModel ها
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -22,17 +21,13 @@ namespace GolbonWebRoad.Web.Controllers
 
         public IActionResult Index()
         {
-            var cart = GetCart();
-            // Map product inside each cart item to lightweight ProductCartViewModel
-            var mapped = cart.Select(ci => new GolbonWebRoad.Web.Models.Cart.CartItemViewModel
+            var cartItems = GetCart(); // این متد حالا List<CartItemViewModel> برمی‌گرداند
+            var cartViewModel = new CartViewModel
             {
-                ProductId = ci.ProductId,
-                ColorId = ci.ColorId,
-                Quantity = ci.Quantity,
-                Price = ci.Price,
-                Product = _mapper.Map<GolbonWebRoad.Web.Models.Cart.ProductCartViewModel>(ci.Product)
-            }).ToList();
-            return View(mapped);
+                CartItems = cartItems,
+                GrandTotal = cartItems.Sum(ci => ci.TotalPrice)
+            };
+            return View(cartViewModel);
         }
 
         [HttpPost]
@@ -41,83 +36,73 @@ namespace GolbonWebRoad.Web.Controllers
         {
             if (quantity < 1) quantity = 1;
 
-            var product = await _mediator.Send(new GetProductByIdQuery
+            if (!variantId.HasValue)
             {
-                Id = id,
-                JoinImages = true,
-                JoinBrand = false,
-                JoinCategory = false,
-                JoinColors = false,
-                JoinReviews = false
-            });
-            if (product == null)
+                TempData["ErrorMessage"] = "لطفا نوع محصول را انتخاب کنید.";
+                return RedirectToAction("Detail", "Products", new { id = id });
+            }
+
+            // ۴. هندلر حالا یک انتیتی کامل برمی‌گرداند
+            var variantEntity = await _mediator.Send(new GetByIdProductVariantQuery { Id = variantId.Value });
+            if (variantEntity == null)
             {
                 return NotFound();
             }
-            var productDto = _mapper.Map<ProductDto>(product);
 
-            var cart = GetCart();
+            var cart = GetCart(); // این متد List<CartItemViewModel> برمی‌گرداند
+            var existingItem = cart.FirstOrDefault(c => c.ProductId == id && c.VariantId == variantId.Value);
 
-            // Determine price and key based on variant
-            decimal price = product.Price;
-            if (variantId.HasValue)
+            if (existingItem != null)
             {
-                // In absence of a separate query, reusing UnitOfWork via mediator is not available here.
-                // The UI sends the correct price context; as a simple approach, keep product price.
-                // In a fuller implementation, fetch variant price here via a query.
-            }
-
-            // key by product and variant selection
-            var existing = cart.FirstOrDefault(c => c.ProductId == id && c.VariantId == variantId);
-
-            if (existing != null)
-            {
-                existing.Quantity += quantity;
+                existingItem.Quantity += quantity;
             }
             else
             {
-                cart.Add(new CartItemDto
+                // ۵. انتیتی را در همینجا به ViewModel مپ می‌کنیم
+                var cartItemViewModel = new CartItemViewModel
                 {
-                    ProductId = id,
-                    VariantId = variantId,
+                    ProductId = variantEntity.ProductId,
+                    VariantId = variantEntity.Id,
                     Quantity = quantity,
-                    Price = price,
-                    Product = productDto
-                });
+                    Price = variantEntity.Price,
+                    Product = _mapper.Map<ProductCartViewModel>(variantEntity.Product),
+                    VariantAttributes = variantEntity.AttributeValues
+                                        .ToDictionary(a => a.Attribute.Name, a => a.Value)
+                };
+                cart.Add(cartItemViewModel);
             }
 
             SaveCart(cart);
-            return Redirect(Request.Headers["Referer"].ToString() ?? "/");
+            return RedirectToAction("Index");
         }
 
-        public IActionResult RemoveFromCart(int id, int? colorId)
+        public IActionResult RemoveFromCart(int id, int? variantId)
         {
             var cart = GetCart();
-            var existing = cart.FirstOrDefault(c => c.ProductId == id && c.ColorId == colorId);
-            if (existing != null)
+            var itemToRemove = cart.FirstOrDefault(c => c.ProductId == id && c.VariantId == variantId);
+            if (itemToRemove != null)
             {
-                cart.Remove(existing);
+                cart.Remove(itemToRemove);
                 SaveCart(cart);
             }
             return RedirectToAction("Index");
         }
 
-        private List<CartItemDto> GetCart()
+        // ۶. این متدها حالا با List<CartItemViewModel> کار می‌کنند
+        private List<CartItemViewModel> GetCart()
         {
             var cartJson = HttpContext.Session.GetString(CartSessionKey);
             if (string.IsNullOrEmpty(cartJson))
             {
-                return new List<CartItemDto>();
+                return new List<CartItemViewModel>();
             }
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            return JsonSerializer.Deserialize<List<CartItemDto>>(cartJson, options) ?? new List<CartItemDto>();
+            return JsonSerializer.Deserialize<List<CartItemViewModel>>(cartJson) ?? new List<CartItemViewModel>();
         }
 
-        private void SaveCart(List<CartItemDto> cart)
+        private void SaveCart(List<CartItemViewModel> cart)
         {
             var cartJson = JsonSerializer.Serialize(cart);
             HttpContext.Session.SetString(CartSessionKey, cartJson);
         }
     }
-
 }

@@ -87,15 +87,16 @@
 
     public class ProductDetailViewModel
     {
+
         public int Id { get; set; }
+        public string? Slog { get; set; }
         public string Name { get; set; }
         public string ShortDescription { get; set; }
         public string Description { get; set; }
-        public decimal Price { get; set; }
-        public int Quantity { get; set; }
 
-        public string CategoryName { get; set; }
-        public string BrandName { get; set; }
+
+        public CategoryViewModel Category { get; set; }
+        public BrandViewModel Brand { get; set; }
         public int ReviewsCount { get; set; }
 
         public List<ProductImagesViewModel> Images { get; set; }
@@ -120,9 +121,16 @@ namespace GolbonWebRoad.Web.Models.Cart
     public class CartItemViewModel
     {
         public int ProductId { get; set; }
-        public int? ColorId { get; set; }
+        public int? VariantId { get; set; }
         public int Quantity { get; set; }
         public decimal Price { get; set; }
         public ProductCartViewModel Product { get; set; }
+        public Dictionary<string, string> VariantAttributes { get; set; } = new Dictionary<string, string>();
+        public decimal TotalPrice => Quantity * Price;
+    }
+    public class CartViewModel
+    {
+        public List<CartItemViewModel> CartItems { get; set; } = new List<CartItemViewModel>();
+        public decimal GrandTotal { get; set; }
     }
 }

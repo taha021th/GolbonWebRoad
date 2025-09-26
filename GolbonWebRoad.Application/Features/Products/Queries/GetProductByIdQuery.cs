@@ -14,7 +14,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
         public bool? JoinReviews { get; set; }
         public bool? JoinImages { get; set; }
         public bool? JoinBrand { get; set; }
-        public bool? JoinColors { get; set; }
+
     }
 
     public class GetProductByIdQueryValidator : AbstractValidator<GetProductByIdQuery>
@@ -46,7 +46,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
 
             try
             {
-                var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id, joinCategory: request.JoinCategory, joinImages: request.JoinImages, joinBrand: request.JoinBrand, joinColors: request.JoinColors, joinReviews: request.JoinReviews);
+                var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id, joinCategory: request.JoinCategory, joinImages: request.JoinImages, joinBrand: request.JoinBrand, joinReviews: request.JoinReviews);
 
                 if (product == null)
                 {
