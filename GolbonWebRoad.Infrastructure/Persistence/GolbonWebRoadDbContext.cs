@@ -14,6 +14,7 @@ namespace GolbonWebRoad.Infrastructure.Persistence
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<UserAddress> UserAddresses { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<Brand> Brands { get; set; }
@@ -48,6 +49,15 @@ namespace GolbonWebRoad.Infrastructure.Persistence
                 .HasOne(pc => pc.Color)
                 .WithMany(c => c.ProductColors)
                 .HasForeignKey(pc => pc.ColorId);
+
+            // Configure Many-to-Many relationship between ProductVariant and ProductAttributeValue
+            modelBuilder.Entity<ProductVariant>()
+                .HasMany(pv => pv.AttributeValues)
+                .WithMany(av => av.Variants)
+                .UsingEntity("ProductAttributeValueProductVariant",
+                    l => l.HasOne(typeof(ProductAttributeValue)).WithMany().HasForeignKey("AttributeValuesId"),
+                    r => r.HasOne(typeof(ProductVariant)).WithMany().HasForeignKey("VariantsId"),
+                    j => j.HasKey("AttributeValuesId", "VariantsId"));
         }
     }
 }

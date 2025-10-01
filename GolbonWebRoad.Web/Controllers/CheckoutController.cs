@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GolbonWebRoad.Application.Dtos.CartItems;
 using GolbonWebRoad.Application.Features.Orders.Commands;
+using GolbonWebRoad.Application.Features.Users.Queries;
 using GolbonWebRoad.Web.Models.Cart;
 using GolbonWebRoad.Web.Models.Transactions;
 using MediatR;
@@ -24,7 +25,7 @@ namespace GolbonWebRoad.Web.Controllers
             _mapper = mapper;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var cart = GetCart();
             if (!cart.Any())
@@ -40,12 +41,20 @@ namespace GolbonWebRoad.Web.Controllers
             }).ToList();
             ViewBag.TotalAmount = mapped.Sum(i => (long)(i.Price * i.Quantity));
             ViewBag.TempOrderId = Guid.NewGuid().ToString("N");
+
+            // Load user addresses if logged in
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var addresses = await _mediator.Send(new GetUserAddressesQuery { UserId = userId });
+                ViewBag.UserAddresses = addresses?.ToList() ?? new List<GolbonWebRoad.Domain.Entities.UserAddress>();
+            }
             return View(mapped);
         }
 
         [HttpGet]
         //[IgnoreAntiforgeryToken]
-        public async Task<IActionResult> PlaceOrder(CallbackMessageViewModel messageViewModel)
+        public async Task<IActionResult> PlaceOrder(CallbackMessageViewModel messageViewModel, int? AddressId, string? NewFullName, string? NewAddressLine, string? NewCity, string? NewPostalCode, string? NewPhone)
         {
             var cart = GetCart();
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -54,6 +63,19 @@ namespace GolbonWebRoad.Web.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
+            // Validate address: either AddressId or all new address fields must be present
+            bool hasAddressId = AddressId.HasValue && AddressId.Value > 0;
+            bool hasNewAddress = !string.IsNullOrWhiteSpace(NewFullName)
+                                 && !string.IsNullOrWhiteSpace(NewAddressLine)
+                                 && !string.IsNullOrWhiteSpace(NewCity)
+                                 && !string.IsNullOrWhiteSpace(NewPostalCode)
+                                 && !string.IsNullOrWhiteSpace(NewPhone);
+            if (!hasAddressId && !hasNewAddress)
+            {
+                TempData["CheckoutError"] = "لطفاً یک آدرس را انتخاب کنید یا آدرس جدید را به‌طور کامل وارد کنید.";
+                return RedirectToAction(nameof(Index));
+            }
+
             if (messageViewModel.PaymentStatus!=true)
             {
                 messageViewModel.MessageTransAction="تراکنش ناموفق";
@@ -70,7 +92,13 @@ namespace GolbonWebRoad.Web.Controllers
                     VariantId = c.VariantId,
                     Quantity = c.Quantity,
                     Price = c.Price
-                }).ToList()
+                }).ToList(),
+                AddressId = AddressId,
+                NewFullName = hasAddressId ? null : NewFullName,
+                NewAddressLine = hasAddressId ? null : NewAddressLine,
+                NewCity = hasAddressId ? null : NewCity,
+                NewPostalCode = hasAddressId ? null : NewPostalCode,
+                NewPhone = hasAddressId ? null : NewPhone
             };
 
             try

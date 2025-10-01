@@ -196,6 +196,13 @@
     
     <main>
         <div class="container">
+            @if (TempData["CartSuccess"] != null)
+            {
+                <div class="alert" style="background: #1f6f2e; color: #fff; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-check-circle"></i>
+                    <span>@TempData["CartSuccess"]</span>
+                </div>
+            }
             <div class="breadcrumb" data-aos="fade-in">
                 <a href="/">خانه</a> / <a asp-controller="Products" asp-action="Index">@Model.Category.Name</a> / <span>@Model.Name</span>
             </div>
@@ -206,16 +213,29 @@
                 <!-- گالری تصاویر -->
                 <div class="product-gallery" data-aos="fade-right">
                     <div class="main-image">
-                        <img src="@(Model.Images?.FirstOrDefault(i => i.IsMainImage)?.ImageUrl ?? Model.Images?.FirstOrDefault()?.ImageUrl ?? "https://placehold.co/800x600/EFEFEF/AAAAAA?text=No+Image")" alt="@Model.Name" id="mainProductImage">
+                        <img src="@(string.IsNullOrEmpty(Model.MainImageUrl) ? (Model.Images?.FirstOrDefault()?.ImageUrl ?? "https://placehold.co/800x600/EFEFEF/AAAAAA?text=No+Image") : Model.MainImageUrl)" alt="@Model.Name" id="mainProductImage">
                     </div>
                     <div class="thumbnails">
-                        @if (Model.Images != null && Model.Images.Any())
-                        {
-                            var index = 0;
-                            foreach (var img in Model.Images)
+                        @{
+                            var thumbs = new List<string>();
+                            if (!string.IsNullOrEmpty(Model.MainImageUrl))
                             {
-                                var thumbUrl = img.ImageUrl; // assuming backend provides proper sizes
-                                <img src="@thumbUrl" alt="@Model.Name @(++index)" class="@(img.IsMainImage ? "active" : null)">
+                                thumbs.Add(Model.MainImageUrl);
+                            }
+                            if (Model.Images != null && Model.Images.Any())
+                            {
+                                foreach (var img in Model.Images)
+                                {
+                                    if (!string.IsNullOrEmpty(img.ImageUrl) && img.ImageUrl != Model.MainImageUrl)
+                                    {
+                                        thumbs.Add(img.ImageUrl);
+                                    }
+                                }
+                            }
+                            var idx = 0;
+                            foreach (var url in thumbs)
+                            {
+                                <img src="@url" alt="@Model.Name @(++idx)" class="@(idx == 1 ? "active" : null)">
                             }
                         }
                     </div>
@@ -251,22 +271,40 @@
                     <p class="short-description">@Model.ShortDescription</p>
                     
                     <div class="options-group">
-                        <label>انتخاب ویژگی‌ها:</label>
-                        <div class="row g-2">
-                            @if (Model.AttributeGroups != null && Model.AttributeGroups.Any())
-                            {
-                                foreach (var grp in Model.AttributeGroups)
+                        <label class="form-label" style="display:block; margin-bottom:10px; font-weight:600; color: var(--primary-text-color);">انتخاب ورینت:</label>
+                        <div class="variant-picker" style="display:flex; flex-wrap:wrap; gap:10px; padding:12px; border:1px solid var(--border-color); border-radius:12px; background: var(--card-bg-color);">
+                            @{
+                                // Build a quick lookup of AttributeValueId -> Display Value
+                                var valueLookup = new Dictionary<int, string>();
+                                if (Model.AttributeGroups != null)
                                 {
-                                    <div class="col-md-4">
-                                        <label class="form-label">@grp.AttributeName</label>
-                                        <select class="form-select pd-attr" data-attribute-id="@grp.AttributeId">
-                                            <option value="">-- انتخاب --</option>
-                                            @foreach (var val in grp.Values)
-                                            {
-                                                <option value="@val.Id">@val.Value</option>
-                                            }
-                                        </select>
-                                    </div>
+                                    foreach (var g in Model.AttributeGroups)
+                                    {
+                                        foreach (var v in g.Values)
+                                        {
+                                            valueLookup[v.Id] = v.Value;
+                                        }
+                                    }
+                                }
+                                var selectedRendered = false;
+                                foreach (var v in Model.Variants)
+                                {
+                                    var labels = v.AttributeValueIds != null && v.AttributeValueIds.Any()
+                                        ? string.Join(" / ", v.AttributeValueIds.Select(id => valueLookup.ContainsKey(id) ? valueLookup[id] : $"Value {id}"))
+                                        : "پیش‌فرض";
+                                    var isDisabled = v.StockQuantity <= 0;
+                                    var isSelected = !selectedRendered && !isDisabled; // auto-select first available variant
+                            <button type="button"
+                                    class="variant-pill@(isSelected ? " selected" : "")@(isDisabled ? " disabled" : "")"
+                                    data-variant-id="@v.Id"
+                                    data-price="@v.Price"
+                                    data-stock="@v.StockQuantity"
+                                    style="padding:10px 14px; border-radius:999px; border:1px solid var(--border-color); background: @(isSelected ? "var(--accent-color)" : "transparent"); color: @(isSelected ? "#fff" : "var(--primary-text-color)"); cursor:@(isDisabled ? "not-allowed" : "pointer"); opacity:@(isDisabled ? "0.5" : "1"); transition: all .2s;">
+                                <span style="font-weight:600;">@labels</span>
+                                <span style="margin:0 8px; opacity:.6;">|</span>
+                                <span style="font-size:.9rem; opacity:.9;">@v.Price.ToString("N0") تومان</span>
+                            </button>
+                                    selectedRendered = selectedRendered || isSelected;
                                 }
                             }
                         </div>
@@ -283,7 +321,7 @@
                                 <input id="qtyInput" name="quantity" type="number" value="1" min="1" max="@Model.Variants[0].StockQuantity">
                                 <button type="button" id="qtyPlus">+</button>
                             </div>
-                            <button type="submit" class="add-to-cart-btn" @(Model.Variants[0].StockQuantity <= 0 ? "disabled" : null)><i class="fas fa-shopping-bag"></i> افزودن به سبد خرید</button>
+                            <button type="submit" id="addToCartBtn" class="add-to-cart-btn" @(Model.Variants[0].StockQuantity <= 0 ? "disabled" : null)><i class="fas fa-shopping-bag"></i> افزودن به سبد خرید</button>
                         </div>
                     </form>
                 </div>
@@ -532,34 +570,81 @@
 
         // Variant selection logic: pick 1 value per attribute, find matching variant
         const variants = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Variants));
-        const selects = document.querySelectorAll('.pd-attr');
+        const variantSelect = null; // replaced by pills
         const variantPriceEl = document.getElementById('variantPrice');
         const selectedVariantInput = document.getElementById('selectedVariantId');
+        const addToCartBtn = document.getElementById('addToCartBtn');
 
-        function getSelectedValueIds() {
-            const ids = [];
-            selects.forEach(sel => { if (sel.value) ids.push(parseInt(sel.value)); });
-            return ids.sort((a,b)=>a-b);
-        }
+        function updateFromSelect() {
+            if (!variantSelect) return;
+            const opt = variantSelect.options[variantSelect.selectedIndex];
+            const variantId = parseInt(opt.value);
+            const price = parseFloat(opt.getAttribute('data-price')) || 0;
+            const stock = parseInt(opt.getAttribute('data-stock')) || 0;
 
-        function findMatchingVariant() {
-            const sel = getSelectedValueIds();
-            if (sel.length === 0) { selectedVariantInput.value = ''; variantPriceEl.textContent = ''; return; }
-            const match = variants.find(v => {
-                const vals = (v.attributeValueIds || []).slice().sort((a,b)=>a-b);
-                // match when selected is subset of variant's attributes (or exact)
-                return sel.every(id => vals.includes(id));
-            });
-            if (match) {
-                selectedVariantInput.value = match.id;
-                variantPriceEl.textContent = `قیمت ورینت: ${match.price.toLocaleString()} تومان`;
-            } else {
-                selectedVariantInput.value = '';
-                variantPriceEl.textContent = 'هیچ ورینتی با انتخاب‌های شما موجود نیست';
+            selectedVariantInput.value = isNaN(variantId) ? '' : variantId;
+            variantPriceEl.textContent = price ? `قیمت ورینت: ${price.toLocaleString()} تومان` : '';
+
+            // update qty max and button enabled state
+            const qtyInput = document.getElementById('qtyInput');
+            if (qtyInput) {
+                qtyInput.setAttribute('max', stock > 0 ? String(stock) : '0');
+                if (parseInt(qtyInput.value || '1') > stock) {
+                    qtyInput.value = stock > 0 ? '1' : '0';
+                }
+            }
+            if (addToCartBtn) {
+                addToCartBtn.disabled = stock <= 0;
             }
         }
 
-        selects.forEach(sel => sel.addEventListener('change', findMatchingVariant));
+        // New: variant pills behavior
+        const variantPills = document.querySelectorAll('.variant-pill');
+        function setActivePill(pill) {
+            variantPills.forEach(p => {
+                const selected = p.classList.contains('selected');
+                if (selected) {
+                    p.classList.remove('selected');
+                    p.style.background = 'transparent';
+                    p.style.color = 'var(--primary-text-color)';
+                }
+            });
+            pill.classList.add('selected');
+            pill.style.background = 'var(--accent-color)';
+            pill.style.color = '#fff';
+        }
+        function updateFromPill(pill) {
+            const variantId = parseInt(pill.getAttribute('data-variant-id'));
+            const price = parseFloat(pill.getAttribute('data-price')) || 0;
+            const stock = parseInt(pill.getAttribute('data-stock')) || 0;
+
+            selectedVariantInput.value = isNaN(variantId) ? '' : variantId;
+            variantPriceEl.textContent = price ? `قیمت ورینت: ${price.toLocaleString()} تومان` : '';
+
+            const qtyInput = document.getElementById('qtyInput');
+            if (qtyInput) {
+                qtyInput.setAttribute('max', stock > 0 ? String(stock) : '0');
+                if (parseInt(qtyInput.value || '1') > stock) {
+                    qtyInput.value = stock > 0 ? '1' : '0';
+                }
+            }
+            if (addToCartBtn) {
+                addToCartBtn.disabled = stock <= 0;
+            }
+        }
+        variantPills.forEach(pill => {
+            if (!pill.classList.contains('disabled')) {
+                pill.addEventListener('click', function () {
+                    setActivePill(this);
+                    updateFromPill(this);
+                });
+            }
+        });
+        // initialize with pre-selected pill if exists
+        const initial = Array.from(variantPills).find(p => p.classList.contains('selected')) || variantPills[0];
+        if (initial) {
+            updateFromPill(initial);
+        }
 
         // Review form functionality
         (function reviewFormHandler() {

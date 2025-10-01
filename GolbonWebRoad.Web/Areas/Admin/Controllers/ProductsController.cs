@@ -1,14 +1,13 @@
-﻿using AutoMapper;
-using GolbonWebRoad.Application.Dtos.Brands;
-using GolbonWebRoad.Application.Dtos.Categories;
+using AutoMapper;
 using GolbonWebRoad.Application.Exceptions;
 using GolbonWebRoad.Application.Features.Brands.Queries;
 using GolbonWebRoad.Application.Features.Categories.Queries;
 using GolbonWebRoad.Application.Features.Products.Commands;
+using GolbonWebRoad.Application.Features.Products.ProductAttributes.Queries;
+using GolbonWebRoad.Application.Features.Products.ProductAttributeValues.Queries;
 using GolbonWebRoad.Application.Features.Products.ProductVariants.Commands;
+using GolbonWebRoad.Application.Features.Products.ProductVariants.Queries;
 using GolbonWebRoad.Application.Features.Products.Queries;
-using GolbonWebRoad.Application.Interfaces.Services;
-using GolbonWebRoad.Domain.Interfaces;
 using GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -23,28 +22,35 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
     {
 
         private readonly IMediator _mediator;
-        private readonly IFileStorageService _fileStorageService;
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public ProductsController(IMediator mediator, IFileStorageService fileStorageService, IMapper mapper, IUnitOfWork unitOfWork)
+
+        public ProductsController(IMediator mediator, IMapper mapper)
         {
             _mediator = mediator;
-            _fileStorageService = fileStorageService;
             _mapper = mapper;
-            _unitOfWork = unitOfWork;
+
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 12, string? searchTerm = null, int? categoryId = null, int? brandId = null, string? sortOrder = null)
         {
-            var products = await _mediator.Send(new GetProductsForAdminQuery { JoinBrand=true, JoinCategory=true, JoinImages=true });
-            var productViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(products);
+            var pagedProducts = await _mediator.Send(new GetPagedProductsQuery
+            {
+                PageNumber = page,
+                PageSize = pageSize,
+                SearchTerm = searchTerm,
+                CategoryId = categoryId,
+                BrandId = brandId,
+                SortOrder = sortOrder
+            });
+
+            var productViewModels = _mapper.Map<GolbonWebRoad.Web.Models.Products.PagedResult<ProductViewModel>>(pagedProducts);
             return View(productViewModels);
         }
         public async Task<IActionResult> Create()
         {
             var viewModel = new CreateProductViewModel();
             await PopulateDropdownsAsync(viewModel);
-            await PopulateAttributeValuesAsync(viewModel);
+            await PopulateAttributesAsync(viewModel);
             return View(viewModel);
         }
         [HttpPost]
@@ -54,7 +60,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
             if (!ModelState.IsValid)
             {
                 await PopulateDropdownsAsync(viewModel);
-                await PopulateAttributeValuesAsync(viewModel);
+                await PopulateAttributesAsync(viewModel);
                 return View(viewModel);
             }
 
@@ -62,12 +68,10 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
             if (!await ValidateVariantsAsync(viewModel))
             {
                 await PopulateDropdownsAsync(viewModel);
-                await PopulateAttributeValuesAsync(viewModel);
+                await PopulateAttributesAsync(viewModel);
                 return View(viewModel);
             }
 
-            //try
-            //{
             var command = _mapper.Map<CreateProductCommand>(viewModel);
             var newProductId = await _mediator.Send(command);
 
@@ -89,24 +93,17 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
             }
             TempData["SuccessMessage"] = "محصول با موفقیت ایجاد شد.";
             return RedirectToAction(nameof(Index));
-            //}
-            //catch (Exception ex)
-            //{
-            //    // _logger.LogError(ex, "خطا در ایجاد محصول."); 
-            //    ModelState.AddModelError(string.Empty, "خطایی در هنگام ایجاد محصول رخ داد. لطفا دوباره تلاش کنید.");
-            //    await PopulateDropdownsAsync(viewModel); // <- فراخوانی متد کمکی در صورت خطا
-            //    return View(viewModel);
-            //}
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var product = await _mediator.Send(new GetProductByIdQuery { Id=id, JoinBrand=true, JoinCategory =true, JoinImages=true, JoinReviews=true });
-            if (product==null) NotFound();
+            var product = await _mediator.Send(new GetProductByIdQuery { Id = id, JoinBrand = true, JoinCategory = true, JoinImages = true, JoinReviews = true });
+            if (product == null) NotFound();
             var viewModel = _mapper.Map<EditProductViewModel>(product);
             // Load variants
-            var variants = await _unitOfWork.ProductVariantRepository.GetByProductIdAsync(id);
+
+            var variants = await _mediator.Send(new GetProductVariantByProductIdQuery { ProductId = id });
             viewModel.Variants = variants.Select(v => new VariantRowViewModel
             {
                 Id = v.Id,
@@ -117,7 +114,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
                 AttributeValueIds = v.AttributeValues?.Select(av => av.Id).ToList() ?? new List<int>()
             }).ToList();
             await PopulateDropdownsAsync(viewModel);
-            await PopulateAttributeValuesAsync(viewModel);
+            await PopulateAttributesAsync(viewModel);
             return View(viewModel);
 
         }
@@ -126,12 +123,12 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, EditProductViewModel viewModel)
         {
-            if (id!=viewModel.Id)
+            if (id != viewModel.Id)
                 return BadRequest();
             if (!ModelState.IsValid)
             {
                 await PopulateDropdownsAsync(viewModel);
-                await PopulateAttributeValuesAsync(viewModel);
+                await PopulateAttributesAsync(viewModel);
                 return View(viewModel);
             }
 
@@ -139,7 +136,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
             if (!await ValidateVariantsAsync(viewModel))
             {
                 await PopulateDropdownsAsync(viewModel);
-                await PopulateAttributeValuesAsync(viewModel);
+                await PopulateAttributesAsync(viewModel);
                 return View(viewModel);
             }
             try
@@ -184,7 +181,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
                         }
                     }
                 }
-                TempData["SuccessMessage"]="محصول با موفقیت ویرایش شد";
+                TempData["SuccessMessage"] = "محصول با موفقیت ویرایش شد";
                 return RedirectToAction(nameof(Index));
             }
             catch (NotFoundException)
@@ -204,13 +201,13 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int id)
         {
 
-            var productDto = await _mediator.Send(new GetProductByIdQuery { Id=id, JoinCategory=true, JoinImages=true });
-            if (productDto==null)
+            var product = await _mediator.Send(new GetProductByIdQuery { Id = id, JoinCategory = true, JoinImages = true });
+            if (product == null)
             {
                 return NotFound();
             }
-            var viewModel = _mapper.Map<DeleteProductViewModel>(productDto);
-            viewModel.ImageUrl = productDto.Images?.FirstOrDefault(i => i.IsMainImage)?.ImageUrl ?? productDto.Images?.FirstOrDefault()?.ImageUrl;
+            var viewModel = _mapper.Map<DeleteProductViewModel>(product);
+            viewModel.ImageUrl = product.Images?.FirstOrDefault(i => i.IsMainImage)?.ImageUrl ?? product.Images?.FirstOrDefault()?.ImageUrl;
 
             return View(viewModel);
         }
@@ -246,29 +243,35 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
             var categories = await _mediator.Send(new GetCategoriesQuery());
             var brands = await _mediator.Send(new GetBrandsQuery());
 
-            viewModel.CategoryOptions = new SelectList(_mapper.Map<IEnumerable<CategorySummaryDto>>(categories), "Id", "Name", viewModel.CategoryId);
-            viewModel.BrandOptions = new SelectList(_mapper.Map<IEnumerable<BrandDto>>(brands), "Id", "Name", viewModel.BrandId);
+            viewModel.CategoryOptions = new SelectList(categories, "Id", "Name", viewModel.CategoryId);
+            viewModel.BrandOptions = new SelectList(brands, "Id", "Name", viewModel.BrandId);
         }
         private async Task PopulateDropdownsAsync(EditProductViewModel viewModel)
         {
             var categories = await _mediator.Send(new GetCategoriesQuery());
             var brands = await _mediator.Send(new GetBrandsQuery());
 
-            viewModel.CategoryOptions = new SelectList(_mapper.Map<IEnumerable<CategorySummaryDto>>(categories), "Id", "Name", viewModel.CategoryId);
-            viewModel.BrandOptions = new SelectList(_mapper.Map<IEnumerable<BrandDto>>(brands), "Id", "Name", viewModel.BrandId);
+            viewModel.CategoryOptions = new SelectList(categories, "Id", "Name", viewModel.CategoryId);
+            viewModel.BrandOptions = new SelectList(brands, "Id", "Name", viewModel.BrandId);
         }
 
-        private async Task PopulateAttributeValuesAsync(EditProductViewModel viewModel)
+        private async Task PopulateAttributesAsync(EditProductViewModel viewModel)
         {
-            var valuesPaged = await _unitOfWork.ProductAttributeValueRepository.GetAllAsync(1, int.MaxValue);
-            var items = valuesPaged.Items
-                .Select(v => new { v.Id, Text = v.Value })
-                .ToList();
-            viewModel.AttributeValueOptions = new SelectList(items, "Id", "Text");
+            var allAttributes = await _mediator.Send(new GetAllProductAttributeQuery());
+            var allValues = await _mediator.Send(new GetAllProductValueQuery());
 
-            var attributesPaged = await _unitOfWork.ProductAttributeRepository.GetAllAsync(1, int.MaxValue);
-            var attrIdToName = attributesPaged.Items.ToDictionary(a => a.Id, a => a.Name);
-            var groups = valuesPaged.Items
+            var productVariantIds = viewModel.Variants?.SelectMany(v => v.AttributeValueIds).ToHashSet() ?? new HashSet<int>();
+            var usedAttributeIds = allValues.Where(v => productVariantIds.Contains(v.Id)).Select(v => v.AttributeId).ToHashSet();
+
+            viewModel.AvailableAttributes = allAttributes.Select(a => new AttributeSelectionViewModel
+            {
+                Id = a.Id,
+                Name = a.Name,
+                IsSelected = usedAttributeIds.Contains(a.Id)
+            }).ToList();
+
+            var attrIdToName = allAttributes.ToDictionary(a => a.Id, a => a.Name);
+            viewModel.AttributeGroups = allValues
                 .GroupBy(v => v.AttributeId)
                 .Select(g => new AttributeGroupOptionViewModel
                 {
@@ -278,21 +281,23 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
                 })
                 .OrderBy(gr => gr.AttributeName)
                 .ToList();
-            viewModel.AttributeGroups = groups;
         }
 
-        private async Task PopulateAttributeValuesAsync(CreateProductViewModel viewModel)
+        private async Task PopulateAttributesAsync(CreateProductViewModel viewModel)
         {
-            // Load all attribute values flat for now; can group by attribute on UI if needed
-            var attributesPaged = await _unitOfWork.ProductAttributeRepository.GetAllAsync(1, int.MaxValue);
-            var valuesPaged = await _unitOfWork.ProductAttributeValueRepository.GetAllAsync(1, int.MaxValue);
-            var items = valuesPaged.Items
-                .Select(v => new { v.Id, Text = v.Value })
-                .ToList();
-            viewModel.AttributeValueOptions = new SelectList(items, "Id", "Text");
+            var allAttributes = await _mediator.Send(new GetAllProductAttributeQuery());
+            var allValues = await _mediator.Send(new GetAllProductValueQuery());
 
-            var attrIdToName = attributesPaged.Items.ToDictionary(a => a.Id, a => a.Name);
-            var groups = valuesPaged.Items
+            // For new products, we just show all attributes as unselected initially.
+            viewModel.AvailableAttributes = allAttributes.Select(a => new AttributeSelectionViewModel
+            {
+                Id = a.Id,
+                Name = a.Name,
+                IsSelected = false
+            }).ToList();
+
+            var attrIdToName = allAttributes.ToDictionary(a => a.Id, a => a.Name);
+            viewModel.AttributeGroups = allValues
                 .GroupBy(v => v.AttributeId)
                 .Select(g => new AttributeGroupOptionViewModel
                 {
@@ -302,7 +307,6 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
                 })
                 .OrderBy(gr => gr.AttributeName)
                 .ToList();
-            viewModel.AttributeGroups = groups;
         }
 
         // --- Validation helpers ---
@@ -310,8 +314,8 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         {
             if (viewModel.Variants == null || !viewModel.Variants.Any()) return true;
 
-            var valuesPaged = await _unitOfWork.ProductAttributeValueRepository.GetAllAsync(1, int.MaxValue);
-            var idToAttr = valuesPaged.Items.ToDictionary(v => v.Id, v => v.AttributeId);
+            var valuesPaged = await _mediator.Send(new GetAllProductValueQuery());
+            var idToAttr = valuesPaged.ToDictionary(v => v.Id, v => v.AttributeId);
 
             var isValid = true;
             for (int i = 0; i < viewModel.Variants.Count; i++)
@@ -348,8 +352,8 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         {
             if (viewModel.Variants == null || !viewModel.Variants.Any()) return true;
 
-            var valuesPaged = await _unitOfWork.ProductAttributeValueRepository.GetAllAsync(1, int.MaxValue);
-            var idToAttr = valuesPaged.Items.ToDictionary(v => v.Id, v => v.AttributeId);
+            var valuesPaged = await _mediator.Send(new GetAllProductValueQuery());
+            var idToAttr = valuesPaged.ToDictionary(v => v.Id, v => v.AttributeId);
 
             var isValid = true;
             for (int i = 0; i < viewModel.Variants.Count; i++)
@@ -379,8 +383,5 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
 
             return isValid;
         }
-
-
-
     }
 }

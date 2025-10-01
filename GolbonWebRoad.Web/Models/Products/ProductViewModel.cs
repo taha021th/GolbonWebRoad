@@ -50,9 +50,10 @@
     public class PagedResult<T>
     {
         public List<T> Items { get; set; }
+        public int TotalCount { get; set; }
         public int PageNumber { get; set; }
-        public int TotalPages { get; set; }
-        public int TotalCount { get; set; } // It's good practice to have TotalCount as well
+        public int PageSize { get; set; }
+        public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
 
         // Add these two properties to fix the error
         public bool HasPreviousPage => PageNumber > 1;
@@ -93,6 +94,7 @@
         public string Name { get; set; }
         public string ShortDescription { get; set; }
         public string Description { get; set; }
+        public string? MainImageUrl { get; set; }
 
 
         public CategoryViewModel Category { get; set; }

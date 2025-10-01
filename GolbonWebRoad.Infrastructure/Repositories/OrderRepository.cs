@@ -27,15 +27,31 @@ namespace GolbonWebRoad.Infrastructure.Repositories
 
         public async Task<Order?> GetByIdAsync(int id)
         {
-            return await _context.Orders.Include(o => o.User).Include(o => o.OrderItems).ThenInclude(oi => oi.ProductVariant).FirstOrDefaultAsync(o => o.Id==id);
+            return await _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.Address)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ProductVariant)
+                        .ThenInclude(v => v.Product)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ProductVariant)
+                        .ThenInclude(v => v.AttributeValues)
+                            .ThenInclude(av => av.Attribute)
+                .FirstOrDefaultAsync(o => o.Id==id);
         }
 
         public async Task<IEnumerable<Order>> GetByUserIdAsync(string userId)
         {
             return await _context.Orders.Where(o => o.UserId==userId)
                 .Include(u => u.User)
+                .Include(o => o.Address)
                 .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.ProductVariant)
+                    .ThenInclude(oi => oi.ProductVariant)
+                        .ThenInclude(v => v.Product)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ProductVariant)
+                        .ThenInclude(v => v.AttributeValues)
+                            .ThenInclude(av => av.Attribute)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
         }

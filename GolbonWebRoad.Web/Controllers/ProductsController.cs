@@ -61,7 +61,7 @@ namespace GolbonWebRoad.Web.Controllers
             }
 
 
-            var productEntity = await _mediator.Send(new GetProductByIdQuery { Id = id });
+            var productEntity = await _mediator.Send(new GetProductByIdQuery { Id = id, JoinCategory = true, JoinImages = true, JoinBrand = true, JoinReviews = true });
             if (productEntity == null)
             {
                 return NotFound();

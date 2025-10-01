@@ -15,6 +15,9 @@ namespace GolbonWebRoad.Domain.Entities
         public string OrderStatus { get; set; }
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
+        public int? AddressId { get; set; }
+        public UserAddress? Address { get; set; }
+
     }
 
 }

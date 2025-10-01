@@ -1,0 +1,68 @@
+@model GolbonWebRoad.Web.Models.Addresses.AddressListViewModel
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آدرس‌ها - Tecture</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --bg-color:#121212; --primary-text-color:#fff; --secondary-text-color:#a0a0a0; --card-bg:#1a1a1a; --border:#333; --accent:#4a90e2; }
+        body.light-mode { --bg-color:#f4f4f5; --card-bg:#fff; --primary-text-color:#18181b; --secondary-text-color:#71717a; --border:#e4e4e7; }
+        body{background:var(--bg-color); color:var(--primary-text-color); font-family: Manrope, sans-serif}
+        .container{max-width:1000px;margin:0 auto;padding:20px}
+        .header{display:flex;justify-content:space-between;align-items:center;margin:20px 0}
+        .card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+        .muted{color:var(--secondary-text-color)}
+        .btn{padding:8px 14px;border-radius:8px;border:2px solid var(--accent);background:var(--accent);color:#fff;text-decoration:none}
+        .btn-outline{background:transparent;color:var(--accent)}
+        .row{display:flex;gap:12px;align-items:center}
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
+    <script>
+        document.addEventListener('DOMContentLoaded',()=>{ const t=localStorage.getItem('theme'); if(t==='light') document.body.classList.add('light-mode'); });
+    </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>آدرس‌های من</h1>
+                <a class="btn" asp-action="Create">افزودن آدرس جدید</a>
+            </div>
+
+            @if (Model.Items != null && Model.Items.Any())
+            {
+                foreach (var a in Model.Items)
+                {
+                    <div class="card">
+                        <div>
+                            <div><strong>@a.FullName</strong> <span class="muted">(@a.Phone)</span> @(a.IsDefault ? Html.Raw("<span class='muted'>- پیش‌فرض</span>") : null)</div>
+                            <div class="muted">@a.AddressLine، @a.City - @a.PostalCode</div>
+                        </div>
+                        <div class="row">
+                            <a class="btn btn-outline" asp-action="Edit" asp-route-id="@a.Id">ویرایش</a>
+                            <form asp-action="SetDefault" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@a.Id" />
+                                <button type="submit" class="btn btn-outline">پیش‌فرض</button>
+                            </form>
+                            <form asp-action="Delete" method="post" onsubmit="return confirm('حذف آدرس؟');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@a.Id" />
+                                <button type="submit" class="btn btn-outline" style="border-color:#e24a4a;color:#e24a4a">حذف</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="card">هنوز آدرسی ثبت نکرده‌اید.</div>
+            }
+        </div>
+    </body>
+    </html>
+
+

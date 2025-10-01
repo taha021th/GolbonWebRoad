@@ -48,7 +48,11 @@ namespace GolbonWebRoad.Infrastructure.Repositories
 
         public async Task<ProductVariant> GetByIdAsync(int id)
         {
-            return await _context.ProductVariants.FindAsync(id);
+            return await _context.ProductVariants
+                .Include(v => v.Product)
+                .Include(v => v.AttributeValues)
+                    .ThenInclude(av => av.Attribute)
+                .FirstOrDefaultAsync(v => v.Id == id);
         }
 
         public async Task<ICollection<ProductVariant>> GetByProductIdAsync(int productId)
@@ -62,7 +66,9 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         public async Task<ProductVariant> GetByIdWithProductAsync(int variantId)
         {
             return await _context.ProductVariants
-                .Include(v => v.Product) // اطلاعات محصول را همراه با واریانت لود می‌کند
+                .Include(v => v.Product)
+                .Include(v => v.AttributeValues)
+                    .ThenInclude(av => av.Attribute)
                 .FirstOrDefaultAsync(v => v.Id == variantId);
         }
     }

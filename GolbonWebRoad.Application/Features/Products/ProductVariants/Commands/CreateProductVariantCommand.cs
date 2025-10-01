@@ -25,6 +25,10 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
             RuleFor(x => x.Sku).NotEmpty().MaximumLength(100);
             RuleFor(x => x.Price).GreaterThan(0);
             RuleFor(x => x.StockQuantity).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.OldPrice)
+                .GreaterThan(x => x.Price)
+                .When(x => x.OldPrice.HasValue)
+                .WithMessage("قیمت قدیم باید بیشتر از قیمت باشد");
 
             RuleFor(x => x.AttributeValueIds)
                 .Must(ids => ids == null || ids.Distinct().Count() == ids.Count)

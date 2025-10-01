@@ -1,0 +1,33 @@
+@model GolbonWebRoad.Web.Areas.Admin.Models.ProductAttribute.CreateProductAttributeViewModel
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "ایجاد ویژگی جدید";
+}
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">@ViewData["Title"]</h1>
+        <div>
+            <a asp-action="Index" class="btn btn-secondary">انصراف</a>
+            <button type="submit" class="btn btn-primary">ذخیره</button>
+        </div>
+    </div>
+
+    <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

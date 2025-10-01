@@ -7,7 +7,7 @@
         public string Name { get; set; }
         public string CategoryName { get; set; }
         public string BrandName { get; set; }
-        public decimal Price { get; set; }
+        public decimal BasePrice { get; set; }
         public int Quantity { get; set; }
         public string? ImageUrl { get; set; }
     }

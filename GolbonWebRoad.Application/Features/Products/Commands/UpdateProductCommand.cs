@@ -10,36 +10,45 @@ using Microsoft.Extensions.Logging; // ۱. این using را برای دسترس
 
 namespace GolbonWebRoad.Application.Features.Products.Commands
 {
-    public class UpdateProductCommand : IRequest
-    {
+        public class UpdateProductCommand : IRequest
+        {
 
-        public int Id { get; set; }
-        public string? Slog { get; set; }
-        public string Name { get; set; }
-        public string ShortDescription { get; set; }
-        public string Description { get; set; }
-        public decimal? Price { get; set; }
-        public decimal? OldPrice { get; set; }
-        public int Quantity { get; set; }
-        public string? SKU { get; set; }
-        public bool IsFeatured { get; set; }
-        public int CategoryId { get; set; }
-        public int? BrandId { get; set; }
-        public List<IFormFile> NewImages { get; set; } = new();
-        public List<string> ImagesToDelete { get; set; } = new();
-        // Colors removed in favor of attribute-based variants
-        // public List<ColorInputDto> NewColors { get; set; } = new();
-        // public List<int> ColorsToDelete { get; set; } = new();
+            public int Id { get; set; }
+            public string? Slog { get; set; }
+            public string Name { get; set; }
+            public string ShortDescription { get; set; }
+            public string Description { get; set; }
+            public decimal BasePrice { get; set; }
+            public bool IsFeatured { get; set; }
+            public int CategoryId { get; set; }
+            public int? BrandId { get; set; }
+            public IFormFile? NewMainImage { get; set; } // تصویر اصلی جدید
+            public List<IFormFile> NewImages { get; set; } = new();
+            public List<string> ImagesToDelete { get; set; } = new();
+            // Colors removed in favor of attribute-based variants
+            // public List<ColorInputDto> NewColors { get; set; } = new();
+            // public List<int> ColorsToDelete { get; set; } = new();
 
-    }
+        }
 
     public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
     {
         public UpdateProductCommandValidator()
         {
             RuleFor(p => p.Id).NotEmpty().WithMessage("شناسه محصول نمی تواند خالی باشد.");
-            RuleFor(p => p.Name).NotEmpty().WithMessage("نام محصول نمی تواند خالی باشد.").MaximumLength(100).WithMessage("نام محصول نباید بیش از 100 کاراکتر باشد.");
-            RuleFor(p => p.Price).GreaterThan(0).WithMessage("قیمت باید بیشتر از 0 باشد.");
+            RuleFor(p => p.Name)
+                .NotEmpty().WithMessage("نام محصول نمی تواند خالی باشد.")
+                .MaximumLength(100).WithMessage("نام محصول نباید بیش از 100 کاراکتر باشد.");
+            RuleFor(p => p.ShortDescription)
+                .NotEmpty().WithMessage("توضیح کوتاه نمی تواند خالی باشد.")
+                .MaximumLength(500).WithMessage("توضیح کوتاه نباید بیش از 500 کاراکتر باشد.");
+            RuleFor(p => p.BasePrice)
+                .GreaterThan(0).WithMessage("قیمت پایه باید بیشتر از 0 باشد.");
+            RuleFor(p => p.CategoryId)
+                .GreaterThan(0).WithMessage("انتخاب دسته‌بندی الزامی است.");
+            RuleFor(p => p.BrandId)
+                .GreaterThan(0).WithMessage("انتخاب برند الزامی است.")
+                .When(p => p.BrandId.HasValue);
         }
     }
 
@@ -76,6 +85,17 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
             {
                 // ۲. نگاشت پراپرتی‌های ساده از Command به Entity
                 _mapper.Map(request, productToUpdate);
+
+                // Handle replacing main image if a new one is provided
+                if (request.NewMainImage != null)
+                {
+                    if (!string.IsNullOrEmpty(productToUpdate.MainImageUrl))
+                    {
+                        await _fileStorageService.DeleteFileAsync(Path.GetFileName(productToUpdate.MainImageUrl), "products");
+                    }
+                    var mainUrl = await _fileStorageService.SaveFileAsync(request.NewMainImage, "products");
+                    productToUpdate.MainImageUrl = mainUrl;
+                }
 
                 #region Upload Images
                 // ۳. مدیریت حذف تصاویر

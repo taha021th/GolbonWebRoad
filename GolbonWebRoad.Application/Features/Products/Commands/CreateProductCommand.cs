@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using GolbonWebRoad.Application.Dtos.Colors;
 using GolbonWebRoad.Application.Interfaces.Services;
 using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
@@ -16,14 +15,11 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         public string Name { get; set; }
         public string ShortDescription { get; set; }
         public string Description { get; set; }
-        public decimal Price { get; set; }
-        public decimal? OldPrice { get; set; }
-        public int Quantity { get; set; }
-        public string? SKU { get; set; }
+        public decimal BasePrice { get; set; }
         public bool IsFeatured { get; set; }
-
         public int CategoryId { get; set; }
         public int? BrandId { get; set; }
+        public IFormFile? MainImage { get; set; } // تصویر اصلی محصول
         // Colors removed in favor of attribute-based variants
         // public List<ColorInputDto> Colors { get; set; } = new();
         public List<IFormFile> Images { get; set; } = new();
@@ -36,12 +32,16 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
             RuleFor(p => p.Name)
                 .NotEmpty().WithMessage("نام محصول نمی تواند خالی باشد.")
                 .MaximumLength(100).WithMessage("نام محصول نمی تواند بیشتر از 100 کاراکتر باشد.");
-            RuleFor(p => p.Price)
+            RuleFor(p => p.ShortDescription)
+                .NotEmpty().WithMessage("توضیح کوتاه نمی تواند خالی باشد.")
+                .MaximumLength(500).WithMessage("توضیح کوتاه نباید بیش از 500 کاراکتر باشد.");
+            RuleFor(p => p.BasePrice)
                 .GreaterThan(0).WithMessage("قیمت محصول باید بیشتر از صفر باشد.");
             RuleFor(p => p.CategoryId)
                 .GreaterThan(0).WithMessage("انتخاب دسته‌بندی الزامی است.");
             RuleFor(p => p.BrandId)
-                .GreaterThan(0).WithMessage("انتخاب برند الزامی است.");
+                .GreaterThan(0).WithMessage("انتخاب برند الزامی است.")
+                .When(p => p.BrandId.HasValue);
         }
     }
 
@@ -68,6 +68,13 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
             try
             {
                 var product = _mapper.Map<Product>(request);
+
+                // Handle main image upload (separate uploader)
+                if (request.MainImage != null)
+                {
+                    var mainUrl = await _fileStorageService.SaveFileAsync(request.MainImage, "products");
+                    product.MainImageUrl = mainUrl;
+                }
 
                 if (request.Images != null && request.Images.Any())
                 {

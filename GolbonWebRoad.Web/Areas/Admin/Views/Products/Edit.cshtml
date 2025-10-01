@@ -1,4 +1,4 @@
-﻿@model GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels.EditProductViewModel
+@model GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels.EditProductViewModel
 @{
     ViewData["Title"] = "ویرایش محصول: " + Model.Name;
 }
@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
 
     <div class="row g-4">
         <!-- Main Content -->
@@ -38,31 +38,54 @@
                         <textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea>
                         <span asp-validation-for="ShortDescription" class="text-danger"></span>
                     </div>
-                    <div>
+                    <div class="mb-3">
                         <label asp-for="Description" class="form-label"></label>
                         <textarea asp-for="Description" class="form-control" rows="6"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="BasePrice" class="form-label"></label>
+                        <input asp-for="BasePrice" type="number" class="form-control" />
+                        <span asp-validation-for="BasePrice" class="text-danger"></span>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">تصویر اصلی</div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.CurrentMainImageUrl))
+                    {
+                        <div class="mb-3">
+                            <p class="form-label">تصویر فعلی:</p>
+                            <img src="@Model.CurrentMainImageUrl" class="rounded border" style="width: 160px; height: 160px; object-fit: cover;" alt="تصویر اصلی فعلی" />
+                        </div>
+                    }
+                    <div class="mb-3">
+                        <label asp-for="NewMainImage" class="form-label"></label>
+                        <input type="file" asp-for="NewMainImage" class="form-control" />
+                        <span asp-validation-for="NewMainImage" class="text-danger"></span>
+                        <small class="text-muted d-block mt-2">در صورت انتخاب، تصویر اصلی محصول جایگزین می‌شود.</small>
                     </div>
                 </div>
             </div>
 
             <div class="card shadow-sm mb-4">
-                <div class="card-header">مدیریت تصاویر</div>
+                 <div class="card-header">مدیریت تصاویر</div>
                 <div class="card-body">
                     @if (Model.Images != null && Model.Images.Any())
                     {
                         <div class="mb-4">
-                            <label class="form-label">تصاویر فعلی (برای حذف، تیک بزنید):</label>
-                            <div class="row g-2">
+                            <p class="form-label">تصاویر فعلی (برای حذف، تیک بزنید):</p>
+                            <div class="d-flex flex-wrap gap-2">
                                 @foreach (var image in Model.Images)
                                 {
-                                    <div class="col-auto">
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="checkbox" name="ImagesToDelete" value="@image.ImageUrl" id="img-@image.Id">
-                                            <label class="form-check-label" for="img-@image.Id">
-                                                <img src="@image.ImageUrl" class="rounded border" style="width: 80px; height: 80px; object-fit: cover;" />
-                                            </label>
-                                        </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="ImagesToDelete" value="@image.ImageUrl" id="img-@image.Id">
+                                        <label class="form-check-label" for="img-@image.Id">
+                                            <img src="@image.ImageUrl" class="rounded border" style="width: 80px; height: 80px; object-fit: cover;" alt="تصویر محصول" />
+                                        </label>
                                     </div>
                                 }
                             </div>
@@ -74,72 +97,60 @@
                     </div>
                 </div>
             </div>
-
             
-
             <div class="card shadow-sm mt-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>ورینت‌ها</span>
-                    <button type="button" id="add-variant-btn" class="btn btn-sm btn-outline-primary">افزودن ورینت</button>
+                    <span>واریانت‌های محصول</span>
+                    <button type="button" id="show-add-variant-modal-btn" class="btn btn-sm btn-outline-primary">افزودن واریانت</button>
                 </div>
                 <div class="card-body">
-                    <div id="variants-container" class="vstack gap-3">
-                        @if (Model.Variants != null && Model.Variants.Any())
-                        {
-                            var i = 0;
-                            foreach (var v in Model.Variants)
+                    <table class="table" id="variants-table">
+                        <thead>
+                            <tr>
+                                <th>ویژگی‌ها</th>
+                                <th>SKU</th>
+                                <th class="text-end">قیمت</th>
+                                <th class="text-end">قیمت قدیم</th>
+                                <th class="text-end">موجودی</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="variants-tbody">
+                            @for (var i = 0; i < Model.Variants.Count; i++)
                             {
-                                <div class="border rounded p-3 mb-2">
-                                    <input type="hidden" name="Variants[@i].Id" value="@v.Id" />
-                                    <div class="row g-2 align-items-end">
-                                        <div class="col-md-3">
-                                            <label class="form-label">SKU</label>
-                                            <input type="text" name="Variants[@i].Sku" class="form-control" value="@v.Sku" required />
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label">قیمت</label>
-                                            <input type="number" name="Variants[@i].Price" class="form-control" value="@v.Price" min="1" step="0.01" required />
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label">قیمت قدیم</label>
-                                            <input type="number" name="Variants[@i].OldPrice" class="form-control" value="@v.OldPrice" step="0.01" />
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label">موجودی</label>
-                                            <input type="number" name="Variants[@i].StockQuantity" class="form-control" value="@v.StockQuantity" min="0" />
-                                        </div>
-                                        <div class="col-md-7">
-                                            <div class="row g-2">
-                                                @if (Model.AttributeGroups != null)
-                                                {
-                                                    foreach (var grp in Model.AttributeGroups)
-                                                    {
-                                                        <div class="col-md-4">
-                                                            <label class="form-label">@grp.AttributeName</label>
-                                                            <select name="Variants[@i].AttributeValueIds" class="form-select">
-                                                                <option value="">-- انتخاب --</option>
-                                                                @foreach (var opt in grp.Values)
-                                                                {
-                                                                    var selected = v.AttributeValueIds != null && v.AttributeValueIds.Contains(int.Parse(opt.Value));
-                                                                    <option value="@opt.Value" selected="@(selected ? "selected" : null)">@opt.Text</option>
-                                                                }
-                                                            </select>
-                                                        </div>
-                                                    }
-                                                }
-                                            </div>
-                                        </div>
-                                        <div class="col-12 mt-2 d-flex justify-content-between">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="Variants[@i].MarkForDeletion" id="del-@i">
-                                                <label class="form-check-label" for="del-@i">حذف این ورینت</label>
-                                            </div>
-                                            <button type="button" class="btn btn-sm btn-outline-danger remove-variant-btn">حذف از فرم</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                i++;
+                                var v = Model.Variants[i];
+                                var valueTexts = Model.AttributeGroups
+                                    .SelectMany(g => g.Values)
+                                    .Where(val => v.AttributeValueIds.Contains(int.Parse(val.Value)))
+                                    .Select(val => val.Text)
+                                    .ToList();
+                                <tr data-variant-index="@i" data-variant-id="@v.Id">
+                                    <td>@string.Join(" / ", valueTexts)</td>
+                                    <td>@v.Sku</td>
+                                    <td class="text-end">@v.Price.ToString("N0")</td>
+                                    <td class="text-end">@((v.OldPrice.HasValue ? v.OldPrice.Value.ToString("N0") : "-"))</td>
+                                    <td class="text-end">@v.StockQuantity</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger remove-variant-btn">حذف</button>
+                                    </td>
+                                </tr>
                             }
+                        </tbody>
+                    </table>
+                    <div id="variants-hidden-inputs">
+                         @for (var i = 0; i < Model.Variants.Count; i++)
+                        {
+                            <div data-variant-index="@i" data-variant-id="@Model.Variants[i].Id">
+                                <input type="hidden" name="Variants[@i].Id" value="@Model.Variants[i].Id" />
+                                <input type="hidden" name="Variants[@i].Sku" value="@Model.Variants[i].Sku" />
+                                <input type="hidden" name="Variants[@i].Price" value="@Model.Variants[i].Price" />
+                                <input type="hidden" name="Variants[@i].OldPrice" value="@Model.Variants[i].OldPrice" />
+                                <input type="hidden" name="Variants[@i].StockQuantity" value="@Model.Variants[i].StockQuantity" />
+                                @for(var j = 0; j < Model.Variants[i].AttributeValueIds.Count; j++)
+                                {
+                                    <input type="hidden" name="Variants[@i].AttributeValueIds[@j]" value="@Model.Variants[i].AttributeValueIds[j]" />
+                                }
+                            </div>
                         }
                     </div>
                 </div>
@@ -149,35 +160,9 @@
         <!-- Sidebar -->
         <div class="col-lg-4">
             <div class="card shadow-sm mb-4">
-                <div class="card-header">قیمت و موجودی</div>
+                <div class="card-header">دسته‌بندی و برند</div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        <label asp-for="Price" class="form-label"></label>
-                        <input asp-for="Price" type="number" class="form-control" />
-                        <span asp-validation-for="Price" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="OldPrice" class="form-label"></label>
-                        <input asp-for="OldPrice" type="number" class="form-control" />
-                        <span asp-validation-for="OldPrice" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Quantity" class="form-label"></label>
-                        <input asp-for="Quantity" type="number" class="form-control" />
-                        <span asp-validation-for="Quantity" class="text-danger"></span>
-                    </div>
-                    <div>
-                        <label asp-for="SKU" class="form-label"></label>
-                        <input asp-for="SKU" class="form-control" />
-                        <span asp-validation-for="SKU" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">دسته‌بندی</div>
-                <div class="card-body">
-                    <div class="mb-3">
+                     <div class="mb-3">
                         <label asp-for="CategoryId" class="form-label"></label>
                         <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-select"></select>
                         <span asp-validation-for="CategoryId" class="text-danger"></span>
@@ -190,72 +175,205 @@
                 </div>
             </div>
 
-            <div class="card shadow-sm">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    مرحله ۱: انتخاب مقادیر ویژگی‌ها
+                </div>
                 <div class="card-body">
-                    <div class="form-check">
-                        <input asp-for="IsFeatured" type="checkbox" class="form-check-input" />
-                        <label asp-for="IsFeatured" class="form-check-label"></label>
-                    </div>
+                     <p class="text-muted small">ویژگی‌هایی را که می‌خواهید برای تعریف واریانت‌ها استفاده کنید، انتخاب نمایید.</p>
+                    @for (var i = 0; i < Model.AvailableAttributes.Count; i++)
+                    {
+                        <div class="form-check">
+                            <input type="hidden" asp-for="AvailableAttributes[i].Id" />
+                            <input type="hidden" asp-for="AvailableAttributes[i].Name" />
+                            <input class="form-check-input attribute-checkbox" type="checkbox" asp-for="AvailableAttributes[i].IsSelected" data-attribute-id="@Model.AvailableAttributes[i].Id" id="attr_cb_@Model.AvailableAttributes[i].Id">
+                            <label class="form-check-label" for="attr_cb_@Model.AvailableAttributes[i].Id">@Model.AvailableAttributes[i].Name</label>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
     </div>
 </form>
 
+<!-- Add Variant Modal -->
+<div class="modal fade" id="addVariantModal" tabindex="-1" aria-labelledby="addVariantModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addVariantModalLabel">افزودن/ویرایش واریانت</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                 <div id="modal-attributes-container">
+                    <!-- Attribute selectors will be dynamically inserted here -->
+                </div>
+                <div class="mb-3">
+                    <label for="variant-sku" class="form-label">SKU</label>
+                    <input type="text" id="variant-sku" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="variant-price" class="form-label">قیمت</label>
+                    <input type="number" id="variant-price" class="form-control" min="0">
+                </div>
+                <div class="mb-3">
+                    <label for="variant-old-price" class="form-label">قیمت قدیم</label>
+                    <input type="number" id="variant-old-price" class="form-control" min="0">
+                </div>
+                <div class="mb-3">
+                    <label for="variant-stock" class="form-label">موجودی</label>
+                    <input type="number" id="variant-stock" class="form-control" min="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+                <button type="button" id="save-variant-btn" class="btn btn-primary">افزودن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const variantsContainer = document.getElementById('variants-container');
-            let variantIndex = @((Model.Variants?.Count ?? 0));
+            function formatNumber(value) {
+                if (value === null || value === undefined || value === '') return '-';
+                const n = Number(value);
+                if (isNaN(n)) return value;
+                return n.toLocaleString('fa-IR');
+            }
+            const addVariantModal = new bootstrap.Modal(document.getElementById('addVariantModal'));
+            const showModalBtn = document.getElementById('show-add-variant-modal-btn');
+            const saveVariantBtn = document.getElementById('save-variant-btn');
+            const attributeGroups = @Html.Raw(Json.Serialize(Model.AttributeGroups));
+            const variantsTbody = document.getElementById('variants-tbody');
+            const hiddenInputsContainer = document.getElementById('variants-hidden-inputs');
+            let variantIndex = @Model.Variants.Count;
 
-            function addVariantRow() {
-                const wrapper = document.createElement('div');
-                wrapper.classList.add('border', 'rounded', 'p-3', 'mb-2');
-                wrapper.innerHTML = `
-<div class="row g-2 align-items-end">
-  <div class="col-md-3">
-    <label class="form-label">SKU</label>
-    <input type="text" name="Variants[${variantIndex}].Sku" class="form-control" required />
-  </div>
-  <div class="col-md-2">
-    <label class="form-label">قیمت</label>
-    <input type="number" name="Variants[${variantIndex}].Price" class="form-control" min="1" step="0.01" required />
-  </div>
-  <div class="col-md-2">
-    <label class="form-label">قیمت قدیم</label>
-    <input type="number" name="Variants[${variantIndex}].OldPrice" class="form-control" step="0.01" />
-  </div>
-  <div class="col-md-2">
-    <label class="form-label">موجودی</label>
-    <input type="number" name="Variants[${variantIndex}].StockQuantity" class="form-control" min="0" />
-  </div>
-  <div class="col-md-3">
-    <label class="form-label">مقادیر ویژگی‌ها</label>
-    <select name="Variants[${variantIndex}].AttributeValueIds" multiple class="form-select">
-      @if (Model.AttributeValueOptions != null)
-      {
-          foreach (var opt in Model.AttributeValueOptions)
-          {
-              <option value="@opt.Value">@opt.Text</option>
-          }
-      }
-    </select>
-  </div>
-  <div class="col-12 text-end mt-2">
-    <button type="button" class="btn btn-sm btn-outline-danger remove-variant-btn">حذف ورینت</button>
-  </div>
-</div>`;
-                variantsContainer.appendChild(wrapper);
+            showModalBtn.addEventListener('click', function () {
+                const selectedAttributeIds = Array.from(document.querySelectorAll('.attribute-checkbox:checked'))
+                                                  .map(cb => parseInt(cb.dataset.attributeId));
+                if (selectedAttributeIds.length === 0) {
+                    alert('لطفا ابتدا حداقل یک ویژگی را انتخاب کنید.');
+                    return;
+                }
+                populateModal(selectedAttributeIds);
+                addVariantModal.show();
+            });
+
+            function populateModal(selectedAttributeIds) {
+                const container = document.getElementById('modal-attributes-container');
+                container.innerHTML = '';
+                selectedAttributeIds.forEach(id => {
+                    const group = attributeGroups.find(g => g.attributeId === id);
+                    if (group) {
+                        let attributeHtml = `<div class="mb-3" data-attribute-id="${id}"><label class="form-label">${group.attributeName}</label><div>`;
+                        group.values.forEach(val => {
+                             attributeHtml += `<div class="form-check form-check-inline">
+                                                  <input class="form-check-input" type="radio" name="attribute_${id}" value="${val.value}" id="attr_val_${val.value}">
+                                                  <label class="form-check-label" for="attr_val_${val.value}">${val.text}</label>
+                                               </div>`;
+                        });
+                        attributeHtml += '</div></div>';
+                        container.insertAdjacentHTML('beforeend', attributeHtml);
+                    }
+                });
+            }
+
+            saveVariantBtn.addEventListener('click', function () {
+                const sku = document.getElementById('variant-sku').value;
+                const price = document.getElementById('variant-price').value;
+                const oldPrice = document.getElementById('variant-old-price').value;
+                const stock = document.getElementById('variant-stock').value;
+
+                if (!sku || !price || !stock) {
+                    alert('لطفا SKU، قیمت و موجودی را پر کنید.');
+                    return;
+                }
+                if (oldPrice && Number(oldPrice) <= Number(price)) {
+                    alert('قیمت قدیم باید بیشتر از قیمت باشد.');
+                    return;
+                }
+
+                const selectedValues = [];
+                const selectedTexts = [];
+                const radioButtons = document.querySelectorAll('#modal-attributes-container input[type="radio"]:checked');
+                
+                radioButtons.forEach(radio => {
+                    selectedValues.push(radio.value);
+                    selectedTexts.push(radio.nextElementSibling.textContent);
+                });
+
+                if (radioButtons.length < document.querySelectorAll('.attribute-checkbox:checked').length) {
+                    alert('لطفا برای تمام ویژگی‌های انتخابی یک مقدار مشخص کنید.');
+                    return;
+                }
+
+                addVariantToTable(sku, price, oldPrice, stock, selectedValues, selectedTexts);
+                addHiddenInputsForVariant(null, sku, price, oldPrice, stock, selectedValues);
+                addVariantModal.hide();
+                resetModalForm();
+            });
+
+            function addVariantToTable(sku, price, oldPrice, stock, valueIds, valueTexts) {
+                const row = document.createElement('tr');
+                row.setAttribute('data-variant-index', variantIndex);
+                row.innerHTML = `
+                    <td>${valueTexts.join(' / ')}</td>
+                    <td>${sku}</td>
+                    <td class="text-end">${formatNumber(price)}</td>
+                    <td class="text-end">${formatNumber(oldPrice)}</td>
+                    <td class="text-end">${formatNumber(stock)}</td>
+                    <td><button type=\"button\" class=\"btn btn-sm btn-danger remove-variant-btn\">حذف</button></td>
+                `;
+                variantsTbody.appendChild(row);
+            }
+
+            function addHiddenInputsForVariant(variantId, sku, price, oldPrice, stock, valueIds) {
+                let inputsHtml = `<div data-variant-index="${variantIndex}" ${variantId ? `data-variant-id="${variantId}"`: ''}>`;
+                if (variantId) {
+                     inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Id" value="${variantId}" />`;
+                }
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Sku" value="${sku}" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Price" value="${price}" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].OldPrice" value="${oldPrice}" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].StockQuantity" value="${stock}" />`;
+                valueIds.forEach((id, i) => {
+                    inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].AttributeValueIds[${i}]" value="${id}" />`;
+                });
+                inputsHtml += '</div>';
+                hiddenInputsContainer.insertAdjacentHTML('beforeend', inputsHtml);
                 variantIndex++;
             }
 
-            document.getElementById('add-variant-btn').addEventListener('click', addVariantRow);
-            variantsContainer.addEventListener('click', function (e) {
-                if (e.target.classList.contains('remove-variant-btn')) {
-                    e.target.closest('.border').remove();
+            function resetModalForm() {
+                document.getElementById('variant-sku').value = '';
+                document.getElementById('variant-price').value = '';
+                document.getElementById('variant-old-price').value = '';
+                document.getElementById('variant-stock').value = '';
+                document.getElementById('modal-attributes-container').innerHTML = '';
+            }
+
+            variantsTbody.addEventListener('click', function(e) {
+                if (e.target && e.target.classList.contains('remove-variant-btn')) {
+                    const row = e.target.closest('tr');
+                    const indexToRemove = row.dataset.variantIndex;
+                    const variantId = row.dataset.variantId;
+
+                    const hiddenInputContainer = document.querySelector(`#variants-hidden-inputs div[data-variant-index="${indexToRemove}"]`);
+
+                    if (variantId) { // It's an existing variant, mark for deletion
+                        if (hiddenInputContainer) {
+                             hiddenInputContainer.insertAdjacentHTML('beforeend', `<input type="hidden" name="Variants[${indexToRemove}].MarkForDeletion" value="true" />`);
+                        }
+                        row.style.display = 'none'; // Hide the row instead of removing
+                    } else { // It's a new variant, just remove it
+                         if (hiddenInputContainer) {
+                            hiddenInputContainer.remove();
+                        }
+                        row.remove();
+                    }
                 }
             });
         });

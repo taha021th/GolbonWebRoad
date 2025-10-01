@@ -16,5 +16,12 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Orders
         public decimal Price { get; set; }
 
         public decimal TotalPrice => Quantity * Price;
+
+        // Variant details
+        [Display(Name = "شناسه واریانت")]
+        public int VariantId { get; set; }
+
+        [Display(Name = "ویژگی‌ها")] 
+        public string VariantAttributes { get; set; }
     }
 }

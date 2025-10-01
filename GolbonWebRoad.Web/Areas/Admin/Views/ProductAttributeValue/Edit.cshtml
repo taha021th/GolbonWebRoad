@@ -1,0 +1,39 @@
+@model GolbonWebRoad.Web.Areas.Admin.Models.ProductAttributeValue.UpdateProductAttributeValueViewModel
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "ویرایش مقدار ویژگی";
+}
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">@ViewData["Title"]</h1>
+        <div>
+            <a asp-action="Index" class="btn btn-secondary">انصراف</a>
+            <button type="submit" class="btn btn-primary">ذخیره تغییرات</button>
+        </div>
+    </div>
+
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="mb-3">
+                <label asp-for="AttributeId" class="form-label">ویژگی</label>
+                <select asp-for="AttributeId" asp-items="Model.AttributeOptions" class="form-select"></select>
+                <span asp-validation-for="AttributeId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Value" class="form-label">مقدار</label>
+                <input asp-for="Value" class="form-control" />
+                <span asp-validation-for="Value" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

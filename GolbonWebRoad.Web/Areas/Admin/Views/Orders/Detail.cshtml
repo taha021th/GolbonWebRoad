@@ -46,6 +46,10 @@
                                 <tr>
                                     <td class="ps-4">
                                         <p class="fw-bold mb-1">@item.ProductName</p>
+                                        @if (!string.IsNullOrEmpty(item.VariantAttributes))
+                                        {
+                                            <p class="text-muted mb-0" style="font-size:.9rem">واریانت: @item.VariantAttributes (ID: @item.VariantId)</p>
+                                        }
                                     </td>
                                     <td>@item.Price.ToString("N0") تومان</td>
                                     <td class="text-center">@item.Quantity</td>
@@ -105,6 +109,23 @@
                         <button type="submit" class="btn btn-primary">به‌روزرسانی وضعیت</button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">آدرس ارسال</h5>
+            </div>
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(Model.AddressFullName))
+                {
+                    <p class="mb-1"><strong>@Model.AddressFullName</strong> <span class="text-muted">(@Model.AddressPhone)</span></p>
+                    <p class="mb-0 text-muted">@Model.AddressLine، @Model.AddressCity - @Model.AddressPostalCode</p>
+                }
+                else
+                {
+                    <p class="text-muted">بدون آدرس ثبت‌شده</p>
+                }
             </div>
         </div>
     </div>

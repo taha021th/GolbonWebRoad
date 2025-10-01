@@ -27,7 +27,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             _context.Update(model);
         }
 
-        public async Task<PagedResult<ProductAttribute>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<PagedResult<ProductAttribute>> GetAllByPagedAsync(int pageNumber, int pageSize)
         {
 
             var query = _context.ProductAttributes.AsQueryable();
@@ -46,6 +46,10 @@ namespace GolbonWebRoad.Infrastructure.Repositories
                 PageNumber = pageNumber,
                 PageSize = pageSize
             };
+        }
+        public async Task<ICollection<ProductAttribute>> GetAllAsync()
+        {
+            return await _context.ProductAttributes.ToListAsync();
         }
 
         public async Task<ProductAttribute> GetByIdAsync(int id)

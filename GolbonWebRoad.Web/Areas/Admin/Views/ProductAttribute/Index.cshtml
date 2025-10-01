@@ -1,0 +1,67 @@
+@model GolbonWebRoad.Web.Areas.Admin.Models.ProductAttribute.ProductAttributeIndexViewModel
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "مدیریت ویژگی‌های محصول";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">@ViewData["Title"]</h1>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>
+        افزودن ویژگی جدید
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width:70%">نام ویژگی</th>
+                        <th class="text-end">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.Items != null && Model.Items.Any())
+                {
+                    foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td class="text-end">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">ویرایش</a>
+                                <a asp-area="Admin" asp-controller="ProductAttributeValue" asp-action="Index" asp-route-attributeId="@item.Id" class="btn btn-sm btn-outline-primary">مقادیر ویژگی</a>
+                                <a asp-action="Remove" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('حذف این ویژگی تایید می‌شود؟');">حذف</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="2" class="text-center text-muted">ویژگی‌ای یافت نشد.</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <nav aria-label="Page navigation" class="mt-3">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize">قبلی</a>
+                </li>
+                @for (var i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@i" asp-route-pageSize="@Model.PageSize">@i</a>
+                    </li>
+                }
+                <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize">بعدی</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

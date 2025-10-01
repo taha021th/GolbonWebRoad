@@ -26,7 +26,12 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             _context.Update(ProductAttributeValue);
         }
 
-        public async Task<PagedResult<ProductAttributeValue>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<IEnumerable<ProductAttributeValue>> GetAllAsync()
+        {
+            return await _context.ProductAttributeValues.AsNoTracking().ToListAsync();
+
+        }
+        public async Task<PagedResult<ProductAttributeValue>> GetAllByPagedAsync(int pageNumber, int pageSize)
         {
 
             var query = _context.ProductAttributeValues.AsQueryable();
@@ -47,6 +52,29 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             };
         }
 
+        public async Task<PagedResult<ProductAttributeValue>> GetAllByAttributeIdAsync(int attributeId, int pageNumber, int pageSize)
+        {
+            var query = _context.ProductAttributeValues
+                .Where(p => p.AttributeId == attributeId)
+                .AsQueryable();
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(p => p.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return new PagedResult<ProductAttributeValue>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
         public async Task<ProductAttributeValue> GetByIdAsync(int id)
         {
             return await _context.ProductAttributeValues.FindAsync(id);

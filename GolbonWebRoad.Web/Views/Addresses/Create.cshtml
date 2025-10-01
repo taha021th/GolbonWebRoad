@@ -1,0 +1,57 @@
+@model GolbonWebRoad.Web.Models.Addresses.AddressFormViewModel
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>افزودن آدرس - Tecture</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --bg-color:#121212; --primary-text-color:#fff; --secondary-text-color:#a0a0a0; --card-bg:#1a1a1a; --border:#333; --accent:#4a90e2; }
+        body.light-mode { --bg-color:#f4f4f5; --card-bg:#fff; --primary-text-color:#18181b; --secondary-text-color:#71717a; --border:#e4e4e7; }
+        body{background:var(--bg-color); color:var(--primary-text-color); font-family: Manrope, sans-serif}
+        .container{max-width:800px;margin:0 auto;padding:20px}
+        .card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:20px}
+        label{display:block;margin-bottom:6px}
+        input[type=text], input[type=tel]{width:100%;background:var(--bg-color);color:var(--primary-text-color);border:1px solid var(--border);padding:12px;margin-bottom:12px}
+        .row{display:flex;gap:12px}
+        .row > div{flex:1}
+        .btn{padding:10px 16px;border-radius:8px;border:2px solid var(--accent);background:var(--accent);color:#fff;text-decoration:none}
+        .btn-outline{background:transparent;color:var(--accent)}
+    </style>
+    <script>document.addEventListener('DOMContentLoaded',()=>{ const t=localStorage.getItem('theme'); if(t==='light') document.body.classList.add('light-mode'); });</script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>افزودن آدرس</h1>
+            <div class="card">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <label>نام و نام خانوادگی</label>
+                    <input type="text" asp-for="FullName" />
+                    <label>شماره موبایل</label>
+                    <input type="tel" asp-for="Phone" />
+                    <label>آدرس کامل</label>
+                    <input type="text" asp-for="AddressLine" />
+                    <div class="row">
+                        <div>
+                            <label>شهر</label>
+                            <input type="text" asp-for="City" />
+                        </div>
+                        <div>
+                            <label>کد پستی</label>
+                            <input type="text" asp-for="PostalCode" />
+                        </div>
+                    </div>
+                    <div style="margin:10px 0">
+                        <input type="checkbox" asp-for="IsDefault" /> <label style="display:inline">به عنوان پیش‌فرض</label>
+                    </div>
+                    <button type="submit" class="btn">ذخیره آدرس</button>
+                    <a asp-action="Index" class="btn btn-outline">انصراف</a>
+                </form>
+            </div>
+        </div>
+    </body>
+    </html>
+
+

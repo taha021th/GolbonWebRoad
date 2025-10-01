@@ -21,6 +21,18 @@ namespace GolbonWebRoad.Web.Controllers
             var orders = await _mediator.Send(new GetOrdersByUserIdQuery { UserId = userId });
             return View(orders);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> OrderDetail(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var order = await _mediator.Send(new GetOrderByIdQuery { Id = id });
+            if (order == null || order.UserId != userId)
+            {
+                return NotFound();
+            }
+            return View(order);
+        }
     }
 }
 

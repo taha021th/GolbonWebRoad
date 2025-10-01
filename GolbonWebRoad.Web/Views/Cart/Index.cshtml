@@ -1,9 +1,9 @@
 ﻿@using GolbonWebRoad.Web.Models.Cart
-@model List<CartItemViewModel>
+@model CartViewModel
 @{
     ViewData["Title"] = "سبد خرید";
     // Calculate the total price
-    decimal totalPrice = Model.Sum(item => item.Product.Price * item.Quantity);
+    decimal totalPrice = Model?.CartItems?.Sum(item => item.Price * item.Quantity) ?? 0;
 }
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -123,12 +123,12 @@
             <div class="container cart-layout">
                 <!-- لیست محصولات در سبد -->
                 <div class="cart-items" data-aos="fade-up">
-                    @if (Model != null && Model.Any())
+                    @if (Model != null && Model.CartItems != null && Model.CartItems.Any())
                     {
-                        foreach (var item in Model)
+                        foreach (var item in Model.CartItems)
                         {
                             var mainImage = item.Product?.ImageUrl ?? "https://placehold.co/200x200/EFEFEF/AAAAAA?text=No+Image";
-                            var itemTotal = item.Product.Price * item.Quantity;
+                            var itemTotal = item.Price * item.Quantity;
                             int? variantId = item.VariantId;
                             <div class="cart-item">
                                 <div class="cart-item-image">
@@ -136,7 +136,7 @@
                                 </div>
                                 <div class="cart-item-details">
                                     <h3>@item.Product?.Name</h3>
-                                    <p class="price">@item.Product.Price.ToString("N0") تومان</p>
+                                    <p class="price">@item.Price.ToString("N0") تومان</p>
                                 </div>
                                 <div class="quantity-selector">
                                     <span style="padding:5px 12px">@item.Quantity</span>
@@ -144,7 +144,7 @@
                                 <p class="item-total-price">@itemTotal.ToString("N0") تومان</p>
                                 <form asp-controller="Cart" asp-action="RemoveFromCart" method="post">
                                     <input type="hidden" name="id" value="@item.ProductId" />
-                                    
+                                    <input type="hidden" name="variantId" value="@item.VariantId" />
                                     <button type="submit" class="remove-item-btn" title="حذف محصول"><i class="fas fa-trash"></i></button>
                                 </form>
                             </div>

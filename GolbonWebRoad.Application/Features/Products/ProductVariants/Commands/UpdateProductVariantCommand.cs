@@ -26,6 +26,10 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
             RuleFor(x => x.Sku).NotEmpty().MaximumLength(100);
             RuleFor(x => x.Price).GreaterThan(0);
             RuleFor(x => x.StockQuantity).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.OldPrice)
+                .GreaterThan(x => x.Price)
+                .When(x => x.OldPrice.HasValue)
+                .WithMessage("قیمت قدیم باید بیشتر از قیمت باشد");
 
             RuleFor(x => x.AttributeValueIds)
                 .Must(ids => ids == null || ids.Distinct().Count() == ids.Count)
@@ -69,16 +73,26 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
             variant.OldPrice = request.OldPrice;
             variant.StockQuantity = request.StockQuantity;
 
-            // به‌روزرسانی ویژگی‌های انتخاب‌شده: حذف همه و اضافه‌کردن جدیدها (ساده)
-            variant.AttributeValues.Clear();
-            if (request.AttributeValueIds != null && request.AttributeValueIds.Any())
+            // به‌روزرسانی ویژگی‌های انتخاب‌شده
+            // ابتدا بررسی می‌کنیم که آیا تغییری لازم است
+            var currentAttributeValueIds = variant.AttributeValues?.Select(av => av.Id).ToHashSet() ?? new HashSet<int>();
+            var newAttributeValueIds = request.AttributeValueIds?.ToHashSet() ?? new HashSet<int>();
+            
+            // اگر تغییری لازم نیست، مرحله relationship را رد می‌کنیم
+            if (!currentAttributeValueIds.SetEquals(newAttributeValueIds))
             {
-                foreach (var valueId in request.AttributeValueIds.Distinct())
+                // فقط اگر تغییر لازم باشد، رابطه‌ها را به‌روزرسانی می‌کنیم
+                variant.AttributeValues.Clear();
+                
+                if (request.AttributeValueIds != null && request.AttributeValueIds.Any())
                 {
-                    var value = await _unitOfWork.ProductAttributeValueRepository.GetByIdAsync(valueId);
-                    if (value != null)
+                    foreach (var valueId in request.AttributeValueIds.Distinct())
                     {
-                        variant.AttributeValues.Add(value);
+                        var value = await _unitOfWork.ProductAttributeValueRepository.GetByIdAsync(valueId);
+                        if (value != null)
+                        {
+                            variant.AttributeValues.Add(value);
+                        }
                     }
                 }
             }

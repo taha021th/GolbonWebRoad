@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels.ProductViewModel>
+﻿@model GolbonWebRoad.Web.Models.Products.PagedResult<GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels.ProductViewModel>
 @{
     ViewData["Title"] = "مدیریت محصولات";
 }
@@ -13,9 +13,9 @@
 
 <!-- Products Grid -->
 <div class="row g-4">
-    @if (Model != null && Model.Any())
+    @if (Model != null && Model.Items != null && Model.Items.Any())
     {
-        @foreach (var item in Model)
+        @foreach (var item in Model.Items)
         {
             <div class="col-sm-6 col-lg-4 col-xl-3">
                 <div class="card h-100 shadow-sm">
@@ -25,7 +25,7 @@
                         <h5 class="card-title">@item.Name</h5>
                         <p class="card-text text-muted small">@item.CategoryName | @item.BrandName</p>
                         <div class="mt-auto d-flex justify-content-between align-items-center">
-                            <span class="fw-bold text-primary">@item.Price.ToString("N0") تومان</span>
+                            <span class="fw-bold text-primary">@item.BasePrice.ToString("N0") تومان</span>
                             <span class="badge bg-secondary">موجودی: @item.Quantity</span>
                         </div>
                     </div>
@@ -46,3 +46,26 @@
         </div>
     }
 </div>
+
+<!-- Pagination -->
+@if (Model != null && Model.TotalPages > 1)
+{
+    <nav aria-label="Products pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize">قبلی</a>
+            </li>
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-pageSize="@Model.PageSize">@i</a>
+                </li>
+            }
+
+            <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize">بعدی</a>
+            </li>
+        </ul>
+    </nav>
+}

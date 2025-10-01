@@ -1,7 +1,9 @@
-﻿using FluentValidation;
+
 using GolbonWebRoad.Domain.Entities;
-using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
+using GolbonWebRoad.Domain.Interfaces.Repositories;
+using AutoMapper;
+using GolbonWebRoad.Application.Exceptions;
 
 namespace GolbonWebRoad.Application.Features.Products.ProductAttributes.Queries
 {
@@ -10,26 +12,23 @@ namespace GolbonWebRoad.Application.Features.Products.ProductAttributes.Queries
         public int Id { get; set; }
     }
 
-    public class GetByIdProductAttributeQueryValidator : AbstractValidator<GetByIdProductAttributeQuery>
+    public class GetProductAttributeByIdQueryHandler : IRequestHandler<GetByIdProductAttributeQuery, ProductAttribute>
     {
-        public GetByIdProductAttributeQueryValidator()
-        {
-            RuleFor(x => x.Id).GreaterThan(0);
-        }
-    }
+        private readonly IProductAttributeRepository _productAttributeRepository;
 
-    public class GetByIdProductAttributeQueryHandler : IRequestHandler<GetByIdProductAttributeQuery, ProductAttribute>
-    {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public GetByIdProductAttributeQueryHandler(IUnitOfWork unitOfWork)
+        public GetProductAttributeByIdQueryHandler(IProductAttributeRepository productAttributeRepository)
         {
-            _unitOfWork = unitOfWork;
+            _productAttributeRepository = productAttributeRepository;
         }
 
         public async Task<ProductAttribute> Handle(GetByIdProductAttributeQuery request, CancellationToken cancellationToken)
         {
-            return await _unitOfWork.ProductAttributeRepository.GetByIdAsync(request.Id);
+            var attribute = await _productAttributeRepository.GetByIdAsync(request.Id);
+            if (attribute == null)
+            {
+                throw new NotFoundException($"Product attribute with id {request.Id} not found");
+            }
+            return attribute;
         }
     }
 }

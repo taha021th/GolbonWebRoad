@@ -12,6 +12,12 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
     {
         public string UserId { get; set; }
         public List<CartItemSummaryDto> CartItems { get; set; }
+        public int? AddressId { get; set; }
+        public string? NewFullName { get; set; }
+        public string? NewAddressLine { get; set; }
+        public string? NewCity { get; set; }
+        public string? NewPostalCode { get; set; }
+        public string? NewPhone { get; set; }
     }
 
     public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
@@ -20,6 +26,8 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
         {
             RuleFor(o => o.UserId).NotEmpty().WithMessage("شناسه کاربر نمی تواند خالی باشد");
             RuleFor(o => o.CartItems).NotEmpty().WithMessage("آیتم سبد خرید نمی تواند خالی باشد.");
+            RuleFor(o => o).Must(o => o.AddressId.HasValue || (!string.IsNullOrWhiteSpace(o.NewFullName) && !string.IsNullOrWhiteSpace(o.NewAddressLine) && !string.IsNullOrWhiteSpace(o.NewCity) && !string.IsNullOrWhiteSpace(o.NewPostalCode) && !string.IsNullOrWhiteSpace(o.NewPhone)))
+                .WithMessage("یکی از آدرس‌های موجود یا آدرس جدید باید ارسال شود.");
         }
     }
 
@@ -94,13 +102,31 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
                     throw new BadRequestException("هیچکدام از محصولات موجود در سبد خرید شما، معتبر یا دارای موجودی کافی نبودند.");
                 }
 
+                int? addressId = request.AddressId;
+                if (!addressId.HasValue)
+                {
+                    var addr = new UserAddress
+                    {
+                        UserId = request.UserId,
+                        FullName = request.NewFullName!,
+                        Phone = request.NewPhone!,
+                        AddressLine = request.NewAddressLine!,
+                        City = request.NewCity!,
+                        PostalCode = request.NewPostalCode!,
+                        IsDefault = false
+                    };
+                    var created = await _unitOfWork.UserAddressRepository.AddAsync(addr);
+                    addressId = created.Id;
+                }
+
                 var order = new Order
                 {
                     UserId = request.UserId,
                     OrderDate = DateTime.UtcNow,
                     OrderStatus = "در حال پردازش",
                     OrderItems = orderItems,
-                    TotalAmount = totalAmount
+                    TotalAmount = totalAmount,
+                    AddressId = addressId
                 };
 
                 var newOrder = _unitOfWork.OrderRepository.Add(order);

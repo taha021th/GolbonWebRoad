@@ -1,7 +1,7 @@
 ﻿@using GolbonWebRoad.Web.Models.Cart
 @model List<CartItemViewModel>
 @{
-    var total = Model?.Sum(i => i.Product.Price * i.Quantity) ?? 0;
+    var total = Model?.Sum(i => i.Price * i.Quantity) ?? 0;
 }
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -109,39 +109,58 @@
             <div class="container checkout-layout">
                 <!-- فرم‌های اطلاعات -->
                 <div class="checkout-form" data-aos="fade-up">
-                    <div class="login-prompt">
-                        <p>عضو هستید؟ <a href="#">برای ورود کلیک کنید.</a></p>
-                    </div>
+                    @if (TempData["CheckoutError"] != null)
+                    {
+                        <div class="alert alert-danger" role="alert" style="background:#B00020;color:#fff;border-radius:8px;padding:12px 16px;margin-bottom:14px">
+                            @TempData["CheckoutError"]
+                        </div>
+                    }
+
+                    @if (!User.Identity.IsAuthenticated)
+                    {
+                        <div class="login-prompt">
+                            <p>عضو نیستید؟ <a asp-area="Identity" asp-page="/Account/Login">برای ورود کلیک کنید</a> یا اطلاعات ارسال را وارد کنید.</p>
+                        </div>
+                    }
 
                     <h2>۱. اطلاعات ارسال</h2>
-                    <form>
+                    <form id="checkoutForm">
+                        @if (User.Identity.IsAuthenticated && ViewBag.UserAddresses != null && ((IEnumerable<dynamic>)ViewBag.UserAddresses).Any())
+                        {
+                            <div class="form-group">
+                                <label>انتخاب آدرس ذخیره‌شده</label>
+                                <select id="AddressId" class="form-select" style="width:100%; background-color: var(--bg-color); color: var(--primary-text-color); border: 1px solid var(--border-color); padding: 12px;">
+                                    <option value="">— آدرس جدید —</option>
+                                    @foreach (var a in (IEnumerable<dynamic>)ViewBag.UserAddresses)
+                                    {
+                                        <option value="@a.Id">@a.FullName - @a.AddressLine, @a.City (@a.PostalCode) - @a.Phone</option>
+                                    }
+                                </select>
+                            </div>
+                        }
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="firstname">نام</label>
-                                <input type="text" id="firstname" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="lastname">نام خانوادگی</label>
-                                <input type="text" id="lastname" required>
+                                <label for="NewFullName">نام و نام خانوادگی</label>
+                                <input type="text" id="NewFullName">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="address">آدرس کامل</label>
-                            <input type="text" id="address" placeholder="خیابان، کوچه، پلاک، واحد" required>
+                            <label for="NewAddressLine">آدرس کامل</label>
+                            <input type="text" id="NewAddressLine" placeholder="خیابان، کوچه، پلاک، واحد">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="city">شهر</label>
-                                <input type="text" id="city" required>
+                                <label for="NewCity">شهر</label>
+                                <input type="text" id="NewCity">
                             </div>
                             <div class="form-group">
-                                <label for="postcode">کد پستی</label>
-                                <input type="text" id="postcode" required>
+                                <label for="NewPostalCode">کد پستی</label>
+                                <input type="text" id="NewPostalCode">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="phone">شماره موبایل</label>
-                            <input type="tel" id="phone" required>
+                            <label for="NewPhone">شماره موبایل</label>
+                            <input type="tel" id="NewPhone">
                         </div>
                     </form>
 
@@ -177,7 +196,7 @@
                                     <img src="@img" alt="@item.Product?.Name">
                                     <div class="summary-item-details">
                                         <span>@item.Product?.Name (@item.Quantity عدد)</span>
-                                        <p class="price">@((item.Product.Price * item.Quantity).ToString("N0")) تومان</p>
+                                        <p class="price">@((item.Price * item.Quantity).ToString("N0")) تومان</p>
                                     </div>
                                 </div>
                             }
@@ -199,10 +218,14 @@
                         <span>مبلغ قابل پرداخت</span>
                         <span>@total.ToString("N0") تومان</span>
                     </div>
-                    <form asp-controller="Payment" asp-action="Start" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="orderId" value="@ViewBag.TempOrderId" />
-                        <input type="hidden" name="amount" value="@((long)total)" />
+                    <form asp-controller="Checkout" asp-action="PlaceOrder" method="get" onsubmit="return submitCheckoutWithAddress(event)">
+                        <input type="hidden" name="PaymentStatus" value="true" />
+                        <input type="hidden" name="AddressId" id="HiddenAddressId" />
+                        <input type="hidden" name="NewFullName" id="HiddenNewFullName" />
+                        <input type="hidden" name="NewAddressLine" id="HiddenNewAddressLine" />
+                        <input type="hidden" name="NewCity" id="HiddenNewCity" />
+                        <input type="hidden" name="NewPostalCode" id="HiddenNewPostalCode" />
+                        <input type="hidden" name="NewPhone" id="HiddenNewPhone" />
                         <button type="submit" class="btn">پرداخت و ثبت نهایی سفارش</button>
                     </form>
                     <p class="secure-checkout-notice">
@@ -231,6 +254,24 @@
                 localStorage.setItem('theme', body.classList.contains('light-mode') ? 'light' : 'dark');
             });
         })();
+        function submitCheckoutWithAddress(e){
+            const addrSel = document.getElementById('AddressId');
+            const selectedId = addrSel ? addrSel.value : '';
+            document.getElementById('HiddenAddressId').value = selectedId || '';
+            if (!selectedId){
+                document.getElementById('HiddenNewFullName').value = document.getElementById('NewFullName').value;
+                document.getElementById('HiddenNewAddressLine').value = document.getElementById('NewAddressLine').value;
+                document.getElementById('HiddenNewCity').value = document.getElementById('NewCity').value;
+                document.getElementById('HiddenNewPostalCode').value = document.getElementById('NewPostalCode').value;
+                document.getElementById('HiddenNewPhone').value = document.getElementById('NewPhone').value;
+                // basic client-side validation
+                if (!document.getElementById('HiddenNewFullName').value || !document.getElementById('HiddenNewAddressLine').value || !document.getElementById('HiddenNewCity').value || !document.getElementById('HiddenNewPostalCode').value || !document.getElementById('HiddenNewPhone').value){
+                    alert('لطفاً یک آدرس را انتخاب کنید یا تمام فیلدهای آدرس جدید را کامل کنید.');
+                    return false;
+                }
+            }
+            return true;
+        }
     </script>
 </body>
 </html>

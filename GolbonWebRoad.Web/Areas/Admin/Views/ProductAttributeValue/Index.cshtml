@@ -1,0 +1,85 @@
+@model GolbonWebRoad.Web.Areas.Admin.Models.ProductAttributeValue.ProductAttributeValueIndexViewModel
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var title = Model.AttributeId.HasValue && !string.IsNullOrEmpty(Model.AttributeName)
+        ? $"مقادیر ویژگی: {Model.AttributeName}"
+        : "مدیریت مقادیر ویژگی‌ها";
+    ViewData["Title"] = title;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">@ViewData["Title"]</h1>
+    <a asp-action="Create" asp-route-attributeId="@Model.AttributeId" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>
+        افزودن مقدار جدید
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        @if (!Model.AttributeId.HasValue)
+                        {
+                            <th style="width:30%">ویژگی</th>
+                            <th style="width:50%">مقدار</th>
+                        }
+                        else
+                        {
+                            <th style="width:80%">مقدار</th>
+                        }
+                        <th class="text-end">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.Items != null && Model.Items.Any())
+                {
+                    foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            @if (!Model.AttributeId.HasValue)
+                            {
+                                <td>@item.AttributeName (@item.AttributeId)</td>
+                                <td>@item.Value</td>
+                            }
+                            else
+                            {
+                                <td>@item.Value</td>
+                            }
+                            <td class="text-end">
+                                <a asp-action="Edit" asp-route-id="@item.Id" asp-route-attributeId="@Model.AttributeId" class="btn btn-sm btn-outline-secondary">ویرایش</a>
+                                <a asp-action="Remove" asp-route-id="@item.Id" asp-route-attributeId="@Model.AttributeId" class="btn btn-sm btn-outline-danger" onclick="return confirm('حذف این مقدار تایید می‌شود؟');">حذف</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">مقداری ثبت نشده است.</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <nav aria-label="Page navigation" class="mt-3">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize">قبلی</a>
+                </li>
+                @for (var i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@i" asp-route-pageSize="@Model.PageSize">@i</a>
+                    </li>
+                }
+                <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize">بعدی</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

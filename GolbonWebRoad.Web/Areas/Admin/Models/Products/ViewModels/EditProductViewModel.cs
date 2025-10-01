@@ -1,5 +1,3 @@
-﻿using GolbonWebRoad.Application.Dtos.Colors;
-using GolbonWebRoad.Application.Dtos.ProductImages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,7 +5,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
 {
     public class EditProductViewModel
     {
-        public int Id { get; set; } // <- شناسه محصول برای ویرایش
+        public int Id { get; set; }
 
         [Display(Name = "اسلاگ (آدرس URL)")]
         public string? Slog { get; set; }
@@ -25,22 +23,10 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
         [Display(Name = "توضیحات کامل")]
         public string Description { get; set; }
 
-        [Display(Name = "قیمت")]
+        [Display(Name = "قیمت پایه")]
         [Required(ErrorMessage = "وارد کردن {0} الزامی است.")]
         [Range(1, double.MaxValue, ErrorMessage = "مقدار {0} باید بیشتر از صفر باشد.")]
-        public decimal Price { get; set; }
-
-        [Display(Name = "قیمت قدیم")]
-        [Range(1, double.MaxValue, ErrorMessage = "مقدار {0} باید بیشتر از صفر باشد.")]
-        public decimal? OldPrice { get; set; }
-
-        [Display(Name = "موجودی انبار")]
-        [Required(ErrorMessage = "وارد کردن {0} الزامی است.")]
-        [Range(0, int.MaxValue, ErrorMessage = "مقدار {0} نمی تواند منفی باشد.")]
-        public int Quantity { get; set; }
-
-        public string? SKU { get; set; }
-        public bool IsFeatured { get; set; }
+        public decimal BasePrice { get; set; }
 
         [Display(Name = "دسته‌بندی")]
         [Required(ErrorMessage = "انتخاب {0} الزامی است.")]
@@ -50,31 +36,27 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
         [Required(ErrorMessage = "انتخاب {0} الزامی است.")]
         public int BrandId { get; set; }
 
-        // --- مدیریت تصاویر ---        
-        /// <summary>
-        /// تصاویر موجود محصول برای نمایش در فرم
-        /// </summary>
-        public List<ProductImageDto> Images { get; set; } = new List<ProductImageDto>();
+        [Display(Name = "تصویر اصلی فعلی")]
+        public string? CurrentMainImageUrl { get; set; }
 
-        /// <summary>
-        /// تصاویر جدیدی که کاربر آپلود می‌کند
-        /// </summary>
+        [Display(Name = "تصویر اصلی جدید")]
+        public IFormFile? NewMainImage { get; set; }
+
+        public List<ProductImageViewModel> Images { get; set; } = new List<ProductImageViewModel>();
+
         [Display(Name = "افزودن تصاویر جدید")]
         public List<IFormFile>? NewImages { get; set; }
 
-        /// <summary>
-        /// لیست URL تصاویری که باید حذف شوند
-        /// </summary>
         public List<string> ImagesToDelete { get; set; } = new List<string>();
 
-        // Colors removed in favor of attributes/variants
-        // --- پراپرتی برای دراپ‌داون‌ها ---
         public SelectList? CategoryOptions { get; set; }
         public SelectList? BrandOptions { get; set; }
 
         // --- Variants ---
         public List<VariantRowViewModel> Variants { get; set; } = new List<VariantRowViewModel>();
-        public SelectList? AttributeValueOptions { get; set; }
         public List<AttributeGroupOptionViewModel> AttributeGroups { get; set; } = new();
+
+        [Display(Name = "ویژگی های محصول")]
+        public List<AttributeSelectionViewModel> AvailableAttributes { get; set; } = new();
     }
 }

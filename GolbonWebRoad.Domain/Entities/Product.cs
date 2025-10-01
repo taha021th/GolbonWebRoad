@@ -20,6 +20,7 @@ namespace GolbonWebRoad.Domain.Entities
         public string Description { get; set; }
         public decimal BasePrice { get; set; }
         public bool IsFeatured { get; set; }
+        public string? MainImageUrl { get; set; } // تصویر اصلی محصول برای نمایش در کارت‌ها
         public DateTime CreatedAt { get; set; }
 
         //Relations

@@ -117,7 +117,7 @@
                     <ul>
                         <li><a href="#dashboard" class="dashboard-link active"><i class="fas fa-tachometer-alt"></i> پیشخوان</a></li>
                         <li><a href="#orders" class="dashboard-link"><i class="fas fa-box"></i> سفارش‌ها (@(Model?.Count() ?? 0))</a></li>
-                        <li><a href="#addresses" class="dashboard-link"><i class="fas fa-map-marker-alt"></i> آدرس‌ها</a></li>
+                        <li><a asp-controller="Addresses" asp-action="Index"><i class="fas fa-map-marker-alt"></i> آدرس‌ها</a></li>
                         <li><a href="#account-details" class="dashboard-link"><i class="fas fa-user-edit"></i> جزئیات حساب</a></li>
                         <li><a href="#"><i class="fas fa-sign-out-alt"></i> خروج</a></li>
                     </ul>
@@ -157,7 +157,7 @@
                                             <td>@order.OrderDate.ToString("yyyy/MM/dd HH:mm")</td>
                                             <td><span class="status-badge @statusClass">@order.OrderStatus</span></td>
                                             <td>@order.TotalAmount.ToString("N0") تومان</td>
-                                            <td><a asp-controller="Orders" asp-action="Detail" asp-route-id="@order.Id" class="btn">مشاهده</a></td>
+                                            <td><a asp-controller="Dashboard" asp-action="OrderDetail" asp-route-id="@order.Id" class="btn">مشاهده</a></td>
                                         </tr>
                                     }
                                 }

@@ -7,7 +7,9 @@ namespace GolbonWebRoad.Domain.Interfaces.Repositories
         public void Add(ProductAttributeValue model);
         public Task RemoveAsync(int id);
         public void Update(ProductAttributeValue ProductAttributeValue);
-        public Task<PagedResult<ProductAttributeValue>> GetAllAsync(int pageNumber, int pageSize);
+        Task<IEnumerable<ProductAttributeValue>> GetAllAsync();
+        public Task<PagedResult<ProductAttributeValue>> GetAllByPagedAsync(int pageNumber, int pageSize);
+        public Task<PagedResult<ProductAttributeValue>> GetAllByAttributeIdAsync(int attributeId, int pageNumber, int pageSize);
         public Task<ProductAttributeValue> GetByIdAsync(int id);
     }
 }

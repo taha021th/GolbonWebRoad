@@ -14,6 +14,7 @@ namespace GolbonWebRoad.Domain.Interfaces
         IProductAttributeRepository ProductAttributeRepository { get; }
         IProductAttributeValueRepository ProductAttributeValueRepository { get; }
         IProductVariantRepository ProductVariantRepository { get; }
+        IUserAddressRepository UserAddressRepository { get; }
         Task<int> CompleteAsync();
     }
 }

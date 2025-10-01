@@ -1,4 +1,4 @@
-﻿@model GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels.CreateProductViewModel
+@model GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels.CreateProductViewModel
 @{
     ViewData["Title"] = "افزودن محصول جدید";
 }
@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
 
     <div class="row g-4">
         <!-- Main Content -->
@@ -37,11 +37,26 @@
                         <textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea>
                         <span asp-validation-for="ShortDescription" class="text-danger"></span>
                     </div>
-                    <div>
+                    <div class="mb-3">
                         <label asp-for="Description" class="form-label"></label>
                         <textarea asp-for="Description" class="form-control" rows="6"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
+                     <div class="mb-3">
+                        <label asp-for="BasePrice" class="form-label"></label>
+                        <input asp-for="BasePrice" type="number" class="form-control" />
+                        <span asp-validation-for="BasePrice" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">تصویر اصلی</div>
+                <div class="card-body">
+                    <label asp-for="MainImage" class="form-label"></label>
+                    <input type="file" asp-for="MainImage" class="form-control" />
+                    <span asp-validation-for="MainImage" class="text-danger"></span>
+                    <small class="text-muted d-block mt-2">این تصویر در کارت‌های پنل ادمین و لیست محصولات به عنوان تصویر اصلی نمایش داده می‌شود.</small>
                 </div>
             </div>
 
@@ -53,18 +68,29 @@
                     <span asp-validation-for="Images" class="text-danger"></span>
                 </div>
             </div>
-
             
-
             <div class="card shadow-sm mt-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>ورینت‌ها</span>
-                    <button type="button" id="add-variant-btn" class="btn btn-sm btn-outline-primary">افزودن ورینت</button>
+                    <span>واریانت‌های ایجاد شده</span>
+                    <button type="button" id="show-add-variant-modal-btn" class="btn btn-sm btn-outline-primary">افزودن واریانت دستی</button>
                 </div>
                 <div class="card-body">
-                    <div id="variants-container" class="vstack gap-3">
-                        <!-- Dynamic variant rows will be added here -->
-                    </div>
+                    <table class="table" id="variants-table">
+                        <thead>
+                            <tr>
+                                <th>ویژگی‌ها</th>
+                                <th>SKU</th>
+                                <th class="text-end">قیمت</th>
+                                <th class="text-end">قیمت قدیم</th>
+                                <th class="text-end">موجودی</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="variants-tbody">
+                            <!-- Rows for variants will be added here -->
+                        </tbody>
+                    </table>
+                    <div id="variants-hidden-inputs"></div>
                 </div>
             </div>
         </div>
@@ -72,33 +98,7 @@
         <!-- Sidebar -->
         <div class="col-lg-4">
             <div class="card shadow-sm mb-4">
-                <div class="card-header">قیمت و موجودی</div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label asp-for="Price" class="form-label"></label>
-                        <input asp-for="Price" type="number" class="form-control" />
-                        <span asp-validation-for="Price" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="OldPrice" class="form-label"></label>
-                        <input asp-for="OldPrice" type="number" class="form-control" />
-                        <span asp-validation-for="OldPrice" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Quantity" class="form-label"></label>
-                        <input asp-for="Quantity" type="number" class="form-control" />
-                        <span asp-validation-for="Quantity" class="text-danger"></span>
-                    </div>
-                    <div>
-                        <label asp-for="SKU" class="form-label"></label>
-                        <input asp-for="SKU" class="form-control" />
-                        <span asp-validation-for="SKU" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">دسته‌بندی</div>
+                <div class="card-header">دسته‌بندی و برند</div>
                 <div class="card-body">
                     <div class="mb-3">
                         <label asp-for="CategoryId" class="form-label"></label>
@@ -117,82 +117,214 @@
                 </div>
             </div>
 
-            <div class="card shadow-sm">
+             <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    مرحله ۱: انتخاب مقادیر ویژگی‌ها
+                </div>
                 <div class="card-body">
-                    <div class="form-check">
-                        <input asp-for="IsFeatured" type="checkbox" class="form-check-input" />
-                        <label asp-for="IsFeatured" class="form-check-label"></label>
-                    </div>
+                    <p class="text-muted small">ویژگی‌هایی را که می‌خواهید برای تعریف واریانت‌ها استفاده کنید، انتخاب نمایید.</p>
+                    @for (var i = 0; i < Model.AvailableAttributes.Count; i++)
+                    {
+                        <div class="form-check">
+                            <input type="hidden" asp-for="AvailableAttributes[i].Id" />
+                            <input type="hidden" asp-for="AvailableAttributes[i].Name" />
+                            <input class="form-check-input attribute-checkbox" type="checkbox" asp-for="AvailableAttributes[i].IsSelected" data-attribute-id="@Model.AvailableAttributes[i].Id">
+                            <label class="form-check-label" asp-for="AvailableAttributes[i].IsSelected">@Model.AvailableAttributes[i].Name</label>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
     </div>
 </form>
 
+<!-- Add Variant Modal -->
+<div class="modal fade" id="addVariantModal" tabindex="-1" aria-labelledby="addVariantModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addVariantModalLabel">افزودن واریانت دستی</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-attributes-container">
+                    <!-- Attribute selectors will be dynamically inserted here -->
+                </div>
+                <div class="mb-3">
+                    <label for="variant-sku" class="form-label">SKU</label>
+                    <input type="text" id="variant-sku" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="variant-price" class="form-label">قیمت</label>
+                    <input type="number" id="variant-price" class="form-control" min="0">
+                </div>
+                 <div class="mb-3">
+                    <label for="variant-old-price" class="form-label">قیمت قدیم</label>
+                    <input type="number" id="variant-old-price" class="form-control" min="0">
+                </div>
+                <div class="mb-3">
+                    <label for="variant-stock" class="form-label">موجودی</label>
+                    <input type="number" id="variant-stock" class="form-control" min="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+                <button type="button" id="save-variant-btn" class="btn btn-primary">افزودن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const variantsContainer = document.getElementById('variants-container');
-            let variantIndex = 0;
+            function formatNumber(value) {
+                if (value === null || value === undefined || value === '') return '-';
+                const n = Number(value);
+                if (isNaN(n)) return value;
+                return n.toLocaleString('fa-IR');
+            }
+            // --- Modal & Variant Data ---
+            const addVariantModal = new bootstrap.Modal(document.getElementById('addVariantModal'));
+            const showModalBtn = document.getElementById('show-add-variant-modal-btn');
+            const saveVariantBtn = document.getElementById('save-variant-btn');
+            const attributeGroups = @Html.Raw(Json.Serialize(Model.AttributeGroups));
+            let variantIndex = 0; // To keep track of the variant index for form submission
 
-            function addVariantRow() {
-                const wrapper = document.createElement('div');
-                wrapper.classList.add('border', 'rounded', 'p-3');
-                wrapper.innerHTML = `
-<div class="row g-2 align-items-end">
-  <div class="col-md-3">
-    <label class="form-label">SKU</label>
-    <input type="text" name="Variants[${variantIndex}].Sku" class="form-control" required />
-  </div>
-  <div class="col-md-2">
-    <label class="form-label">قیمت</label>
-    <input type="number" name="Variants[${variantIndex}].Price" class="form-control" min="1" step="0.01" required />
-  </div>
-  <div class="col-md-2">
-    <label class="form-label">قیمت قدیم</label>
-    <input type="number" name="Variants[${variantIndex}].OldPrice" class="form-control" step="0.01" />
-  </div>
-  <div class="col-md-2">
-    <label class="form-label">موجودی</label>
-    <input type="number" name="Variants[${variantIndex}].StockQuantity" class="form-control" min="0" />
-  </div>
-  <div class="col-md-7">
-    <div class="row g-2">
-      @if (Model.AttributeGroups != null)
-      {
-          var gIndex = 0;
-          foreach (var grp in Model.AttributeGroups)
-          {
-              <div class="col-md-4">
-                <label class="form-label">@grp.AttributeName</label>
-                <select name="Variants[${variantIndex}].AttributeValueIds" class="form-select">
-                  <option value="">-- انتخاب --</option>
-                  @foreach (var opt in grp.Values)
-                  {
-                      <option value="@opt.Value">@opt.Text</option>
-                  }
-                </select>
-              </div>
-              gIndex++;
-          }
-      }
-    </div>
-  </div>
-  <div class="col-12 text-end mt-2">
-    <button type="button" class="btn btn-sm btn-outline-danger remove-variant-btn">حذف ورینت</button>
-  </div>
-</div>`;
-                variantsContainer.appendChild(wrapper);
-                variantIndex++;
+            // --- Modal Controls ---
+            showModalBtn.addEventListener('click', function () {
+                const selectedAttributeIds = Array.from(document.querySelectorAll('.attribute-checkbox:checked'))
+                                                  .map(cb => parseInt(cb.dataset.attributeId));
+
+                if (selectedAttributeIds.length === 0) {
+                    alert('لطفا ابتدا حداقل یک ویژگی را از کادر "مرحله ۱" انتخاب کنید.');
+                    return;
+                }
+
+                populateModal(selectedAttributeIds);
+                addVariantModal.show();
+            });
+
+            function populateModal(selectedAttributeIds) {
+                const container = document.getElementById('modal-attributes-container');
+                container.innerHTML = ''; // Clear previous content
+
+                selectedAttributeIds.forEach(id => {
+                    const group = attributeGroups.find(g => g.attributeId === id);
+                    if (group) {
+                        let attributeHtml = `<div class="mb-3" data-attribute-id="${id}">
+                                                <label class="form-label">${group.attributeName}</label><div>`;
+
+                        group.values.forEach(val => {
+                             attributeHtml += `<div class="form-check form-check-inline">
+                                                  <input class="form-check-input" type="radio" name="attribute_${id}" value="${val.value}" id="attr_val_${val.value}">
+                                                  <label class="form-check-label" for="attr_val_${val.value}">${val.text}</label>
+                                               </div>`;
+                        });
+
+                        attributeHtml += '</div></div>';
+                        container.insertAdjacentHTML('beforeend', attributeHtml);
+                    }
+                });
             }
 
-            document.getElementById('add-variant-btn').addEventListener('click', addVariantRow);
-            variantsContainer.addEventListener('click', function (e) {
-                if (e.target.classList.contains('remove-variant-btn')) {
-                    e.target.closest('.border').remove();
+            // --- Saving Variant ---
+            saveVariantBtn.addEventListener('click', function () {
+                const sku = document.getElementById('variant-sku').value;
+                const price = document.getElementById('variant-price').value;
+                const oldPrice = document.getElementById('variant-old-price').value;
+                const stock = document.getElementById('variant-stock').value;
+
+                if (!sku || !price || !stock) {
+                    alert('لطفا تمام فیلدهای SKU، قیمت و موجودی را پر کنید.');
+                    return;
+                }
+                if (oldPrice && Number(oldPrice) <= Number(price)) {
+                    alert('قیمت قدیم باید بیشتر از قیمت باشد.');
+                    return;
+                }
+                
+                const selectedValues = [];
+                const selectedTexts = [];
+                const modalAttributesContainer = document.getElementById('modal-attributes-container');
+                const radioButtons = modalAttributesContainer.querySelectorAll('input[type="radio"]:checked');
+                
+                radioButtons.forEach(radio => {
+                    selectedValues.push(radio.value);
+                    selectedTexts.push(radio.nextElementSibling.textContent);
+                });
+                
+                 if (radioButtons.length < document.querySelectorAll('.attribute-checkbox:checked').length) {
+                    alert('لطفا برای تمام ویژگی های انتخابی یک مقدار مشخص کنید');
+                    return;
+                }
+
+
+                addVariantToTable(sku, price, oldPrice, stock, selectedValues, selectedTexts);
+                addHiddenInputsForVariant(sku, price, oldPrice, stock, selectedValues);
+                
+                addVariantModal.hide();
+                resetModalForm();
+            });
+
+            function addVariantToTable(sku, price, oldPrice, stock, valueIds, valueTexts) {
+                const tbody = document.getElementById('variants-tbody');
+                const row = document.createElement('tr');
+                row.setAttribute('data-variant-index', variantIndex);
+                row.innerHTML = `
+                    <td>${valueTexts.join(' / ')}</td>
+                    <td>${sku}</td>
+                    <td class="text-end">${formatNumber(price)}</td>
+                    <td class="text-end">${formatNumber(oldPrice)}</td>
+                    <td class="text-end">${formatNumber(stock)}</td>
+                    <td>
+                        <button type=\"button\" class=\"btn btn-sm btn-danger remove-variant-btn\">حذف</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+
+            function addHiddenInputsForVariant(sku, price, oldPrice, stock, valueIds) {
+                const container = document.getElementById('variants-hidden-inputs');
+                let inputsHtml = `<div data-variant-index="${variantIndex}">`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Sku" value="${sku}" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Price" value="${price}" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].OldPrice" value="${oldPrice}" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].StockQuantity" value="${stock}" />`;
+                
+                valueIds.forEach((id, i) => {
+                    inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].AttributeValueIds[${i}]" value="${id}" />`;
+                });
+
+                inputsHtml += '</div>';
+                container.insertAdjacentHTML('beforeend', inputsHtml);
+                
+                variantIndex++; // Increment for the next variant
+            }
+            
+            function resetModalForm() {
+                document.getElementById('variant-sku').value = '';
+                document.getElementById('variant-price').value = '';
+                document.getElementById('variant-old-price').value = '';
+                document.getElementById('variant-stock').value = '';
+                document.getElementById('modal-attributes-container').innerHTML = '';
+            }
+
+            // --- Deleting Variant ---
+            document.getElementById('variants-tbody').addEventListener('click', function(e) {
+                if (e.target && e.target.classList.contains('remove-variant-btn')) {
+                    const row = e.target.closest('tr');
+                    const indexToRemove = row.dataset.variantIndex;
+                    
+                    // Remove the visual row
+                    row.remove();
+                    
+                    // Remove the corresponding hidden inputs
+                    const hiddenInputContainer = document.querySelector(`#variants-hidden-inputs div[data-variant-index="${indexToRemove}"]`);
+                    if(hiddenInputContainer) {
+                        hiddenInputContainer.remove();
+                    }
                 }
             });
         });

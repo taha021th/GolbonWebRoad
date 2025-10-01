@@ -1,9 +1,15 @@
-﻿using GolbonWebRoad.Application.Dtos.Colors;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
 {
+    public class AttributeSelectionViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public bool IsSelected { get; set; }
+    }
+
     public class CreateProductViewModel
     {
         [Display(Name = "اسلاگ (آدرس URL)")]
@@ -22,23 +28,10 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
         [Display(Name = "توضیحات کامل")]
         public string Description { get; set; }
 
-        [Display(Name = "قیمت")]
+        [Display(Name = "قیمت پایه")]
         [Required(ErrorMessage = "وارد کردن {0} الزامی است.")]
         [Range(1, double.MaxValue, ErrorMessage = "مقدار {0} باید بیشتر از صفر باشد.")]
-        public decimal Price { get; set; }
-
-        [Display(Name = "قیمت قدیم")]
-        [Range(1, double.MaxValue, ErrorMessage = "مقدار {0} باید بیشتر از صفر باشد.")]
-        public decimal? OldPrice { get; set; }
-
-        [Display(Name = "موجودی انبار")]
-        [Required(ErrorMessage = "وارد کردن {0} الزامی است.")]
-        [Range(0, int.MaxValue, ErrorMessage = "مقدار {0} نمی تواند منفی باشد.")]
-        public int Quantity { get; set; }
-
-        public string? SKU { get; set; }
-
-        public bool IsFeatured { get; set; }
+        public decimal BasePrice { get; set; }
 
         [Display(Name = "دسته‌بندی")]
         [Required(ErrorMessage = "انتخاب {0} الزامی است.")]
@@ -50,37 +43,23 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
         [Range(1, int.MaxValue, ErrorMessage = "لطفا یک {0} معتبر انتخاب کنید.")]
         public int BrandId { get; set; }
 
+        [Display(Name = "تصویر اصلی محصول")]
+        public IFormFile? MainImage { get; set; }
+
         [Display(Name = "تصاویر محصول")]
         public List<IFormFile>? Images { get; set; }
 
-        // Colors removed in favor of attributes/variants
-
-        // --- Properties for Populating Dropdowns ---
-
-        /// <summary>
-        /// Holds the list of categories to be displayed in a dropdown.
-        /// This is populated in the controller.
-        /// </summary>
         public SelectList? CategoryOptions { get; set; }
 
-        /// <summary>
-        /// Holds the list of brands to be displayed in a dropdown.
-        /// This is populated in the controller.
-        /// </summary>
         public SelectList? BrandOptions { get; set; }
 
         // --- Variants ---
         [Display(Name = "ورینت‌ها")]
         public List<VariantInputViewModel> Variants { get; set; } = new List<VariantInputViewModel>();
 
-        /// <summary>
-        /// Options for choosing attribute values in variant rows
-        /// </summary>
-        public SelectList? AttributeValueOptions { get; set; }
-
-        /// <summary>
-        /// Grouped options by attribute for better UX
-        /// </summary>
         public List<AttributeGroupOptionViewModel> AttributeGroups { get; set; } = new();
+
+        [Display(Name = "ویژگی های محصول")]
+        public List<AttributeSelectionViewModel> AvailableAttributes { get; set; } = new();
     }
 }

@@ -66,14 +66,16 @@ namespace GolbonWebRoad.Web.Controllers
                     Quantity = quantity,
                     Price = variantEntity.Price,
                     Product = _mapper.Map<ProductCartViewModel>(variantEntity.Product),
-                    VariantAttributes = variantEntity.AttributeValues
-                                        .ToDictionary(a => a.Attribute.Name, a => a.Value)
+                    VariantAttributes = (variantEntity.AttributeValues ?? new List<Domain.Entities.ProductAttributeValue>())
+                        .Where(a => a != null && a.Attribute != null)
+                        .ToDictionary(a => a.Attribute.Name, a => a.Value)
                 };
                 cart.Add(cartItemViewModel);
             }
 
             SaveCart(cart);
-            return RedirectToAction("Index");
+            TempData["CartSuccess"] = "محصول به سبد خرید اضافه شد.";
+            return RedirectToAction("Detail", "Products", new { id = id });
         }
 
         public IActionResult RemoveFromCart(int id, int? variantId)
