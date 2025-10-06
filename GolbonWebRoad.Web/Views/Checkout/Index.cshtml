@@ -18,36 +18,10 @@
 
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 
+    @Html.Partial("_CommonStyles")
+
     <style>
-        :root {
-            --bg-color: #121212; --primary-text-color: #FFFFFF; --secondary-text-color: #a0a0a0; --card-bg-color: #1a1a1a; --border-color: #333333; --accent-color: #4a90e2;
-        }
-        body.light-mode {
-            --bg-color: #f4f4f5; --card-bg-color: #FFFFFF; --primary-text-color: #18181b; --secondary-text-color: #71717a; --border-color: #e4e4e7;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body { font-family: var(--main-font); background-color: var(--bg-color); color: var(--primary-text-color); line-height: 1.7; overflow-x: hidden; transition: background-color 0.3s ease, color 0.3s ease; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        a { text-decoration: none; color: var(--primary-text-color); transition: color 0.3s ease; }
-        a:hover { color: var(--accent-color); }
-        img { max-width: 100%; height: auto; display: block; }
-
-        /* --- هدر و فوتر --- */
-        .promo-banner { background-color: var(--accent-color); color: var(--primary-text-color); text-align: center; padding: 8px 0; font-weight: 700; font-size: 0.9rem; }
-        .main-header { background-color: rgba(18, 18, 18, 0.8); border-bottom: 1px solid var(--border-color); padding: 15px 0; position: sticky; top: 0; width: 100%; z-index: 1000; backdrop-filter: blur(10px); transition: background-color 0.3s ease, border-color 0.3s ease; }
-        body.light-mode .main-header { background-color: rgba(229, 231, 235, 0.8); }
-        .header-container { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
-        .header-actions { display: flex; align-items: center; gap: 25px; font-size: 1.3rem; }
-        #theme-toggle { cursor: pointer; }
-        #theme-toggle .fa-sun { display: none; }
-        body.light-mode #theme-toggle .fa-sun { display: inline-block; }
-        body.light-mode #theme-toggle .fa-moon { display: none; }
-        .main-footer { background-color: #000000; color: var(--secondary-text-color); padding: 80px 0 30px; border-top: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
-        body.light-mode .main-footer { background-color: #18181b; }
-
-        /* --- استایل‌های صفحه تسویه حساب --- */
+        /* --- استایل‌های خاص صفحه تسویه حساب --- */
         .page-header { padding: 60px 0; background-color: var(--card-bg-color); text-align: center; border-bottom: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
         .page-header h1 { font-size: 3rem; font-weight: 800; }
 
@@ -89,16 +63,7 @@
     </style>
 </head>
 <body>
-    <div class="promo-banner"><p>ارسال رایگان برای خریدهای بالای ۵۰۰ هزار تومان!</p></div>
-    <header class="main-header">
-        <div class="container header-container">
-            <a href="/" class="logo">Tecture</a>
-            <div class="header-actions">
-                <div id="theme-toggle"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></div>
-                <a asp-controller="Cart" asp-action="Index" class="header-action-link"><span>بازگشت به سبد خرید</span> <i class="fa-solid fa-arrow-left"></i></a>
-            </div>
-        </div>
-    </header>
+    @Html.Partial("_Header")
 
     <main>
         <header class="page-header" data-aos="fade-in">

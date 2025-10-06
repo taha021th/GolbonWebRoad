@@ -1,0 +1,65 @@
+@{
+    // Check if user is authenticated to determine the account link
+    bool isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+}
+
+<div class="promo-banner">
+    <p>ارسال رایگان برای خریدهای بالای ۵۰۰ هزار تومان!</p>
+</div>
+
+<header class="main-header">
+    <div class="container header-container">
+        <a href="/" class="logo">Tecture</a>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="/">خانه</a></li>
+                <li><a href="#categories" onclick="scrollToSection('categories')">دسته‌بندی‌ها</a></li>
+                <li><a asp-controller="Products" asp-action="Index">محصولات</a></li>
+                <li><a href="#deal-of-the-day" onclick="scrollToSection('deal-of-the-day')">تخفیف‌ها</a></li>
+                <li><a href="#blog" onclick="scrollToSection('blog')">بلاگ</a></li>
+                <li><a asp-controller="Contactus" asp-action="Index">تماس با ما</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <div id="theme-toggle">
+                <i class="fas fa-moon"></i>
+                <i class="fas fa-sun"></i>
+            </div>
+            @if (isAuthenticated)
+            {
+                <a asp-controller="Dashboard" asp-action="Index" class="header-action-link">
+                    <i class="fa-solid fa-user"></i>
+                    <span>حساب کاربری</span>
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Auth" asp-action="Login" class="header-action-link">
+                    <i class="fa-solid fa-user"></i>
+                    <span>ورود / ثبت‌نام</span>
+                </a>
+            }
+            <a asp-controller="Cart" asp-action="Index" class="header-action-link">
+                <i class="fa-solid fa-shopping-bag"></i>
+            </a>
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <i class="fa-solid fa-bars"></i>
+        </div>
+    </div>
+</header>
+
+<script>
+    // Function to scroll to sections (for home page anchors)
+    function scrollToSection(sectionId) {
+        // Only work if we're on the home page
+        if (window.location.pathname === '/' || window.location.pathname === '/Home' || window.location.pathname === '/Home/Index') {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        } else {
+            // If not on home page, navigate to home page with anchor
+            window.location.href = '/#' + sectionId;
+        }
+    }
+</script>

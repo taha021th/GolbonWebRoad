@@ -1,0 +1,39 @@
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    // Initialize AOS (Animate On Scroll)
+    AOS.init({
+        duration: 800,
+        once: true
+    });
+
+    // Theme Switcher
+    (function themeSwitcher() {
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        if (!themeToggleBtn) return;
+        
+        const body = document.body;
+        const currentTheme = localStorage.getItem('theme');
+        
+        if (currentTheme === 'light') {
+            body.classList.add('light-mode');
+        }
+        
+        themeToggleBtn.addEventListener('click', function() {
+            body.classList.toggle('light-mode');
+            localStorage.setItem('theme', body.classList.contains('light-mode') ? 'light' : 'dark');
+        });
+    })();
+
+    // Smooth scroll for anchor links
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle hash navigation on page load
+        if (window.location.hash) {
+            setTimeout(function() {
+                const element = document.querySelector(window.location.hash);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 100);
+        }
+    });
+</script>

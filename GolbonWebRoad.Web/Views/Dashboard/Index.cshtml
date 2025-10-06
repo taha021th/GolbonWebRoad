@@ -1,5 +1,5 @@
-﻿@using GolbonWebRoad.Application.Dtos.Orders
-@model IEnumerable<OrderDto>
+﻿@using GolbonWebRoad.Web.Models
+@model DashboardViewModel
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -15,43 +15,10 @@
 
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 
+    @Html.Partial("_CommonStyles")
+
     <style>
-        :root {
-            --bg-color: #121212; --primary-text-color: #FFFFFF; --secondary-text-color: #a0a0a0; --card-bg-color: #1a1a1a; --border-color: #333333; --accent-color: #4a90e2;
-        }
-        body.light-mode {
-            --bg-color: #f4f4f5; --card-bg-color: #FFFFFF; --primary-text-color: #18181b; --secondary-text-color: #71717a; --border-color: #e4e4e7;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body { font-family: var(--main-font); background-color: var(--bg-color); color: var(--primary-text-color); line-height: 1.7; overflow-x: hidden; transition: background-color 0.3s ease, color 0.3s ease; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        a { text-decoration: none; color: var(--primary-text-color); transition: color 0.3s ease; }
-        a:hover { color: var(--accent-color); }
-        img { max-width: 100%; height: auto; display: block; }
-
-        /* --- هدر و فوتر --- */
-        .promo-banner { background-color: var(--accent-color); color: var(--primary-text-color); text-align: center; padding: 8px 0; font-weight: 700; font-size: 0.9rem; }
-        .main-header { background-color: rgba(18, 18, 18, 0.8); border-bottom: 1px solid var(--border-color); padding: 15px 0; position: sticky; top: 0; width: 100%; z-index: 1000; backdrop-filter: blur(10px); transition: background-color 0.3s ease, border-color 0.3s ease; }
-        body.light-mode .main-header { background-color: rgba(229, 231, 235, 0.8); }
-        .header-container { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
-        .main-nav ul { list-style: none; display: flex; }
-        .main-nav ul li { margin-right: 30px; }
-        .main-nav a { font-weight: 700; }
-        .header-actions { display: flex; align-items: center; gap: 25px; font-size: 1.3rem; }
-        .header-action-link { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 700; }
-        .header-action-link span { display: inline; }
-        #theme-toggle { cursor: pointer; }
-        #theme-toggle .fa-sun { display: none; }
-        body.light-mode #theme-toggle .fa-sun { display: inline-block; }
-        body.light-mode #theme-toggle .fa-moon { display: none; }
-        .main-footer { background-color: #000000; color: var(--secondary-text-color); padding: 80px 0 30px; border-top: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
-        body.light-mode .main-footer { background-color: #18181b; }
-
-        /* --- استایل‌های صفحه داشبورد --- */
-        .page-header { padding: 60px 0; background-color: var(--card-bg-color); text-align: center; border-bottom: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
-        .page-header h1 { font-size: 3rem; font-weight: 800; }
+        /* --- استایل‌های خاص صفحه داشبورد --- */
 
         .dashboard-section { padding: 50px 0; }
         .dashboard-layout { display: grid; grid-template-columns: 280px 1fr; gap: 30px; align-items: flex-start; }
@@ -61,6 +28,7 @@
         .dashboard-nav a { display: block; padding: 12px 15px; margin-bottom: 5px; font-weight: 700; border-right: 3px solid transparent; }
         .dashboard-nav a.active, .dashboard-nav a:hover { color: var(--accent-color); border-right-color: var(--accent-color); background-color: rgba(74, 144, 226, 0.1); }
         .dashboard-nav a i { margin-left: 10px; }
+        .dashboard-nav a.logout-link:hover { background-color: #dc3545; color: white; border-right-color: #dc3545; }
 
         .dashboard-content { background-color: var(--card-bg-color); border: 1px solid var(--border-color); padding: 30px; transition: background-color 0.3s ease, border-color 0.3s ease; }
         .dashboard-content h2 { font-size: 1.8rem; margin-bottom: 25px; }
@@ -75,35 +43,14 @@
         .status-completed { background-color: #28a745; color: white; }
         .status-processing { background-color: #ffc107; color: #18181b; }
 
-        .btn { display: inline-block; text-align: center; background-color: var(--accent-color); color: white; border: 2px solid var(--accent-color); padding: 8px 18px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;}
-        .btn:hover { background-color: transparent; color: var(--accent-color); }
-
         /* --- Responsive --- */
-        @@media (max-width: 992px) { .main-nav, .header-action-link span { display: none; } }
         @@media (max-width: 768px) {
             .dashboard-layout { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="promo-banner"><p>ارسال رایگان برای خریدهای بالای ۵۰۰ هزار تومان!</p></div>
-    <header class="main-header">
-        <div class="container header-container">
-            <a href="/" class="logo">Tecture</a>
-            <nav class="main-nav">
-                <ul>
-                    <li><a href="/">خانه</a></li>
-                    <li><a asp-controller="Products" asp-action="Index">محصولات</a></li>
-                </ul>
-            </nav>
-            <div class="header-actions">
-                <div id="theme-toggle"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></div>
-                <a asp-controller="Dashboard" asp-action="Index" class="header-action-link"><i class="fa-solid fa-user"></i><span>حساب کاربری</span></a>
-                <a asp-controller="Cart" asp-action="Index" class="header-action-link"><i class="fa-solid fa-shopping-bag"></i></a>
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </div>
-        </div>
-    </header>
+    @Html.Partial("_Header")
 
     <main>
         <header class="page-header" data-aos="fade-in">
@@ -116,10 +63,10 @@
                 <aside class="dashboard-nav" data-aos="fade-right">
                     <ul>
                         <li><a href="#dashboard" class="dashboard-link active"><i class="fas fa-tachometer-alt"></i> پیشخوان</a></li>
-                        <li><a href="#orders" class="dashboard-link"><i class="fas fa-box"></i> سفارش‌ها (@(Model?.Count() ?? 0))</a></li>
-                        <li><a asp-controller="Addresses" asp-action="Index"><i class="fas fa-map-marker-alt"></i> آدرس‌ها</a></li>
+                        <li><a href="#orders" class="dashboard-link"><i class="fas fa-box"></i> سفارش‌ها (@(Model?.Orders?.Count() ?? 0))</a></li>
+                        <li><a href="#addresses" class="dashboard-link "><i class="fas fa-map-marker-alt"></i> آدرس‌ها</a></li>
                         <li><a href="#account-details" class="dashboard-link"><i class="fas fa-user-edit"></i> جزئیات حساب</a></li>
-                        <li><a href="#"><i class="fas fa-sign-out-alt"></i> خروج</a></li>
+                        <li><a href="#" onclick="logout()" class="logout-link"><i class="fas fa-sign-out-alt"></i> خروج</a></li>
                     </ul>
                 </aside>
 
@@ -129,7 +76,7 @@
                     <div id="dashboard" class="dashboard-panel active">
                         <h2>پیشخوان</h2>
                         <p>سلام <strong>کاربر عزیز</strong>، خوش آمدید!</p>
-                        <p>شما تاکنون @((Model?.Count() ?? 0).ToString("N0")) سفارش ثبت کرده‌اید.</p>
+                        <p>شما تاکنون @((Model?.Orders?.Count() ?? 0).ToString("N0")) سفارش ثبت کرده‌اید.</p>
                         <p>از طریق پیشخوان حساب کاربری خود می‌توانید سفارش‌های اخیرتان را مشاهده، آدرس‌های حمل و نقل و صورتحساب‌تان را مدیریت و جزئیات حساب کاربری و کلمه عبور خود را ویرایش کنید.</p>
                     </div>
 
@@ -147,9 +94,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (Model != null && Model.Any())
+                                @if (Model?.Orders != null && Model.Orders.Any())
                                 {
-                                    foreach (var order in Model)
+                                    foreach (var order in Model.Orders)
                                     {
                                         var statusClass = order.OrderStatus == "Completed" ? "status-completed" : "status-processing";
                                         <tr>
@@ -173,7 +120,41 @@
                     <div id="addresses" class="dashboard-panel">
                         <h2>آدرس‌های من</h2>
                         <p>آدرس‌های زیر به صورت پیش‌فرض در صفحه تسویه حساب استفاده خواهند شد.</p>
-                        <!-- (در اینجا می‌توانید بخش آدرس‌ها را اضافه کنید) -->
+                        @{
+                            var addrsPanel = Model?.Addresses;
+                        }
+                        @if (addrsPanel != null && addrsPanel.Any())
+                        {
+                            foreach (var a in addrsPanel)
+                            {
+                                <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border-color);border-radius:10px;padding:12px;margin-bottom:8px;">
+                                    <div>
+                                        <div><strong>@a.FullName</strong> <span class="muted">(@a.Phone)</span> @(a.IsDefault ? Html.Raw("<span class='muted'>- پیش‌فرض</span>") : null)</div>
+                                        <div class="muted">@a.AddressLine، @a.City - @a.PostalCode</div>
+                                    </div>
+                                    <div style="display:flex;gap:8px;">
+                                        <form asp-controller="Addresses" asp-action="SetDefault" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@a.Id" />
+                                            <button type="submit" class="btn btn-outline">پیش‌فرض</button>
+                                        </form>
+                                        <form asp-controller="Addresses" asp-action="Delete" method="post" onsubmit="return confirm('حذف آدرس؟');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@a.Id" />
+                                            <button type="submit" class="btn btn-outline" style="border-color:#e24a4a;color:#e24a4a">حذف</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="muted">آدرسی ثبت نشده است.</div>
+                        }
+                        <div style="margin-top:10px;display:flex;gap:8px;">
+                            <a asp-controller="Addresses" asp-action="Create" class="btn">افزودن آدرس</a>
+                            <a asp-controller="Addresses" asp-action="Index" class="btn btn-outline">مدیریت کامل آدرس‌ها</a>
+                        </div>
                     </div>
 
                     <!-- پنل جزئیات حساب -->
@@ -187,49 +168,106 @@
         </section>
     </main>
 
-    <footer class="main-footer">...</footer>
+    <!-- فرم مخفی برای خروج از حساب کاربری -->
+    <form id="logoutForm" method="post" action="/Identity/Account/Logout" style="display: none;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="returnUrl" value="@Url.Action("Index", "Home")" />
+    </form>
 
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    @Html.Partial("_Footer")
+
+    @Html.Partial("_CommonScripts")
+    
     <script>
-        AOS.init({ duration: 800, once: true });
-
-        // منطق کامل تغییر حالت
-        (function themeSwitcher() {
-            const themeToggleBtn = document.getElementById('theme-toggle');
-            const body = document.body;
-            const currentTheme = localStorage.getItem('theme');
-            if (currentTheme === 'light') { body.classList.add('light-mode'); }
-            themeToggleBtn.addEventListener('click', function() {
-                body.classList.toggle('light-mode');
-                localStorage.setItem('theme', body.classList.contains('light-mode') ? 'light' : 'dark');
-            });
-        })();
+        // تابع خروج از حساب کاربری
+        function logout() {
+            if (confirm('آیا مطمئن هستید که می‌خواهید از حساب کاربری خود خارج شوید؟')) {
+                document.getElementById('logoutForm').submit();
+            }
+        }
 
         // منطق ناوبری در داشبورد
         (function dashboardTabs() {
             const links = document.querySelectorAll('.dashboard-link');
             const panels = document.querySelectorAll('.dashboard-panel');
 
+            function activate(targetId) {
+                // لینک‌ها
+                links.forEach(l => {
+                    const href = l.getAttribute('href') || '';
+                    const id = href.startsWith('#') ? href.substring(1) : '';
+                    l.classList.toggle('active', id === targetId);
+                });
+                // پنل‌ها
+                panels.forEach(panel => {
+                    panel.classList.toggle('active', panel.id === targetId);
+                });
+            }
+
+            // رویداد کلیک: فقط برای لینک‌های هشتی جلوگیری از رفتار پیش‌فرض
             links.forEach(link => {
                 link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href').substring(1);
-
-                    // مدیریت کلاس active برای لینک‌ها
-                    links.forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-
-                    // نمایش پنل مربوطه
-                    panels.forEach(panel => {
-                        if (panel.id === targetId) {
-                            panel.classList.add('active');
-                        } else {
-                            panel.classList.remove('active');
-                        }
-                    });
+                    const href = this.getAttribute('href') || '';
+                    if (href.startsWith('#')) {
+                        e.preventDefault();
+                        const targetId = href.substring(1);
+                        activate(targetId);
+                    }
                 });
             });
+
+            // تعیین تب اولیه بر اساس پارامتر open از QueryString
+            const params = new URLSearchParams(window.location.search);
+            const openParam = params.get('open');
+            const initial = (openParam && ['dashboard','orders','addresses','account-details'].includes(openParam)) ? openParam : 'dashboard';
+            activate(initial);
         })();
     </script>
 </body>
+
+@* Addresses Modal *@
+@{
+    var addrs = Model?.Addresses;
+}
+<div id="addressesModal" style="display:@((TempData["OpenAddressesModal"]!=null)?"block":"none"); position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:2000;">
+    <div style="max-width:600px;margin:80px auto;background:var(--card-bg-color);border:1px solid var(--border-color);border-radius:12px;padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 style="margin:0">آدرس‌ها</h3>
+            <button onclick="document.getElementById('addressesModal').style.display='none'" class="btn btn-outline">×</button>
+        </div>
+        @if (addrs != null && addrs.Any())
+        {
+            foreach (var a in addrs)
+            {
+                <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border-color);border-radius:10px;padding:12px;margin-bottom:8px;">
+                    <div>
+                        <div><strong>@a.FullName</strong> <span class="muted">(@a.Phone)</span> @(a.IsDefault ? Html.Raw("<span class='muted'>- پیش‌فرض</span>") : null)</div>
+                        <div class="muted">@a.AddressLine، @a.City - @a.PostalCode</div>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <form asp-controller="Addresses" asp-action="SetDefault" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@a.Id" />
+                            <button type="submit" class="btn btn-outline">پیش‌فرض</button>
+                        </form>
+                        <form asp-controller="Addresses" asp-action="Delete" method="post" onsubmit="return confirm('حذف آدرس؟');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@a.Id" />
+                            <button type="submit" class="btn btn-outline" style="border-color:#e24a4a;color:#e24a4a">حذف</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="muted">آدرسی ثبت نشده است.</div>
+        }
+        <div style="margin-top:10px;display:flex;gap:8px;">
+            <a asp-controller="Addresses" asp-action="Create" class="btn">افزودن آدرس</a>
+            <a asp-controller="Addresses" asp-action="Index" class="btn btn-outline">مدیریت کامل آدرس‌ها</a>
+        </div>
+    </div>
+</div>
+
 </html>

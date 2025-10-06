@@ -1,4 +1,7 @@
 using GolbonWebRoad.Application.Features.Orders.Queries;
+using GolbonWebRoad.Application.Features.Users.Queries;
+using GolbonWebRoad.Web.Models;
+using GolbonWebRoad.Web.Models.Addresses;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +18,29 @@ namespace GolbonWebRoad.Web.Controllers
             _mediator = mediator;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? open = null)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var orders = await _mediator.Send(new GetOrdersByUserIdQuery { UserId = userId });
-            return View(orders);
+            var addresses = await _mediator.Send(new GetUserAddressesQuery { UserId = userId });
+
+            var vm = new DashboardViewModel
+            {
+                Orders = orders,
+                Addresses = addresses.Select(a => new AddressItemViewModel
+                {
+                    Id = a.Id,
+                    FullName = a.FullName,
+                    Phone = a.Phone,
+                    AddressLine = a.AddressLine,
+                    City = a.City,
+                    PostalCode = a.PostalCode,
+                    IsDefault = a.IsDefault
+                }).ToList(),
+
+            };
+
+            return View(vm);
         }
 
         [HttpGet]
