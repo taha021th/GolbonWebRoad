@@ -22,5 +22,21 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
 
         [Display(Name = "مقادیر ویژگی‌ها")]
         public List<int> AttributeValueIds { get; set; } = new List<int>();
+
+        [Display(Name = "وزن (گرم)")]
+        [Range(0, int.MaxValue)]
+        public int Weight { get; set; }
+
+        [Display(Name = "طول (سانتیمتر)")]
+        [Range(0, double.MaxValue)]
+        public decimal Length { get; set; }
+
+        [Display(Name = "عرض (سانتیمتر)")]
+        [Range(0, double.MaxValue)]
+        public decimal Width { get; set; }
+
+        [Display(Name = "ارتفاع (سانتیمتر)")]
+        [Range(0, double.MaxValue)]
+        public decimal Height { get; set; }
     }
 }

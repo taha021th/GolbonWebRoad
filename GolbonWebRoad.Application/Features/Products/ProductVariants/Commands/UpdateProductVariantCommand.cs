@@ -13,6 +13,10 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
         public decimal? OldPrice { get; set; }
         public int StockQuantity { get; set; }
         public List<int> AttributeValueIds { get; set; } = new();
+        public int Weight { get; set; }
+        public decimal Length { get; set; }
+        public decimal Width { get; set; }
+        public decimal Height { get; set; }
     }
 
     public class UpdateProductVariantCommandValidator : AbstractValidator<UpdateProductVariantCommand>
@@ -26,6 +30,10 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
             RuleFor(x => x.Sku).NotEmpty().MaximumLength(100);
             RuleFor(x => x.Price).GreaterThan(0);
             RuleFor(x => x.StockQuantity).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.Weight).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.Length).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.Width).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.Height).GreaterThanOrEqualTo(0);
             RuleFor(x => x.OldPrice)
                 .GreaterThan(x => x.Price)
                 .When(x => x.OldPrice.HasValue)
@@ -72,6 +80,10 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
             variant.Price = request.Price;
             variant.OldPrice = request.OldPrice;
             variant.StockQuantity = request.StockQuantity;
+            variant.Weight = request.Weight;
+            variant.Length = request.Length;
+            variant.Width = request.Width;
+            variant.Height = request.Height;
 
             // به‌روزرسانی ویژگی‌های انتخاب‌شده
             // ابتدا بررسی می‌کنیم که آیا تغییری لازم است

@@ -55,7 +55,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateProductViewModel viewModel)
+        public async Task<IActionResult> Create([FromForm] CreateProductViewModel viewModel)
         {
             if (!ModelState.IsValid)
             {
@@ -111,6 +111,10 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
                 Price = v.Price,
                 OldPrice = v.OldPrice,
                 StockQuantity = v.StockQuantity,
+                Weight = v.Weight,
+                Length = v.Length,
+                Width = v.Width,
+                Height = v.Height,
                 AttributeValueIds = v.AttributeValues?.Select(av => av.Id).ToList() ?? new List<int>()
             }).ToList();
             await PopulateDropdownsAsync(viewModel);
@@ -121,7 +125,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, EditProductViewModel viewModel)
+        public async Task<IActionResult> Edit(int id, [FromForm] EditProductViewModel viewModel)
         {
             if (id != viewModel.Id)
                 return BadRequest();
@@ -164,6 +168,10 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
                                 Price = vr.Price,
                                 OldPrice = vr.OldPrice,
                                 StockQuantity = vr.StockQuantity,
+                                Weight = vr.Weight,
+                                Length = vr.Length,
+                                Width = vr.Width,
+                                Height = vr.Height,
                                 AttributeValueIds = vr.AttributeValueIds ?? new List<int>()
                             });
                         }
@@ -176,6 +184,10 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
                                 Price = vr.Price,
                                 OldPrice = vr.OldPrice,
                                 StockQuantity = vr.StockQuantity,
+                                Weight = vr.Weight,
+                                Length = vr.Length,
+                                Width = vr.Width,
+                                Height = vr.Height,
                                 AttributeValueIds = vr.AttributeValueIds ?? new List<int>()
                             });
                         }

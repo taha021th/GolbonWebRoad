@@ -12,6 +12,10 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
         public decimal? OldPrice { get; set; }
         public int StockQuantity { get; set; }
         public List<int> AttributeValueIds { get; set; } = new();
+        public int Weight { get; set; }
+        public decimal Length { get; set; }
+        public decimal Width { get; set; }
+        public decimal Height { get; set; }
     }
 
     public class CreateProductVariantCommandValidator : AbstractValidator<CreateProductVariantCommand>
@@ -25,6 +29,10 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
             RuleFor(x => x.Sku).NotEmpty().MaximumLength(100);
             RuleFor(x => x.Price).GreaterThan(0);
             RuleFor(x => x.StockQuantity).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.Weight).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.Length).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.Width).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.Height).GreaterThanOrEqualTo(0);
             RuleFor(x => x.OldPrice)
                 .GreaterThan(x => x.Price)
                 .When(x => x.OldPrice.HasValue)
@@ -67,7 +75,11 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
                 Sku = request.Sku.Trim(),
                 Price = request.Price,
                 OldPrice = request.OldPrice,
-                StockQuantity = request.StockQuantity
+                StockQuantity = request.StockQuantity,
+                Weight = request.Weight,
+                Length = request.Length,
+                Width = request.Width,
+                Height = request.Height
             };
 
             if (request.AttributeValueIds != null && request.AttributeValueIds.Any())

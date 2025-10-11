@@ -80,6 +80,22 @@ public class ProductVariant
     public decimal Price { get; set; }
     public decimal? OldPrice { get; set; } // قیمت قبلی برای نمایش تخفیف
     public int StockQuantity { get; set; } // موجودی انبار فقط برای این متغیر
+    /// <summary>
+    /// وزن گرم
+    /// </summary>
+    public int Weight { get; set; }
+    /// <summary>
+    /// طول سانتی متر
+    /// </summary>
+    public decimal Length { get; set; }
+    /// <summary>
+    /// عرض سانتی متر
+    /// </summary>
+    public decimal Width { get; set; }
+    /// <summary>
+    /// ارتقاع سانتی متر
+    /// </summary>
+    public decimal Height { get; set; }
 
 
     public int ProductId { get; set; }
