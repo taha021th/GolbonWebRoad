@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging; // ۱. این using را برای دسترس
 
 namespace GolbonWebRoad.Application.Features.Categories.Commands
 {
-    public class CreateCategoryCommand : IRequest
+    public class CreateCategoryCommand : IRequest<Category>
     {
         public string Name { get; set; }
         public string? Slog { get; set; }
@@ -26,7 +26,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
         }
     }
 
-    public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand>
+    public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, Category>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -41,7 +41,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
             _fileStorageService=fileStorageService;
         }
 
-        public async Task Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<Category> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
 
             _logger.LogInformation("شروع فرآیند ایجاد دسته‌بندی جدید با نام '{CategoryName}'.", request.Name);
@@ -62,6 +62,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
 
                 _logger.LogInformation("دسته‌بندی '{CategoryName}' با شناسه {CategoryId} با موفقیت در دیتابیس ایجاد شد.",
                     newCategory.Name, newCategory.Id);
+                return newCategory;
 
 
             }
