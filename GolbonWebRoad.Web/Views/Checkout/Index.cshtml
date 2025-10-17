@@ -1,7 +1,7 @@
-﻿@using GolbonWebRoad.Web.Models.Cart
-@model List<CartItemViewModel>
+﻿@model GolbonWebRoad.Web.Models.Checkout.CheckoutViewModel
 @{
-    var total = Model?.Sum(i => i.Price * i.Quantity) ?? 0;
+    Layout = null; // چون شما کل ساختار HTML را در این فایل دارید، لی‌آوت را غیرفعال می‌کنیم
+    var total = Model?.TotalAmount ?? 0;
 }
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -13,52 +13,199 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 
     @Html.Partial("_CommonStyles")
 
     <style>
-        /* --- استایل‌های خاص صفحه تسویه حساب --- */
-        .page-header { padding: 60px 0; background-color: var(--card-bg-color); text-align: center; border-bottom: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
-        .page-header h1 { font-size: 3rem; font-weight: 800; }
+        /* --- استایل‌های خاص صفحه تسویه حساب (حفظ شده از کد اصلی شما) --- */
+        .page-header {
+            padding: 60px 0;
+            background-color: var(--card-bg-color);
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
 
-        .checkout-section { padding: 50px 0; }
-        .checkout-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; align-items: flex-start;}
+            .page-header h1 {
+                font-size: 3rem;
+                font-weight: 800;
+            }
 
-        .checkout-form, .order-summary { background-color: var(--card-bg-color); border: 1px solid var(--border-color); padding: 30px; transition: background-color 0.3s ease, border-color 0.3s ease; }
-        .checkout-form h2, .order-summary h2 { font-size: 1.5rem; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .checkout-section {
+            padding: 50px 0;
+        }
 
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 700; }
-        .form-group input { width: 100%; background-color: var(--bg-color); color: var(--primary-text-color); border: 1px solid var(--border-color); padding: 12px; font-family: var(--main-font); font-size: 1rem; }
-        .form-row { display: flex; gap: 20px; }
-        .form-row .form-group { flex: 1; }
+        .checkout-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            align-items: flex-start;
+        }
 
-        .payment-methods .method { display: flex; align-items: center; gap: 15px; padding: 15px; border: 1px solid var(--border-color); margin-bottom: 10px; cursor: pointer; }
-        .payment-methods .method.selected { border-color: var(--accent-color); background-color: rgba(74, 144, 226, 0.1); }
-        .payment-methods .method input[type="radio"] { width: 20px; height: 20px; }
-        .payment-methods .method img { height: 30px; }
+        .checkout-form, .order-summary {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
 
-        .order-summary { position: sticky; top: 110px; }
-        .summary-item { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; }
-        .summary-item img { width: 60px; height: 60px; object-fit: cover; }
-        .summary-item-details { flex-grow: 1; }
-        .summary-item-details .price { color: var(--secondary-text-color); }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 15px; }
-        .summary-total { font-size: 1.2rem; font-weight: 700; border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 10px;}
-        .secure-checkout-notice { text-align: center; margin-top: 20px; color: var(--secondary-text-color); }
-        .secure-checkout-notice i { color: #28a745; }
+            .checkout-form h2, .order-summary h2 {
+                font-size: 1.5rem;
+                margin-bottom: 25px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid var(--border-color);
+            }
 
-        .btn { display: block; width: 100%; text-align: center; background-color: var(--accent-color); color: white; border: 2px solid var(--accent-color); padding: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; font-size: 1.1rem;}
-        .btn:hover { background-color: transparent; color: var(--accent-color); }
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 700;
+            }
+
+            .form-group input, .form-group select {
+                width: 100%;
+                background-color: var(--bg-color);
+                color: var(--primary-text-color);
+                border: 1px solid var(--border-color);
+                padding: 12px;
+                font-family: var(--main-font);
+                font-size: 1rem;
+            }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+            .form-row .form-group {
+                flex: 1;
+            }
+
+        /* استایل برای گزینه‌های ارسال و پرداخت */
+        .selectable-method {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+            .selectable-method input[type="radio"] {
+                width: 20px;
+                height: 20px;
+                flex-shrink: 0;
+            }
+
+            .selectable-method label {
+                margin-bottom: 0;
+                width: 100%;
+            }
+
+            .selectable-method img {
+                height: 30px;
+            }
+
+            .selectable-method.selected {
+                border-color: var(--accent-color);
+                background-color: rgba(74, 144, 226, 0.1);
+            }
+        /* برای جاوااسکریپت انتخاب */
+
+        .order-summary {
+            position: sticky;
+            top: 110px;
+        }
+
+        .summary-item {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+            .summary-item img {
+                width: 60px;
+                height: 60px;
+                object-fit: cover;
+            }
+
+        .summary-item-details {
+            flex-grow: 1;
+        }
+
+            .summary-item-details .price {
+                color: var(--secondary-text-color);
+            }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .summary-total {
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+
+        .secure-checkout-notice {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--secondary-text-color);
+        }
+
+            .secure-checkout-notice i {
+                color: #28a745;
+            }
+
+        .btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background-color: var(--accent-color);
+            color: white;
+            border: 2px solid var(--accent-color);
+            padding: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+            .btn:hover {
+                background-color: transparent;
+                color: var(--accent-color);
+            }
+
+        .alert-danger {
+            background: #B00020;
+            color: #fff;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 14px;
+        }
 
         /* --- Responsive --- */
         @@media (max-width: 992px) {
-            .checkout-layout { grid-template-columns: 1fr; }
-            .order-summary { margin-top: 30px; }
+            .checkout-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .order-summary {
+                margin-top: 30px;
+                position: static;
+            }
         }
     </style>
 </head>
@@ -72,13 +219,17 @@
 
         <section class="checkout-section">
             <div class="container checkout-layout">
-                <!-- فرم‌های اطلاعات -->
-                <div class="checkout-form" data-aos="fade-up">
+                <!-- فرم اصلی که تمام اطلاعات را ارسال می‌کند -->
+                <form asp-action="PlaceOrder" method="post" class="checkout-form" data-aos="fade-up">
+
+                    <div asp-validation-summary="All" class="text-danger"></div>
                     @if (TempData["CheckoutError"] != null)
                     {
-                        <div class="alert alert-danger" role="alert" style="background:#B00020;color:#fff;border-radius:8px;padding:12px 16px;margin-bottom:14px">
-                            @TempData["CheckoutError"]
-                        </div>
+                        <div class="alert alert-danger" role="alert">@TempData["CheckoutError"]</div>
+                    }
+                    @if (TempData["ShippingError"] != null)
+                    {
+                        <div class="alert alert-danger" role="alert">@TempData["ShippingError"]</div>
                     }
 
                     @if (!User.Identity.IsAuthenticated)
@@ -88,118 +239,122 @@
                         </div>
                     }
 
+                    <!-- بخش ۱: اطلاعات ارسال -->
                     <h2>۱. اطلاعات ارسال</h2>
-                    <form id="checkoutForm">
-                        @if (User.Identity.IsAuthenticated && ViewBag.UserAddresses != null && ((IEnumerable<dynamic>)ViewBag.UserAddresses).Any())
-                        {
-                            <div class="form-group">
-                                <label>انتخاب آدرس ذخیره‌شده</label>
-                                <select id="AddressId" class="form-select" style="width:100%; background-color: var(--bg-color); color: var(--primary-text-color); border: 1px solid var(--border-color); padding: 12px;">
-                                    <option value="">— آدرس جدید —</option>
-                                    @foreach (var a in (IEnumerable<dynamic>)ViewBag.UserAddresses)
-                                    {
-                                        <option value="@a.Id">@a.FullName - @a.AddressLine, @a.City (@a.PostalCode) - @a.Phone</option>
-                                    }
-                                </select>
-                            </div>
-                        }
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="NewFullName">نام و نام خانوادگی</label>
-                                <input type="text" id="NewFullName">
-                            </div>
-                        </div>
+                    @if (Model.UserAddresses != null && Model.UserAddresses.Any())
+                    {
                         <div class="form-group">
-                            <label for="NewAddressLine">آدرس کامل</label>
-                            <input type="text" id="NewAddressLine" placeholder="خیابان، کوچه، پلاک، واحد">
+                            <label asp-for="SelectedAddressId">انتخاب آدرس ذخیره‌شده</label>
+                            <select asp-for="SelectedAddressId" class="form-select">
+                                <option value="">— آدرس جدید —</option>
+                                @foreach (var a in Model.UserAddresses)
+                                {
+                                    <option value="@a.Id">@a.FullName - @a.AddressLine, @a.City (@a.PostalCode) - @a.Phone</option>
+                                }
+                            </select>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="NewCity">شهر</label>
-                                <input type="text" id="NewCity">
-                            </div>
-                            <div class="form-group">
-                                <label for="NewPostalCode">کد پستی</label>
-                                <input type="text" id="NewPostalCode">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="NewPhone">شماره موبایل</label>
-                            <input type="tel" id="NewPhone">
-                        </div>
-                    </form>
+                    }
+                    <div class="form-row">
+                        <div class="form-group"><label asp-for="NewFullName"></label><input asp-for="NewFullName" placeholder="نام و نام خانوادگی"></div>
+                    </div>
+                    <div class="form-group"><label asp-for="NewAddressLine"></label><input asp-for="NewAddressLine" placeholder="خیابان، کوچه، پلاک، واحد"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label asp-for="NewProvince"></label><input asp-for="NewProvince" placeholder="استان"></div>
+                        <div class="form-group"><label asp-for="NewCity"></label><input asp-for="NewCity" placeholder="شهر"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label asp-for="NewPostalCode"></label><input asp-for="NewPostalCode" placeholder="کد پستی"></div>
+                        <div class="form-group"><label asp-for="NewPhone"></label><input asp-for="NewPhone" placeholder="شماره موبایل"></div>
+                    </div>
 
-                    <h2 style="margin-top: 40px;">۲. روش پرداخت</h2>
+                    <!-- بخش ۲: روش ارسال -->
+                    <h2 style="margin-top: 40px;">۲. روش ارسال</h2>
+                    <div class="shipping-methods">
+                        @if (Model.ShippingOptions != null && Model.ShippingOptions.Any())
+                        {
+                            @foreach (var option in Model.ShippingOptions)
+                            {
+                                var optionValue = $"{option.ProviderName}-{option.ServiceName}|{option.Cost:F0}";
+                                <div class="selectable-method">
+                                    <input type="radio" asp-for="SelectedShippingMethod" id="shipping-@optionValue" value="@optionValue" data-cost="@option.Cost" />
+                                    <label for="shipping-@optionValue">
+                                        <div style="display: flex; justify-content: space-between; width: 100%;">
+                                            <div>
+                                                <strong>@option.FullServiceName</strong>
+                                                <small style="display: block; color: var(--secondary-text-color);">@option.EstimatedDeliveryTime</small>
+                                            </div>
+                                            <strong>@option.Cost.ToString("N0") تومان</strong>
+                                        </div>
+                                    </label>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning" style="background:#f39c122e; color: #f39c12; border-radius:8px; padding:12px 16px;">لطفا ابتدا یک آدرس را انتخاب یا وارد کنید تا گزینه‌های ارسال نمایش داده شود.</div>
+                        }
+                    </div>
+
+                    <!-- بخش ۳: روش پرداخت -->
+                    <h2 style="margin-top: 40px;">۳. روش پرداخت</h2>
                     <div class="payment-methods">
-                        <div class="method selected">
+                        <div class="selectable-method selected">
                             <input type="radio" name="payment" id="gateway1" checked>
                             <label for="gateway1">
                                 <img src="https://placehold.co/80x40/f0f0f0/333?text=Saman" alt="درگاه پرداخت سامان">
                                 <span>درگاه پرداخت امن سامان</span>
                             </label>
                         </div>
-                        <div class="method">
-                            <input type="radio" name="payment" id="gateway2">
-                            <label for="gateway2">
-                                <img src="https://placehold.co/80x40/f0f0f0/333?text=ZarinPal" alt="درگاه پرداخت زرین پال">
-                                <span>درگاه پرداخت زرین پال</span>
-                            </label>
-                        </div>
                     </div>
+
+                    <!-- دکمه پرداخت نهایی فرم اصلی را ارسال می‌کند -->
+                    <button type="submit" class="btn" style="width: 100%; margin-top: 30px;">ادامه و پرداخت</button>
+
+                </form> <!-- پایان فرم اصلی -->
+            </div>
+
+            <!-- خلاصه سفارش -->
+            <aside class="order-summary" data-aos="fade-left">
+                <h2>خلاصه سفارش</h2>
+                <div class="summary-items">
+                    @if (Model.CartItems != null && Model.CartItems.Any())
+                    {
+                        foreach (var item in Model.CartItems)
+                        {
+                            var img = item.Product?.ImageUrl ?? "https://placehold.co/200x200/EFEFEF/AAAAAA?text=No+Image";
+                            <div class="summary-item">
+                                <img src="@img" alt="@item.Product?.Name">
+                                <div class="summary-item-details">
+                                    <span>@item.Product?.Name (@item.Quantity عدد)</span>
+                                    <p class="price">@((item.Price * item.Quantity).ToString("N0")) تومان</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>سبد خرید شما خالی است.</p>
+                    }
+                </div>
+                <div class="summary-row" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 10px;">
+                    <span>جمع کل</span>
+                    <span>@Model.TotalAmount.ToString("N0") تومان</span>
+                </div>
+                <div class="summary-row">
+                    <span>هزینه ارسال</span>
+                    <span id="shipping-cost-summary">محاسبه نشده</span>
+                </div>
+                <div class="summary-row summary-total">
+                    <span>مبلغ قابل پرداخت</span>
+                    <span id="final-total-summary">@Model.TotalAmount.ToString("N0") تومان</span>
                 </div>
 
-                <!-- خلاصه سفارش -->
-                <aside class="order-summary" data-aos="fade-left">
-                    <h2>خلاصه سفارش</h2>
-                    <div class="summary-items">
-                        @if (Model != null && Model.Any())
-                        {
-                            foreach (var item in Model)
-                            {
-                                var img = item.Product?.ImageUrl ?? "https://placehold.co/200x200/EFEFEF/AAAAAA?text=No+Image";
-                                <div class="summary-item">
-                                    <img src="@img" alt="@item.Product?.Name">
-                                    <div class="summary-item-details">
-                                        <span>@item.Product?.Name (@item.Quantity عدد)</span>
-                                        <p class="price">@((item.Price * item.Quantity).ToString("N0")) تومان</p>
-                                    </div>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <p>سبد خرید شما خالی است.</p>
-                        }
-                    </div>
-                    <div class="summary-row" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 10px;">
-                        <span>جمع کل</span>
-                        <span>@total.ToString("N0") تومان</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>هزینه ارسال</span>
-                        <span>رایگان</span>
-                    </div>
-                    <div class="summary-row summary-total">
-                        <span>مبلغ قابل پرداخت</span>
-                        <span>@total.ToString("N0") تومان</span>
-                    </div>
-                    <form asp-controller="Checkout" asp-action="PlaceOrder" method="get" onsubmit="return submitCheckoutWithAddress(event)">
-                        <input type="hidden" name="PaymentStatus" value="true" />
-                        <input type="hidden" name="AddressId" id="HiddenAddressId" />
-                        <input type="hidden" name="NewFullName" id="HiddenNewFullName" />
-                        <input type="hidden" name="NewAddressLine" id="HiddenNewAddressLine" />
-                        <input type="hidden" name="NewCity" id="HiddenNewCity" />
-                        <input type="hidden" name="NewPostalCode" id="HiddenNewPostalCode" />
-                        <input type="hidden" name="NewPhone" id="HiddenNewPhone" />
-                        <button type="submit" class="btn">پرداخت و ثبت نهایی سفارش</button>
-                    </form>
-                    <p class="secure-checkout-notice">
-                        <i class="fas fa-lock"></i> پرداخت امن و رمزنگاری شده
-                    </p>
-                </aside>
+                <p class="secure-checkout-notice">
+                    <i class="fas fa-lock"></i> پرداخت امن و رمزنگاری شده
+                </p>
+            </aside>
             </div>
         </section>
-
     </main>
 
     <footer class="main-footer">...</footer>
@@ -208,35 +363,47 @@
     <script>
         AOS.init({ duration: 800, once: true });
 
-        // منطق کامل تغییر حالت
+        // منطق کامل تغییر حالت تم
         (function themeSwitcher() {
             const themeToggleBtn = document.getElementById('theme-toggle');
+            if (!themeToggleBtn) return;
             const body = document.body;
             const currentTheme = localStorage.getItem('theme');
             if (currentTheme === 'light') { body.classList.add('light-mode'); }
-            themeToggleBtn.addEventListener('click', function() {
+            themeToggleBtn.addEventListener('click', function () {
                 body.classList.toggle('light-mode');
                 localStorage.setItem('theme', body.classList.contains('light-mode') ? 'light' : 'dark');
             });
         })();
-        function submitCheckoutWithAddress(e){
-            const addrSel = document.getElementById('AddressId');
-            const selectedId = addrSel ? addrSel.value : '';
-            document.getElementById('HiddenAddressId').value = selectedId || '';
-            if (!selectedId){
-                document.getElementById('HiddenNewFullName').value = document.getElementById('NewFullName').value;
-                document.getElementById('HiddenNewAddressLine').value = document.getElementById('NewAddressLine').value;
-                document.getElementById('HiddenNewCity').value = document.getElementById('NewCity').value;
-                document.getElementById('HiddenNewPostalCode').value = document.getElementById('NewPostalCode').value;
-                document.getElementById('HiddenNewPhone').value = document.getElementById('NewPhone').value;
-                // basic client-side validation
-                if (!document.getElementById('HiddenNewFullName').value || !document.getElementById('HiddenNewAddressLine').value || !document.getElementById('HiddenNewCity').value || !document.getElementById('HiddenNewPostalCode').value || !document.getElementById('HiddenNewPhone').value){
-                    alert('لطفاً یک آدرس را انتخاب کنید یا تمام فیلدهای آدرس جدید را کامل کنید.');
-                    return false;
+
+        // --- جاوا اسکریپت جدید برای محاسبه پویا هزینه ارسال ---
+        document.addEventListener('DOMContentLoaded', function () {
+            const shippingOptions = document.querySelectorAll('input[name="SelectedShippingMethod"]');
+            const shippingCostEl = document.getElementById('shipping-cost-summary');
+            const finalTotalEl = document.getElementById('final-total-summary');
+            const baseTotal = @Model.TotalAmount;
+
+            function updateTotals() {
+                const selectedOption = document.querySelector('input[name="SelectedShippingMethod"]:checked');
+                if (selectedOption) {
+                    const cost = parseFloat(selectedOption.dataset.cost);
+                    shippingCostEl.textContent = cost.toLocaleString('fa-IR') + ' تومان';
+                    const finalTotal = baseTotal + cost;
+                    finalTotalEl.textContent = finalTotal.toLocaleString('fa-IR') + ' تومان';
+                } else {
+                    shippingCostEl.textContent = "انتخاب نشده";
+                    finalTotalEl.textContent = baseTotal.toLocaleString('fa-IR') + ' تومان';
                 }
             }
-            return true;
-        }
+
+            shippingOptions.forEach(radio => {
+                radio.addEventListener('change', updateTotals);
+            });
+
+            // برای بار اول هم اگر گزینه‌ای انتخاب شده بود، هزینه را محاسبه کن
+            updateTotals();
+        });
     </script>
 </body>
 </html>
+

@@ -2,6 +2,10 @@
 
 namespace GolbonWebRoad.Web.Areas.Admin.Models.Orders
 {
+    /// <summary>
+    /// ویومدل برای نمایش جزئیات کامل یک سفارش در پنل ادمین.
+    /// این نسخه، قابلیت‌های قبلی و جدید را با هم ادغام می‌کند.
+    /// </summary>
     public class OrderDetailViewModel
     {
         public int Id { get; set; }
@@ -20,11 +24,36 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Orders
 
         public List<OrderItemViewModel> OrderItems { get; set; } = new List<OrderItemViewModel>();
 
-        // Shipping address (if any)
+        // اطلاعات آدرس
+        [Display(Name = "نام کامل گیرنده")]
         public string AddressFullName { get; set; }
+
+        [Display(Name = "شماره تماس گیرنده")]
         public string AddressPhone { get; set; }
+
+        [Display(Name = "آدرس پستی")]
         public string AddressLine { get; set; }
+
+        [Display(Name = "شهر")]
         public string AddressCity { get; set; }
+
+        [Display(Name = "استان")]
+        public string AddressProvince { get; set; }
+
+        [Display(Name = "کد پستی")]
         public string AddressPostalCode { get; set; }
+
+        // ==========================================================
+        // === پراپرتی‌های اضافه شده برای نمایش اطلاعات ارسال ===
+        // ==========================================================
+        [Display(Name = "روش ارسال")]
+        public string? ShippingMethod { get; set; }
+
+        [Display(Name = "هزینه ارسال")]
+        public decimal ShippingCost { get; set; }
+
+        [Display(Name = "کد رهگیری")]
+        public string? TrackingNumber { get; set; }
     }
 }
+

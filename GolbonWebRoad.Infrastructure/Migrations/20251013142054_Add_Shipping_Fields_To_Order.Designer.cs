@@ -3,6 +3,7 @@ using System;
 using GolbonWebRoad.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GolbonWebRoad.Infrastructure.Migrations
 {
     [DbContext(typeof(GolbonWebRoadDbContext))]
-    partial class GolbonWebRoadDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251013142054_Add_Shipping_Fields_To_Order")]
+    partial class Add_Shipping_Fields_To_Order
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -427,11 +430,6 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
-
-                    b.Property<string>("Province")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("character varying(80)");
 
                     b.Property<string>("UserId")
                         .IsRequired()

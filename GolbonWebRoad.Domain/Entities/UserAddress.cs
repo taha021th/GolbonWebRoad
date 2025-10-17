@@ -29,10 +29,14 @@ namespace GolbonWebRoad.Domain.Entities
         [Required]
         [MaxLength(80)]
         public string City { get; set; }
+        [Required]
+        [MaxLength(80)]
+        public string Province { get; set; }
 
         [Required]
         [MaxLength(20)]
         public string PostalCode { get; set; }
+
 
         public bool IsDefault { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

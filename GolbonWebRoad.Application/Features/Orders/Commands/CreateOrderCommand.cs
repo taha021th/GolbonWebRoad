@@ -4,39 +4,75 @@ using GolbonWebRoad.Application.Exceptions;
 using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
-using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
+using Microsoft.Extensions.Logging;
 
 namespace GolbonWebRoad.Application.Features.Orders.Commands
 {
+    /// <summary>
+    /// کامند (دستور) کامل برای ایجاد یک سفارش جدید.
+    /// این کلاس تمام اطلاعات لازم، از جمله آیتم‌های سبد خرید، آدرس و روش ارسال را نگهداری می‌کند.
+    /// </summary>
     public class CreateOrderCommand : IRequest<int>
     {
         public string UserId { get; set; }
         public List<CartItemSummaryDto> CartItems { get; set; }
+
+        // بخش آدرس: کاربر می‌تواند یک آدرس موجود را انتخاب کند یا یک آدرس جدید وارد کند
         public int? AddressId { get; set; }
         public string? NewFullName { get; set; }
         public string? NewAddressLine { get; set; }
         public string? NewCity { get; set; }
+        public string? NewProvince { get; set; }
         public string? NewPostalCode { get; set; }
         public string? NewPhone { get; set; }
+
+        // ==========================================================
+        // === پراپرتی‌های اضافه شده برای دریافت اطلاعات ارسال ===
+        // ==========================================================
+        public string ShippingMethod { get; set; }
+        public decimal ShippingCost { get; set; }
     }
 
+    /// <summary>
+    /// کلاس اعتبارسنجی برای کامند ایجاد سفارش با استفاده از FluentValidation.
+    /// </summary>
     public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
     {
         public CreateOrderCommandValidator()
         {
             RuleFor(o => o.UserId).NotEmpty().WithMessage("شناسه کاربر نمی تواند خالی باشد");
-            RuleFor(o => o.CartItems).NotEmpty().WithMessage("آیتم سبد خرید نمی تواند خالی باشد.");
-            RuleFor(o => o).Must(o => o.AddressId.HasValue || (!string.IsNullOrWhiteSpace(o.NewFullName) && !string.IsNullOrWhiteSpace(o.NewAddressLine) && !string.IsNullOrWhiteSpace(o.NewCity) && !string.IsNullOrWhiteSpace(o.NewPostalCode) && !string.IsNullOrWhiteSpace(o.NewPhone)))
-                .WithMessage("یکی از آدرس‌های موجود یا آدرس جدید باید ارسال شود.");
+            RuleFor(o => o.CartItems).NotEmpty().WithMessage("سبد خرید نمی تواند خالی باشد.");
+
+            // بررسی می‌کند که یا یک آدرس موجود انتخاب شده باشد، یا تمام فیلدهای آدرس جدید پر شده باشند.
+            RuleFor(o => o).Must(o => o.AddressId.HasValue ||
+                                      (!string.IsNullOrWhiteSpace(o.NewFullName) &&
+                                       !string.IsNullOrWhiteSpace(o.NewAddressLine) &&
+                                       !string.IsNullOrWhiteSpace(o.NewCity) &&
+                                       !string.IsNullOrWhiteSpace(o.NewProvince) &&
+                                       !string.IsNullOrWhiteSpace(o.NewPostalCode) &&
+                                       !string.IsNullOrWhiteSpace(o.NewPhone)))
+                .WithMessage("یک آدرس موجود یا یک آدرس جدید باید به صورت کامل وارد شود.");
+
+            // اعتبارسنجی برای فیلدهای ارسال
+            RuleFor(o => o.ShippingMethod).NotEmpty().WithMessage("روش ارسال نمی‌تواند خالی باشد.");
+            RuleFor(o => o.ShippingCost).GreaterThanOrEqualTo(0).WithMessage("هزینه ارسال نامعتبر است.");
         }
     }
 
+    /// <summary>
+    /// هندلر (پردازشگر) کامند ایجاد سفارش.
+    /// این کلاس منطق اصلی کسب‌وکار برای ثبت سفارش را اجرا می‌کند:
+    /// ۱. بررسی موجودی انبار
+    /// ۲. کسر از موجودی
+    /// ۳. ایجاد آدرس جدید در صورت نیاز
+    /// ۴. محاسبه قیمت نهایی
+    /// ۵. ثبت سفارش در دیتابیس
+    /// </summary>
     public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, int>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<CreateOrderCommandHandler> _logger; // ۲. ILogger را تعریف کنید
+        private readonly ILogger<CreateOrderCommandHandler> _logger;
 
-        // ۳. ILogger را از طریق سازنده تزریق کنید
         public CreateOrderCommandHandler(IUnitOfWork unitOfWork, ILogger<CreateOrderCommandHandler> logger)
         {
             _unitOfWork = unitOfWork;
@@ -50,11 +86,10 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
             try
             {
                 var orderItems = new List<OrderItem>();
-                decimal totalAmount = 0;
+                decimal itemsTotalAmount = 0; // مبلغ کل آیتم‌ها بدون هزینه ارسال
 
                 foreach (var item in request.CartItems)
                 {
-                    // اگر واریانتی برای آیتم سبد خرید مشخص نشده بود، از آن صرف نظر کن
                     if (!item.VariantId.HasValue || item.VariantId.Value == 0)
                     {
                         _logger.LogWarning("آیتم سبد خرید برای محصول {ProductId} فاقد شناسه واریانت معتبر است. از این آیتم صرف نظر می‌شود.", item.ProductId);
@@ -62,20 +97,18 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
                     }
 
                     _logger.LogDebug("پردازش واریانت محصول {VariantId} با تعداد {Quantity} برای سفارش.", item.VariantId.Value, item.Quantity);
-
-                    // واریانت را به همراه اطلاعات محصول اصلی از دیتابیس بخوان
                     var variant = await _unitOfWork.ProductVariantRepository.GetByIdWithProductAsync(item.VariantId.Value);
+
                     if (variant == null)
                     {
                         _logger.LogWarning("واریانت محصول با شناسه {VariantId} یافت نشد. از این آیتم صرف نظر می‌شود.", item.VariantId.Value);
                         continue;
                     }
 
-                    // موجودی انبار واریانت را چک کن
                     if (variant.StockQuantity >= item.Quantity)
                     {
                         var price = variant.Price;
-                        totalAmount += price * item.Quantity;
+                        itemsTotalAmount += price * item.Quantity;
                         orderItems.Add(new OrderItem
                         {
                             ProductVariantId = variant.Id,
@@ -83,7 +116,6 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
                             Price = price
                         });
 
-                        // از موجودی انبار کم کن
                         variant.StockQuantity -= item.Quantity;
                         _unitOfWork.ProductVariantRepository.Update(variant);
                     }
@@ -91,7 +123,6 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
                     {
                         _logger.LogError("موجودی واریانت محصول {VariantId} ({ProductName}) کافی نیست. موجودی: {Stock}, درخواست: {Quantity}",
                             variant.Id, variant.Product.Name, variant.StockQuantity, item.Quantity);
-
                         throw new InsufficientStockException($"موجودی محصول {variant.Product.Name} کافی نیست. موجودی فعلی: {variant.StockQuantity}، درخواست شما: {item.Quantity}");
                     }
                 }
@@ -102,22 +133,28 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
                     throw new BadRequestException("هیچکدام از محصولات موجود در سبد خرید شما، معتبر یا دارای موجودی کافی نبودند.");
                 }
 
-                int? addressId = request.AddressId;
-                if (!addressId.HasValue)
+                // مدیریت آدرس: اگر آدرس جدیدی ارسال شده بود، آن را در دیتابیس ذخیره کن
+                int addressId = request.AddressId.GetValueOrDefault();
+                if (addressId == 0)
                 {
-                    var addr = new UserAddress
+                    var newAddress = new UserAddress
                     {
                         UserId = request.UserId,
                         FullName = request.NewFullName!,
                         Phone = request.NewPhone!,
                         AddressLine = request.NewAddressLine!,
                         City = request.NewCity!,
+                        Province = request.NewProvince!,
                         PostalCode = request.NewPostalCode!,
-                        IsDefault = false
+                        IsDefault = false // آدرس جدید به عنوان پیش‌فرض ذخیره نمی‌شود
                     };
-                    var created = await _unitOfWork.UserAddressRepository.AddAsync(addr);
-                    addressId = created.Id;
+                    var createdAddress = await _unitOfWork.UserAddressRepository.AddAsync(newAddress);
+                    addressId = createdAddress.Id;
+                    _logger.LogInformation("آدرس جدید با شناسه {AddressId} برای کاربر {UserId} ایجاد شد.", addressId, request.UserId);
                 }
+
+                // محاسبه قیمت نهایی سفارش (مبلغ آیتم‌ها + هزینه ارسال)
+                var finalTotalAmount = itemsTotalAmount + request.ShippingCost;
 
                 var order = new Order
                 {
@@ -125,22 +162,25 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
                     OrderDate = DateTime.UtcNow,
                     OrderStatus = "در حال پردازش",
                     OrderItems = orderItems,
-                    TotalAmount = totalAmount,
-                    AddressId = addressId
+                    TotalAmount = finalTotalAmount,
+                    AddressId = addressId,
+                    ShippingMethod = request.ShippingMethod,
+                    ShippingCost = request.ShippingCost
                 };
 
-                var newOrder = _unitOfWork.OrderRepository.Add(order);
+                var createdOrder = _unitOfWork.OrderRepository.Add(order);
                 await _unitOfWork.CompleteAsync();
 
-                _logger.LogInformation("سفارش با شناسه {OrderId} برای کاربر {UserId} با موفقیت ایجاد شد.", newOrder.Id, request.UserId);
+                _logger.LogInformation("سفارش با شناسه {OrderId} برای کاربر {UserId} با موفقیت ایجاد شد.", createdOrder.Id, request.UserId);
 
-                return newOrder.Id;
+                return createdOrder.Id;
             }
             catch (Exception ex) when (ex is not InsufficientStockException and not BadRequestException)
             {
                 _logger.LogCritical(ex, "خطای پیش‌بینی نشده در هنگام ایجاد سفارش برای کاربر {UserId}.", request.UserId);
-                throw;
+                throw; // خطا را دوباره پرتاب کن تا لایه‌های بالاتر آن را مدیریت کنند
             }
         }
     }
 }
+
