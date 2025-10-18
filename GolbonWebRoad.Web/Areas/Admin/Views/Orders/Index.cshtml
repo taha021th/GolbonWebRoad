@@ -13,6 +13,18 @@
             _ => "bg-secondary"
         };
     }
+
+    string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "PaymentReceived" => "پرداخت دریافت شده",
+            "Pending" => "در انتظار",
+            "Shipped" => "ارسال شده",
+            "Cancelled" => "لغو شده",
+            _ => status
+        };
+    }
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -27,6 +39,11 @@
                     <tr>
                         <th class="py-3 px-4">@Html.DisplayNameFor(model => model.First().Id)</th>
                         <th class="py-3 px-4">@Html.DisplayNameFor(model => model.First().UserName)</th>
+                        <th class="py-3 px-4">نام</th>
+                        <th class="py-3 px-4">نام خانوادگی</th>
+                        <th class="py-3 px-4">شماره موبایل کاربر</th>
+                        <th class="py-3 px-4">آدرس تحویل</th>
+                        <th class="py-3 px-4">شماره تماس آدرس</th>
                         <th class="py-3 px-4">@Html.DisplayNameFor(model => model.First().OrderDate)</th>
                         <th class="py-3 px-4">@Html.DisplayNameFor(model => model.First().TotalAmount)</th>
                         <th class="py-3 px-4 text-center">@Html.DisplayNameFor(model => model.First().OrderStatus)</th>
@@ -42,10 +59,15 @@
                             <tr>
                                 <td class="align-middle px-4 fw-bold">#@item.Id</td>
                                 <td class="align-middle px-4">@item.UserName</td>
+                                <td class="align-middle px-4">@item.FirstName</td>
+                                <td class="align-middle px-4">@item.LastName</td>
+                                <td class="align-middle px-4">@item.PhoneNumber</td>
+                                <td class="align-middle px-4">@(item.UserAddress?.City + ", " + item.UserAddress?.Province)</td>
+                                <td class="align-middle px-4">@item.UserAddress?.Phone</td>
                                 <td class="align-middle px-4">@item.OrderDate</td>
                                 <td class="align-middle px-4">@item.TotalAmount.ToString("N0") تومان</td>
                                 <td class="align-middle text-center px-4">
-                                    <span class="badge @GetStatusBadgeClass(item.OrderStatus)">@item.OrderStatus</span>
+                                    <span class="badge @GetStatusBadgeClass(item.OrderStatus)">@GetStatusText(item.OrderStatus)</span>
                                 </td>
                                 <td class="align-middle px-4">
                                     <form asp-action="UpdateStatus" method="post">
@@ -53,10 +75,10 @@
                                         <input type="hidden" name="id" value="@item.Id" />
                                         <div class="input-group input-group-sm">
                                             <select name="status" class="form-select">
-                                                <option value="Pending" selected="@(item.OrderStatus == "Pending")">Pending</option>
-                                                <option value="PaymentReceived" selected="@(item.OrderStatus == "PaymentReceived")">PaymentReceived</option>
-                                                <option value="Shipped" selected="@(item.OrderStatus == "Shipped")">Shipped</option>
-                                                <option value="Cancelled" selected="@(item.OrderStatus == "Cancelled")">Cancelled</option>
+                                                <option value="Pending" selected="@(item.OrderStatus == "Pending")">در انتظار</option>
+                                                <option value="PaymentReceived" selected="@(item.OrderStatus == "PaymentReceived")">پرداخت دریافت شده</option>
+                                                <option value="Shipped" selected="@(item.OrderStatus == "Shipped")">ارسال شده</option>
+                                                <option value="Cancelled" selected="@(item.OrderStatus == "Cancelled")">لغو شده</option>
                                             </select>
                                             <button type="submit" class="btn btn-outline-secondary">اعمال</button>
                                         </div>
@@ -73,7 +95,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">هیچ سفارشی یافت نشد.</td>
+                            <td colspan="11" class="text-center py-4 text-muted">هیچ سفارشی یافت نشد.</td>
                         </tr>
                     }
                 </tbody>

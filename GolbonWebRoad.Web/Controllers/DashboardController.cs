@@ -30,10 +30,11 @@ namespace GolbonWebRoad.Web.Controllers
                 Addresses = addresses.Select(a => new AddressItemViewModel
                 {
                     Id = a.Id,
-                    FullName = a.FullName,
+                    UserFullName = $"{a.User.FirstName} {a.User.LastName}",
                     Phone = a.Phone,
                     AddressLine = a.AddressLine,
                     City = a.City,
+                    Province = a.Province,
                     PostalCode = a.PostalCode,
                     IsDefault = a.IsDefault
                 }).ToList(),

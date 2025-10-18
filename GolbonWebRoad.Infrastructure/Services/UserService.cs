@@ -1,5 +1,6 @@
 ﻿using GolbonWebRoad.Application.Dtos.Users;
 using GolbonWebRoad.Application.Interfaces.Services;
+using GolbonWebRoad.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +8,8 @@ namespace GolbonWebRoad.Infrastructure.Services
 {
     public class UserService : IUserService
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        public UserService(UserManager<IdentityUser> userManager)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public UserService(UserManager<ApplicationUser> userManager)
         {
             _userManager=userManager;
         }

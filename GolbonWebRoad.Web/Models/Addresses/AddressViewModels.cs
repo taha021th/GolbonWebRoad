@@ -10,10 +10,11 @@ namespace GolbonWebRoad.Web.Models.Addresses
     public class AddressItemViewModel
     {
         public int Id { get; set; }
-        public string FullName { get; set; }
+        public string UserFullName { get; set; } // نام کامل کاربر از User entity
         public string Phone { get; set; }
         public string AddressLine { get; set; }
         public string City { get; set; }
+        public string Province { get; set; }
         public string PostalCode { get; set; }
         public bool IsDefault { get; set; }
     }
@@ -23,11 +24,7 @@ namespace GolbonWebRoad.Web.Models.Addresses
         public int? Id { get; set; }
 
         [Required]
-        [Display(Name = "نام و نام خانوادگی")]
-        public string FullName { get; set; }
-
-        [Required]
-        [Display(Name = "شماره موبایل")]
+        [Display(Name = "شماره تماس")]
         public string Phone { get; set; }
 
         [Required]
@@ -37,6 +34,10 @@ namespace GolbonWebRoad.Web.Models.Addresses
         [Required]
         [Display(Name = "شهر")]
         public string City { get; set; }
+
+        [Required]
+        [Display(Name = "استان")]
+        public string Province { get; set; }
 
         [Required]
         [Display(Name = "کد پستی")]

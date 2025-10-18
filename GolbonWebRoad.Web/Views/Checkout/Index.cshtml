@@ -249,14 +249,11 @@
                                 <option value="">— آدرس جدید —</option>
                                 @foreach (var a in Model.UserAddresses)
                                 {
-                                    <option value="@a.Id">@a.FullName - @a.AddressLine, @a.City (@a.PostalCode) - @a.Phone</option>
+                                    <option value="@a.Id">@($"{a.User.FirstName} {a.User.LastName}") - @a.AddressLine, @a.City (@a.PostalCode) - @a.Phone</option>
                                 }
                             </select>
                         </div>
                     }
-                    <div class="form-row">
-                        <div class="form-group"><label asp-for="NewFullName"></label><input asp-for="NewFullName" placeholder="نام و نام خانوادگی"></div>
-                    </div>
                     <div class="form-group"><label asp-for="NewAddressLine"></label><input asp-for="NewAddressLine" placeholder="خیابان، کوچه، پلاک، واحد"></div>
                     <div class="form-row">
                         <div class="form-group"><label asp-for="NewProvince"></label><input asp-for="NewProvince" placeholder="استان"></div>

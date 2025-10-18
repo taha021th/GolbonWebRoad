@@ -28,9 +28,7 @@
                 <form asp-action="Edit" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="Id" />
-                    <label>نام و نام خانوادگی</label>
-                    <input type="text" asp-for="FullName" />
-                    <label>شماره موبایل</label>
+                    <label>شماره تماس</label>
                     <input type="tel" asp-for="Phone" />
                     <label>آدرس کامل</label>
                     <input type="text" asp-for="AddressLine" />
@@ -38,6 +36,10 @@
                         <div>
                             <label>شهر</label>
                             <input type="text" asp-for="City" />
+                        </div>
+                        <div>
+                            <label>استان</label>
+                            <input type="text" asp-for="Province" />
                         </div>
                         <div>
                             <label>کد پستی</label>

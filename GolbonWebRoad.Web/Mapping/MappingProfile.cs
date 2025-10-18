@@ -184,20 +184,23 @@ namespace GolbonWebRoad.Web.Mapping
             #endregion
 
             #region Order
+            // نگاشت UserAddress به UserAddressViewModel
+            CreateMap<UserAddress, UserAddressViewModel>();
+
             CreateMap<Order, OrderIndexViewModel>()
                 // Gets the user's name from the related IdentityUser entity
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
-                .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate.ToString("yyyy/MM/dd HH:mm")));
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User.FirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User.LastName))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.User.PhoneNumber))
+                .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate.ToString("yyyy/MM/dd HH:mm")))
+                .ForMember(dest => dest.UserAddress, opt => opt.MapFrom(src => src.Address));
 
             // Mapping for Order detail view
             CreateMap<Order, OrderDetailViewModel>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
                 .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate.ToString("yyyy/MM/dd HH:mm")))
-                .ForMember(dest => dest.AddressFullName, opt => opt.MapFrom(src => src.Address != null ? src.Address.FullName : null))
-                .ForMember(dest => dest.AddressPhone, opt => opt.MapFrom(src => src.Address != null ? src.Address.Phone : null))
-                .ForMember(dest => dest.AddressLine, opt => opt.MapFrom(src => src.Address != null ? src.Address.AddressLine : null))
-                .ForMember(dest => dest.AddressCity, opt => opt.MapFrom(src => src.Address != null ? src.Address.City : null))
-                .ForMember(dest => dest.AddressPostalCode, opt => opt.MapFrom(src => src.Address != null ? src.Address.PostalCode : null));
+                .ForMember(dest => dest.UserAddress, opt => opt.MapFrom(src => src.Address));
 
             // Mapping for order items
             CreateMap<OrderItem, OrderItemViewModel>()

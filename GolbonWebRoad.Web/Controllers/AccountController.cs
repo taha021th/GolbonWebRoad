@@ -1,4 +1,5 @@
 ﻿using GolbonWebRoad.Application.Features.Orders.Queries;
+using GolbonWebRoad.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,8 +12,8 @@ namespace GolbonWebRoad.Web.Controllers
     public class AccountController : Controller
     {
         private readonly IMediator _mediator;
-        private readonly UserManager<IdentityUser> _userManager;
-        public AccountController(IMediator mediator, UserManager<IdentityUser> userManager)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public AccountController(IMediator mediator, UserManager<ApplicationUser> userManager)
         {
             _mediator=mediator;
             _userManager=userManager;

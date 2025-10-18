@@ -1,4 +1,5 @@
 ﻿using GolbonWebRoad.Application.Dtos.Users;
+using GolbonWebRoad.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
@@ -12,8 +13,8 @@ namespace GolbonWebRoad.Application.Features.Users.Commands
     }
     public class UpdateUserRolesCommandHandler : IRequestHandler<UpdateUserRoleCommand>
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        public UpdateUserRolesCommandHandler(UserManager<IdentityUser> userManager)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public UpdateUserRolesCommandHandler(UserManager<ApplicationUser> userManager)
         {
             _userManager=userManager;
         }

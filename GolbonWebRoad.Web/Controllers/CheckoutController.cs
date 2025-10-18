@@ -146,7 +146,6 @@ namespace GolbonWebRoad.Web.Controllers
                     Price = c.Price
                 }).ToList(),
                 AddressId = model.SelectedAddressId,
-                NewFullName = model.SelectedAddressId.HasValue ? null : model.NewFullName,
                 NewAddressLine = model.SelectedAddressId.HasValue ? null : model.NewAddressLine,
                 NewCity = model.SelectedAddressId.HasValue ? null : model.NewCity,
                 NewProvince = model.SelectedAddressId.HasValue ? null : model.NewProvince,

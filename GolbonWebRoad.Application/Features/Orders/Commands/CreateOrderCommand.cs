@@ -19,7 +19,6 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
 
         // بخش آدرس: کاربر می‌تواند یک آدرس موجود را انتخاب کند یا یک آدرس جدید وارد کند
         public int? AddressId { get; set; }
-        public string? NewFullName { get; set; }
         public string? NewAddressLine { get; set; }
         public string? NewCity { get; set; }
         public string? NewProvince { get; set; }
@@ -43,10 +42,9 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
             RuleFor(o => o.UserId).NotEmpty().WithMessage("شناسه کاربر نمی تواند خالی باشد");
             RuleFor(o => o.CartItems).NotEmpty().WithMessage("سبد خرید نمی تواند خالی باشد.");
 
-            // بررسی می‌کند که یا یک آدرس موجود انتخاب شده باشد، یا تمام فیلدهای آدرس جدید پر شده باشند.
+            // بررسی می‌کند که یا یک آدرس موجود انتخاب شده باشد، یا تمام فیلدهای آدرس جدید پر شده باشند۔
             RuleFor(o => o).Must(o => o.AddressId.HasValue ||
-                                      (!string.IsNullOrWhiteSpace(o.NewFullName) &&
-                                       !string.IsNullOrWhiteSpace(o.NewAddressLine) &&
+                                      (!string.IsNullOrWhiteSpace(o.NewAddressLine) &&
                                        !string.IsNullOrWhiteSpace(o.NewCity) &&
                                        !string.IsNullOrWhiteSpace(o.NewProvince) &&
                                        !string.IsNullOrWhiteSpace(o.NewPostalCode) &&
@@ -140,7 +138,6 @@ namespace GolbonWebRoad.Application.Features.Orders.Commands
                     var newAddress = new UserAddress
                     {
                         UserId = request.UserId,
-                        FullName = request.NewFullName!,
                         Phone = request.NewPhone!,
                         AddressLine = request.NewAddressLine!,
                         City = request.NewCity!,

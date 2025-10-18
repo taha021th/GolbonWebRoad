@@ -6,9 +6,23 @@
     {
         return status switch
         {
+            "PaymentReceived" => "bg-success",
+            "Pending" => "bg-warning text-dark",
             "Shipped" => "bg-info text-dark",
-            "در حال پردازش" => "bg-primary",
+            "Cancelled" => "bg-danger",
             _ => "bg-secondary"
+        };
+    }
+
+    string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "PaymentReceived" => "پرداخت دریافت شده",
+            "Pending" => "در انتظار",
+            "Shipped" => "ارسال شده",
+            "Cancelled" => "لغو شده",
+            _ => status
         };
     }
 }
@@ -99,12 +113,50 @@
 
     <!-- ستون کناری: اطلاعات سفارش و مشتری -->
     <div class="col-lg-4">
-        <!-- ... بقیه محتوای ستون کناری (اطلاعات سفارش، آدرس و تغییر وضعیت) بدون تغییر باقی می‌ماند ... -->
+        <!-- اطلاعات سفارش -->
         <div class="card shadow-sm mb-4">
-            <!-- ... -->
+            <div class="card-header"><h5 class="mb-0">اطلاعات سفارش</h5></div>
+            <div class="card-body">
+                <p><strong>نام کاربری:</strong> @Model.UserName</p>
+                <p><strong>تاریخ ثبت:</strong> @Model.OrderDate</p>
+                <p><strong>وضعیت:</strong> <span class="badge @GetStatusBadgeClass(Model.OrderStatus)">@GetStatusText(Model.OrderStatus)</span></p>
+                <p><strong>مبلغ نهایی:</strong> @Model.TotalAmount.ToString("N0") تومان</p>
+            </div>
         </div>
+
+        <!-- آدرس تحویل -->
+        @if (Model.UserAddress != null)
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-header"><h5 class="mb-0">آدرس تحویل</h5></div>
+                <div class="card-body">
+                    <p><strong>شماره تماس:</strong> @Model.UserAddress.Phone</p>
+                    <p><strong>آدرس:</strong> @Model.UserAddress.AddressLine</p>
+                    <p><strong>شهر:</strong> @Model.UserAddress.City</p>
+                    <p><strong>استان:</strong> @Model.UserAddress.Province</p>
+                    <p><strong>کد پستی:</strong> @Model.UserAddress.PostalCode</p>
+                </div>
+            </div>
+        }
+
+        <!-- تغییر وضعیت -->
         <div class="card shadow-sm">
-            <!-- ... -->
+            <div class="card-header"><h5 class="mb-0">تغییر وضعیت</h5></div>
+            <div class="card-body">
+                <form asp-action="UpdateStatus" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <div class="mb-3">
+                        <select name="status" class="form-select">
+                            <option value="Pending" selected="@(Model.OrderStatus == "Pending")">در انتظار</option>
+                            <option value="PaymentReceived" selected="@(Model.OrderStatus == "PaymentReceived")">پرداخت دریافت شده</option>
+                            <option value="Shipped" selected="@(Model.OrderStatus == "Shipped")">ارسال شده</option>
+                            <option value="Cancelled" selected="@(Model.OrderStatus == "Cancelled")">لغو شده</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">اعمال تغییر</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

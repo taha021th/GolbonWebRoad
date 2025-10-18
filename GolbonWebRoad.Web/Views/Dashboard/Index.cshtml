@@ -129,8 +129,8 @@
                             {
                                 <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border-color);border-radius:10px;padding:12px;margin-bottom:8px;">
                                     <div>
-                                        <div><strong>@a.FullName</strong> <span class="muted">(@a.Phone)</span> @(a.IsDefault ? Html.Raw("<span class='muted'>- پیش‌فرض</span>") : null)</div>
-                                        <div class="muted">@a.AddressLine، @a.City - @a.PostalCode</div>
+                                        <div><strong>@a.UserFullName</strong> <span class="muted">(@a.Phone)</span> @(a.IsDefault ? Html.Raw("<span class='muted'>- پیش‌فرض</span>") : null)</div>
+                                        <div class="muted">@a.AddressLine، @a.City، @a.Province - @a.PostalCode</div>
                                     </div>
                                     <div style="display:flex;gap:8px;">
                                         <form asp-controller="Addresses" asp-action="SetDefault" method="post">
@@ -241,8 +241,8 @@
             {
                 <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border-color);border-radius:10px;padding:12px;margin-bottom:8px;">
                     <div>
-                        <div><strong>@a.FullName</strong> <span class="muted">(@a.Phone)</span> @(a.IsDefault ? Html.Raw("<span class='muted'>- پیش‌فرض</span>") : null)</div>
-                        <div class="muted">@a.AddressLine، @a.City - @a.PostalCode</div>
+                        <div><strong>@a.UserFullName</strong> <span class="muted">(@a.Phone)</span> @(a.IsDefault ? Html.Raw("<span class='muted'>- پیش‌فرض</span>") : null)</div>
+                        <div class="muted">@a.AddressLine، @a.City، @a.Province - @a.PostalCode</div>
                     </div>
                     <div style="display:flex;gap:8px;">
                         <form asp-controller="Addresses" asp-action="SetDefault" method="post">

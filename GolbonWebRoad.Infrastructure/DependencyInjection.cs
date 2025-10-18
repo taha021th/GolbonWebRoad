@@ -1,5 +1,6 @@
 ﻿using GolbonWebRoad.Application.Interfaces.Services;
 using GolbonWebRoad.Application.Interfaces.Services.Logistics;
+using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using GolbonWebRoad.Domain.Interfaces.Repositories;
 using GolbonWebRoad.Infrastructure.Persistence;
@@ -24,7 +25,7 @@ namespace GolbonWebRoad.Infrastructure
             services.AddDbContext<GolbonWebRoadDbContext>(options =>
                 options.UseNpgsql(connectionString)
             );
-            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
 

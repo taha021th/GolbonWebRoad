@@ -1,9 +1,12 @@
 using GolbonWebRoad.Application;
+using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Infrastructure;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Log = Serilog.Log;
+
 
 // 1. پیکربندی لاگر اولیه (Bootstrap Logger)
 // این لاگر برای ثبت وقایع قبل از ساخته شدن کامل برنامه استفاده می‌شود
@@ -114,7 +117,7 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
-        var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         await GolbonWebRoad.Infrastructure.DataSeeders.IdentitySeedData.Initialize(userManager, roleManager);
 

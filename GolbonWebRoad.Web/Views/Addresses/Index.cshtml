@@ -38,8 +38,8 @@
                 {
                     <div class="card">
                         <div>
-                            <div><strong>@a.FullName</strong> <span class="muted">(@a.Phone)</span> @(a.IsDefault ? Html.Raw("<span class='muted'>- پیش‌فرض</span>") : null)</div>
-                            <div class="muted">@a.AddressLine، @a.City - @a.PostalCode</div>
+                            <div><strong>@a.UserFullName</strong> <span class="muted">(@a.Phone)</span> @(a.IsDefault ? Html.Raw("<span class='muted'>- پیش‌فرض</span>") : null)</div>
+                            <div class="muted">@a.AddressLine، @a.City، @a.Province - @a.PostalCode</div>
                         </div>
                         <div class="row">
                             <a class="btn btn-outline" asp-action="Edit" asp-route-id="@a.Id">ویرایش</a>

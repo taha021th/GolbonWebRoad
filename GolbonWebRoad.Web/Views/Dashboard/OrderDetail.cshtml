@@ -97,8 +97,8 @@
                     <h3 style="font-size:1.05rem; margin-bottom:10px;">آدرس ارسال</h3>
                     @if (Model.Address != null)
                     {
-                        <p class="mb-1"><strong>@Model.Address.FullName</strong> <span class="muted">(@Model.Address.Phone)</span></p>
-                        <p class="muted" style="margin:0">@Model.Address.AddressLine، @Model.Address.City - @Model.Address.PostalCode</p>
+                        <p class="mb-1"><strong>@($"{Model.Address.User.FirstName} {Model.Address.User.LastName}")</strong> <span class="muted">(@Model.Address.Phone)</span></p>
+                        <p class="muted" style="margin:0">@Model.Address.AddressLine، @Model.Address.City، @Model.Address.Province - @Model.Address.PostalCode</p>
                     }
                     else
                     {

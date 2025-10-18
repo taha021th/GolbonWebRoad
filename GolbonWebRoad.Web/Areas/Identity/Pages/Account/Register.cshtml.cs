@@ -1,39 +1,42 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-#nullable disable
+﻿#nullable disable
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
+using GolbonWebRoad.Domain.Entities; // کلاس سفارشی کاربر که خودمان ساختیم را وارد می‌کنیم
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+using System.Text.Encodings.Web;
 
 namespace GolbonWebRoad.Web.Areas.Identity.Pages.Account
 {
+    /// <summary>
+    /// این کلاس PageModel نام دارد و منطق سمت سرور برای صفحه Register.cshtml را مدیریت می‌کند.
+    /// تمام کارهایی که بعد از کلیک کاربر روی دکمه "ثبت نام" انجام می‌شود، در این کلاس نوشته شده است.
+    /// </summary>
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly IUserStore<IdentityUser> _userStore;
-        private readonly IUserEmailStore<IdentityUser> _emailStore;
-        private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
+        // این بخش، سرویس‌های مورد نیاز برای مدیریت کاربران را تعریف می‌کند.
+        // این سرویس‌ها به صورت خودکار توسط سیستم Dependency Injection به کلاس تزریق می‌شوند.
 
+        private readonly SignInManager<ApplicationUser> _signInManager; // مسئول مدیریت ورود و خروج کاربران
+        private readonly UserManager<ApplicationUser> _userManager;   // مسئول اصلی ساختن، حذف کردن و مدیریت کاربران
+        private readonly IUserStore<ApplicationUser> _userStore;       // مسئول ذخیره و بازیابی اطلاعات کاربر از دیتابیس
+        private readonly IUserEmailStore<ApplicationUser> _emailStore;  // مسئول مدیریت ایمیل کاربر
+        private readonly ILogger<RegisterModel> _logger;              // برای ثبت وقایع و خطاها (لاگ کردن)
+        private readonly IEmailSender _emailSender;                   // برای ارسال ایمیل (مثلا ایمیل تایید حساب)
+
+        /// <summary>
+        /// این سازنده (Constructor) کلاس است.
+        /// وقتی یک نمونه از RegisterModel ساخته می‌شود، این متد فراخوانی شده و تمام سرویس‌های مورد نیاز را دریافت می‌کند.
+        /// </summary>
         public RegisterModel(
-            UserManager<IdentityUser> userManager,
-            IUserStore<IdentityUser> userStore,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            IUserStore<ApplicationUser> userStore,
+            SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
@@ -46,82 +49,104 @@ namespace GolbonWebRoad.Web.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// این پراپرتی با اتریبیوت [BindProperty] مشخص شده است.
+        /// این یعنی ASP.NET Core به صورت خودکار اطلاعاتی که از فرم ثبت‌نام ارسال می‌شود را در این پراپرتی قرار می‌دهد.
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// آدرسی که کاربر پس از ثبت‌نام موفق باید به آنجا هدایت شود.
         /// </summary>
         public string ReturnUrl { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// لیستی از سرویس‌دهندگان خارجی برای ورود (مثل گوگل، فیسبوک و...)
         /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// این کلاس یک مدل داخلی است که فقط برای دریافت اطلاعات از فرم ثبت‌نام استفاده می‌شود.
+        /// تمام فیلدهای فرم در این کلاس تعریف می‌شوند.
         /// </summary>
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [EmailAddress]
-            [Display(Name = "Email")]
+            // فیلدهای سفارشی که خودمان اضافه کردیم
+            [Required(ErrorMessage = "وارد کردن نام الزامی است.")]
+            [Display(Name = "نام")]
+            public string FirstName { get; set; }
+
+            [Required(ErrorMessage = "وارد کردن نام خانوادگی الزامی است.")]
+            [Display(Name = "نام خانوادگی")]
+            public string LastName { get; set; }
+
+            [Required(ErrorMessage = "وارد کردن شماره تماس الزامی است.")]
+            [Phone(ErrorMessage = "فرمت شماره تماس صحیح نیست.")]
+            [Display(Name = "شماره تماس")]
+            public string PhoneNumber { get; set; }
+
+            // فیلدهای استاندارد Identity
+            [Required(ErrorMessage = "وارد کردن ایمیل الزامی است.")]
+            [EmailAddress(ErrorMessage = "فرمت ایمیل صحیح نیست.")]
+            [Display(Name = "ایمیل")]
             public string Email { get; set; }
 
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [Required(ErrorMessage = "وارد کردن کلمه عبور الزامی است.")]
+            [StringLength(100, ErrorMessage = "کلمه عبور باید حداقل {2} و حداکثر {1} کاراکتر باشد.", MinimumLength = 6)]
             [DataType(DataType.Password)]
-            [Display(Name = "Password")]
+            [Display(Name = "کلمه عبور")]
             public string Password { get; set; }
 
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
             [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Display(Name = "تکرار کلمه عبور")]
+            [Compare("Password", ErrorMessage = "کلمه عبور و تکرار آن یکسان نیستند.")]
             public string ConfirmPassword { get; set; }
         }
 
-
+        /// <summary>
+        /// این متد زمانی اجرا می‌شود که صفحه برای اولین بار با متد GET درخواست می‌شود (یعنی وقتی کاربر وارد صفحه ثبت‌نام می‌شود).
+        /// وظیفه آن آماده‌سازی صفحه است.
+        /// </summary>
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
+        /// <summary>
+        /// این متد زمانی اجرا می‌شود که کاربر فرم ثبت‌نام را پر کرده و دکمه "ثبت نام" را کلیک می‌کند (درخواست POST).
+        /// این متد قلب منطق ثبت‌نام است.
+        /// </summary>
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            // ModelState.IsValid بررسی می‌کند که آیا اطلاعات وارد شده توسط کاربر،
+            // با قوانین اعتبارسنجی که در InputModel تعریف کردیم (مثل Required, EmailAddress) مطابقت دارد یا خیر.
             if (ModelState.IsValid)
             {
+                // یک نمونه جدید از کاربر سفارشی خودمان می‌سازیم
                 var user = CreateUser();
 
+                // اطلاعات وارد شده توسط کاربر را به پراپرتی‌های آبجکت user نسبت می‌دهیم
+                user.FirstName = Input.FirstName;
+                user.LastName = Input.LastName;
+                user.PhoneNumber = Input.PhoneNumber;
+
+                // نام کاربری و ایمیل را تنظیم می‌کنیم
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+                // با استفاده از UserManager، تلاش می‌کنیم کاربر جدید را با کلمه عبور داده شده در دیتابیس بسازیم
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
+                // اگر ساخت کاربر با موفقیت انجام شد
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User created a new account with password.");
+                    _logger.LogInformation("کاربر جدید با کلمه عبور ایجاد شد.");
 
+                    // اگر نیاز به تایید ایمیل باشد، کد تایید را ساخته و ایمیل را ارسال می‌کنیم
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -131,8 +156,8 @@ namespace GolbonWebRoad.Web.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    await _emailSender.SendEmailAsync(Input.Email, "حساب کاربری خود را تایید کنید",
+                        $"لطفا با کلیک روی این لینک حساب خود را تایید کنید: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>کلیک کنید</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
@@ -140,41 +165,46 @@ namespace GolbonWebRoad.Web.Areas.Identity.Pages.Account
                     }
                     else
                     {
+                        // اگر نیازی به تایید ایمیل نبود، کاربر را مستقیماً وارد سیستم می‌کنیم
                         await _signInManager.SignInAsync(user, isPersistent: false);
                         return LocalRedirect(returnUrl);
                     }
                 }
+                // اگر ساخت کاربر با خطا مواجه شد (مثلا ایمیل تکراری بود)
                 foreach (var error in result.Errors)
                 {
+                    // خطاها را به ModelState اضافه می‌کنیم تا در صفحه به کاربر نمایش داده شود
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
 
-            // If we got this far, something failed, redisplay form
+            // اگر ModelState معتبر نبود، یعنی کاربر فرم را اشتباه پر کرده است.
+            // صفحه را دوباره به همراه پیام‌های خطا به او نمایش می‌دهیم.
             return Page();
         }
 
-        private IdentityUser CreateUser()
+        private ApplicationUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<IdentityUser>();
+                // یک نمونه جدید از کلاس کاربر سفارشی ما (ApplicationUser) می‌سازد
+                return Activator.CreateInstance<ApplicationUser>();
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
-                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
+                throw new InvalidOperationException($"امکان ساخت نمونه‌ای از '{nameof(ApplicationUser)}' وجود ندارد. " +
+                    $"مطمئن شوید که این کلاس abstract نیست و یک سازنده بدون پارامتر دارد.");
             }
         }
 
-        private IUserEmailStore<IdentityUser> GetEmailStore()
+        private IUserEmailStore<ApplicationUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
-                throw new NotSupportedException("The default UI requires a user store with email support.");
+                throw new NotSupportedException("رابط کاربری پیش‌فرض به UserStore با پشتیبانی از ایمیل نیاز دارد.");
             }
-            return (IUserEmailStore<IdentityUser>)_userStore;
+            return (IUserEmailStore<ApplicationUser>)_userStore;
         }
     }
 }
+

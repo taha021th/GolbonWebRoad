@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using GolbonWebRoad.Domain.Entities;
 
 namespace GolbonWebRoad.Application.Dtos.Orders
 {
@@ -7,7 +7,7 @@ namespace GolbonWebRoad.Application.Dtos.Orders
     {
         public int Id { get; set; }
         public string UserId { get; set; }
-        public IdentityUser User { get; set; }
+        public ApplicationUser User { get; set; }
         public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
         public string OrderStatus { get; set; }

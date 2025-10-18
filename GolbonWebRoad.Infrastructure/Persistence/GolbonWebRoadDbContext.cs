@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GolbonWebRoad.Infrastructure.Persistence
 {
-    public class GolbonWebRoadDbContext : IdentityDbContext
+    public class GolbonWebRoadDbContext : IdentityDbContext<ApplicationUser>
     {
         public GolbonWebRoadDbContext(DbContextOptions<GolbonWebRoadDbContext> options) : base(options)
         {
@@ -58,6 +58,8 @@ namespace GolbonWebRoad.Infrastructure.Persistence
                     l => l.HasOne(typeof(ProductAttributeValue)).WithMany().HasForeignKey("AttributeValuesId"),
                     r => r.HasOne(typeof(ProductVariant)).WithMany().HasForeignKey("VariantsId"),
                     j => j.HasKey("AttributeValuesId", "VariantsId"));
+
+            modelBuilder.Entity<ApplicationUser>().HasIndex(u => u.PhoneNumber).IsUnique(true);
         }
     }
 }

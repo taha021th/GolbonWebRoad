@@ -26,10 +26,11 @@ namespace GolbonWebRoad.Web.Controllers
                 Items = list.Select(a => new AddressItemViewModel
                 {
                     Id = a.Id,
-                    FullName = a.FullName,
+                    UserFullName = $"{a.User.FirstName} {a.User.LastName}",
                     Phone = a.Phone,
                     AddressLine = a.AddressLine,
                     City = a.City,
+                    Province = a.Province,
                     PostalCode = a.PostalCode,
                     IsDefault = a.IsDefault
                 }).ToList()
@@ -51,10 +52,10 @@ namespace GolbonWebRoad.Web.Controllers
             var entity = new UserAddress
             {
                 UserId = userId,
-                FullName = model.FullName,
                 Phone = model.Phone,
                 AddressLine = model.AddressLine,
                 City = model.City,
+                Province = model.Province,
                 PostalCode = model.PostalCode,
                 IsDefault = model.IsDefault
             };
@@ -80,10 +81,10 @@ namespace GolbonWebRoad.Web.Controllers
             return View(new AddressFormViewModel
             {
                 Id = addr.Id,
-                FullName = addr.FullName,
                 Phone = addr.Phone,
                 AddressLine = addr.AddressLine,
                 City = addr.City,
+                Province = addr.Province,
                 PostalCode = addr.PostalCode,
                 IsDefault = addr.IsDefault
             });
@@ -99,10 +100,10 @@ namespace GolbonWebRoad.Web.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (addr.UserId != userId) return Forbid();
 
-            addr.FullName = model.FullName;
             addr.Phone = model.Phone;
             addr.AddressLine = model.AddressLine;
             addr.City = model.City;
+            addr.Province = model.Province;
             addr.PostalCode = model.PostalCode;
             addr.IsDefault = model.IsDefault;
             _unitOfWork.UserAddressRepository.Update(addr);

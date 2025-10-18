@@ -24,24 +24,8 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Orders
 
         public List<OrderItemViewModel> OrderItems { get; set; } = new List<OrderItemViewModel>();
 
-        // اطلاعات آدرس
-        [Display(Name = "نام کامل گیرنده")]
-        public string AddressFullName { get; set; }
-
-        [Display(Name = "شماره تماس گیرنده")]
-        public string AddressPhone { get; set; }
-
-        [Display(Name = "آدرس پستی")]
-        public string AddressLine { get; set; }
-
-        [Display(Name = "شهر")]
-        public string AddressCity { get; set; }
-
-        [Display(Name = "استان")]
-        public string AddressProvince { get; set; }
-
-        [Display(Name = "کد پستی")]
-        public string AddressPostalCode { get; set; }
+        [Display(Name = "آدرس تحویل")]
+        public UserAddressViewModel UserAddress { get; set; }
 
         // ==========================================================
         // === پراپرتی‌های اضافه شده برای نمایش اطلاعات ارسال ===

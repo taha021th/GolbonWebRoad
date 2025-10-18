@@ -21,7 +21,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
 
         public async Task<IEnumerable<Order>> GetAllAsync()
         {
-            return await _context.Orders.Include(o => o.OrderItems).OrderByDescending(o => o.OrderDate).ToListAsync();
+            return await _context.Orders.Include(u => u.User).Include(a => a.Address).Include(o => o.OrderItems).OrderByDescending(o => o.OrderDate).ToListAsync();
         }
 
         public async Task<Order?> GetByIdAsync(int id)

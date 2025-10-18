@@ -1,4 +1,5 @@
 ﻿using GolbonWebRoad.Application.Dtos.Users;
+using GolbonWebRoad.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,9 +12,9 @@ namespace GolbonWebRoad.Application.Features.Users.Queries
     }
     public class GetUserRolesQueryHandler : IRequestHandler<GetUserRolesQuery, ManageUserRolesDto>
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public GetUserRolesQueryHandler(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        public GetUserRolesQueryHandler(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;

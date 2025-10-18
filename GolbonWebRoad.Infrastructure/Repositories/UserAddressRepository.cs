@@ -37,7 +37,12 @@ namespace GolbonWebRoad.Infrastructure.Repositories
 
         public async Task<IEnumerable<UserAddress>> GetByUserIdAsync(string userId)
         {
-            return await _context.UserAddresses.Where(a => a.UserId == userId).OrderByDescending(a => a.IsDefault).ThenByDescending(a => a.CreatedAt).ToListAsync();
+            return await _context.UserAddresses
+                .Include(a => a.User)
+                .Where(a => a.UserId == userId)
+                .OrderByDescending(a => a.IsDefault)
+                .ThenByDescending(a => a.CreatedAt)
+                .ToListAsync();
         }
 
         public void Update(UserAddress address)

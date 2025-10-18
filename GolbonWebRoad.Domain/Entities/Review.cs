@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GolbonWebRoad.Domain.Entities
 {
@@ -13,7 +12,7 @@ namespace GolbonWebRoad.Domain.Entities
         public Product Product { get; set; }
         public string UserId { get; set; }
         [ForeignKey("UserId")]
-        public virtual IdentityUser User { get; set; }
+        public virtual ApplicationUser User { get; set; }
 
         public bool Status { get; set; } = false;
     }

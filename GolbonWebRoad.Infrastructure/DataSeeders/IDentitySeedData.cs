@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using GolbonWebRoad.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace GolbonWebRoad.Infrastructure.DataSeeders
 {
     public static class IdentitySeedData
     {
-        public static async Task Initialize(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        public static async Task Initialize(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             string adminRole = "Admin";
             string adminEmail = "golbon.taha@gmail.com";
@@ -17,7 +18,7 @@ namespace GolbonWebRoad.Infrastructure.DataSeeders
 
             if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
-                var user = new IdentityUser
+                var user = new ApplicationUser
                 {
                     UserName = adminEmail,
                     Email = adminEmail,
