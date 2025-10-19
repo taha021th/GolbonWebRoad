@@ -1,10 +1,56 @@
-﻿@{
+﻿@model GolbonWebRoad.Web.Areas.Admin.Models.Dashboard.DashboardViewModel
+@{
     ViewData["Title"] = "داشبورد";
+
+    // هلپر فانکشن‌ها برای فرمت کردن اعداد و وضعیت‌ها
+    string FormatNumber(int number)
+    {
+        return number.ToString("N0", System.Globalization.CultureInfo.CreateSpecificCulture("fa-IR"));
+    }
+
+    string FormatCurrency(decimal amount)
+    {
+        return amount.ToString("N0", System.Globalization.CultureInfo.CreateSpecificCulture("fa-IR")) + " تومان";
+    }
+
+    string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "PaymentReceived" => "پرداخت دریافت شده",
+            "Pending" => "در انتظار",
+            "Shipped" => "ارسال شده",
+            "Cancelled" => "لغو شده",
+            _ => status
+        };
+    }
+
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "PaymentReceived" => "bg-success",
+            "Pending" => "bg-warning text-dark",
+            "Shipped" => "bg-info text-dark",
+            "Cancelled" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}
+
+<!-- نمایش پیام‌های خطا یا موفقیت -->
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }
 
 <!-- Page Header -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+    <small class="text-muted">به‌روزرسانی شده در: @DateTime.Now.ToString("yyyy/MM/dd HH:mm")</small>
 </div>
 
 <!-- Stat Cards Row -->
@@ -18,7 +64,7 @@
                 </div>
                 <div class="flex-grow-1">
                     <h6 class="text-muted mb-1">مجموع فروش</h6>
-                    <h4 class="mb-0">۱۲,۵۴۰,۰۰۰ تومان</h4>
+                    <h4 class="mb-0">@FormatCurrency(Model.TotalRevenue)</h4>
                 </div>
             </div>
         </div>
@@ -32,7 +78,7 @@
                 </div>
                 <div class="flex-grow-1">
                     <h6 class="text-muted mb-1">تعداد سفارشات</h6>
-                    <h4 class="mb-0">۳۵۲</h4>
+                    <h4 class="mb-0">@FormatNumber(Model.TotalOrders)</h4>
                 </div>
             </div>
         </div>
@@ -46,7 +92,7 @@
                 </div>
                 <div class="flex-grow-1">
                     <h6 class="text-muted mb-1">تعداد کاربران</h6>
-                    <h4 class="mb-0">۱۲۸</h4>
+                    <h4 class="mb-0">@FormatNumber(Model.TotalUsers)</h4>
                 </div>
             </div>
         </div>
@@ -60,7 +106,67 @@
                 </div>
                 <div class="flex-grow-1">
                     <h6 class="text-muted mb-1">تعداد محصولات</h6>
-                    <h4 class="mb-0">۷۴</h4>
+                    <h4 class="mb-0">@FormatNumber(Model.TotalProducts)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ردیف دوم آمار -->
+<div class="row g-4 mt-2">
+    <!-- درآمد امروز -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0 bg-success text-white rounded-3 p-3 me-3">
+                    <i class="fas fa-calendar-day fa-2x"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="text-muted mb-1">درآمد امروز</h6>
+                    <h4 class="mb-0">@FormatCurrency(Model.TodayRevenue)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- سفارشات امروز -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0 bg-primary text-white rounded-3 p-3 me-3">
+                    <i class="fas fa-shopping-cart fa-2x"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="text-muted mb-1">سفارشات امروز</h6>
+                    <h4 class="mb-0">@FormatNumber(Model.TodayOrders)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- سفارشات در انتظار -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0 bg-warning text-white rounded-3 p-3 me-3">
+                    <i class="fas fa-clock fa-2x"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="text-muted mb-1">سفارشات در انتظار</h6>
+                    <h4 class="mb-0">@FormatNumber(Model.PendingOrders)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- محصولات کم موجود -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0 bg-danger text-white rounded-3 p-3 me-3">
+                    <i class="fas fa-exclamation-triangle fa-2x"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="text-muted mb-1">محصولات کم موجود</h6>
+                    <h4 class="mb-0">@FormatNumber(Model.LowStockProducts)</h4>
                 </div>
             </div>
         </div>
@@ -87,40 +193,33 @@
                 <h5 class="card-title mb-0">آخرین سفارشات</h5>
             </div>
             <div class="card-body p-0">
-                <div class="list-group list-group-flush">
-                    <a href="#" class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">سفارش #1024</h6>
-                            <small class="text-muted">۳ دقیقه پیش</small>
-                        </div>
-                        <p class="mb-1">علی رضایی</p>
-                        <small>۲۵۰,۰۰۰ تومان</small>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">سفارش #1023</h6>
-                            <small class="text-muted">۱ ساعت پیش</small>
-                        </div>
-                        <p class="mb-1">مریم محمدی</p>
-                        <small>۱,۲۰۰,۰۰۰ تومان</small>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">سفارش #1022</h6>
-                            <small class="text-muted">۵ ساعت پیش</small>
-                        </div>
-                        <p class="mb-1">رضا احمدی</p>
-                        <small>۸۵,۰۰۰ تومان</small>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">سفارش #1021</h6>
-                            <small class="text-muted">دیروز</small>
-                        </div>
-                        <p class="mb-1">سارا حسینی</p>
-                        <small>۴۳۰,۰۰۰ تومان</small>
-                    </a>
-                </div>
+                @if (Model.RecentOrders != null && Model.RecentOrders.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var order in Model.RecentOrders)
+                        {
+                            <a asp-area="Admin" asp-controller="Orders" asp-action="Detail" asp-route-id="@order.Id" 
+                               class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">سفارش #@order.Id</h6>
+                                    <small class="text-muted">@order.TimeAgo</small>
+                                </div>
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <p class="mb-1">@order.CustomerName</p>
+                                    <span class="badge @GetStatusBadgeClass(order.OrderStatus) me-2">@GetStatusText(order.OrderStatus)</span>
+                                </div>
+                                <small>@FormatCurrency(order.TotalAmount)</small>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>هیچ سفارشی یافت نشد</p>
+                    </div>
+                }
             </div>
             <div class="card-footer text-center">
                 <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="btn btn-outline-primary btn-sm">مشاهده همه سفارشات</a>
@@ -139,10 +238,10 @@
             var salesChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'],
+                    labels: [@Html.Raw(string.Join(",", Model.DailySales.Select(d => $"'{d.DayName}'").ToArray()))],
                     datasets: [{
                         label: 'فروش (تومان)',
-                        data: [1200000, 1900000, 3000000, 5000000, 2300000, 3100000, 4500000],
+                        data: [@Html.Raw(string.Join(",", Model.DailySales.Select(d => d.Sales.ToString(System.Globalization.CultureInfo.InvariantCulture))))],
                         backgroundColor: 'rgba(13, 110, 253, 0.1)',
                         borderColor: 'rgba(13, 110, 253, 1)',
                         borderWidth: 2,

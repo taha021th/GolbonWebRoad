@@ -33,9 +33,6 @@ builder.Services.AddSession(options =>
 }
 );
 
-builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureServices(builder.Configuration);
-
 builder.Services.AddAutoMapper(config =>
 {
     config.AddProfile<GolbonWebRoad.Web.Mapping.MappingProfile>();
@@ -43,6 +40,8 @@ builder.Services.AddAutoMapper(config =>
 }
             );
 
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 
 // 2. جایگزین کردن لاگر پیش‌فرض با Serilog

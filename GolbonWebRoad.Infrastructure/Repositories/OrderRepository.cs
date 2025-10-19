@@ -71,5 +71,85 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         {
             _context.Orders.Update(order);
         }
+
+        // ==========================================================
+        // === پیاده‌سازی متدهای آماری داشبورد ===
+        // ==========================================================
+
+        public async Task<decimal> GetTotalRevenueAsync()
+        {
+            return await _context.Orders
+                .Where(o => o.OrderStatus == "PaymentReceived" || o.OrderStatus == "Shipped")
+                .SumAsync(o => o.TotalAmount);
+        }
+
+        public async Task<int> GetTotalOrdersCountAsync()
+        {
+            return await _context.Orders.CountAsync();
+        }
+
+        public async Task<decimal> GetTodayRevenueAsync()
+        {
+            var today = DateTime.Today;
+            return await _context.Orders
+                .Where(o => o.OrderDate.Date == today && 
+                           (o.OrderStatus == "PaymentReceived" || o.OrderStatus == "Shipped"))
+                .SumAsync(o => o.TotalAmount);
+        }
+
+        public async Task<int> GetTodayOrdersCountAsync()
+        {
+            var today = DateTime.Today;
+            return await _context.Orders
+                .Where(o => o.OrderDate.Date == today)
+                .CountAsync();
+        }
+
+        public async Task<int> GetPendingOrdersCountAsync()
+        {
+            return await _context.Orders
+                .Where(o => o.OrderStatus == "Pending")
+                .CountAsync();
+        }
+
+        public async Task<IEnumerable<Order>> GetRecentOrdersAsync(int count = 5)
+        {
+            return await _context.Orders
+                .Include(o => o.User)
+                .OrderByDescending(o => o.OrderDate)
+                .Take(count)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<DailySalesStats>> GetDailySalesStatsAsync(int days = 7)
+        {
+            var today = DateTime.Today;
+            var startDate = today.AddDays(-days + 1);
+
+            var dailyStats = new List<DailySalesStats>();
+            
+            for (int i = 0; i < days; i++)
+            {
+                var date = startDate.AddDays(i);
+                
+                var dayRevenue = await _context.Orders
+                    .Where(o => o.OrderDate.Date == date && 
+                               (o.OrderStatus == "PaymentReceived" || o.OrderStatus == "Shipped"))
+                    .SumAsync(o => o.TotalAmount);
+
+                var dayOrdersCount = await _context.Orders
+                    .Where(o => o.OrderDate.Date == date)
+                    .CountAsync();
+
+                dailyStats.Add(new DailySalesStats
+                {
+                    Date = date,
+                    Sales = dayRevenue,
+                    OrdersCount = dayOrdersCount
+                });
+            }
+
+            return dailyStats;
+        }
     }
 }

@@ -163,5 +163,21 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         {
             return _context.Products.Include(p => p.Images).Include(p => p.Variants).FirstOrDefaultAsync(p => p.IsFeatured);
         }
+
+        // ==========================================================
+        // === پیاده‌سازی متدهای آماری داشبورد ===
+        // ==========================================================
+
+        public async Task<int> GetTotalProductsCountAsync()
+        {
+            return await _context.Products.CountAsync();
+        }
+
+        public async Task<int> GetLowStockProductsCountAsync()
+        {
+            return await _context.Products
+                .Where(p => p.Variants.Sum(v => v.StockQuantity) < 10)
+                .CountAsync();
+        }
     }
 }

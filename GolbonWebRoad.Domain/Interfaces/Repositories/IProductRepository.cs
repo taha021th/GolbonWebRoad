@@ -19,5 +19,21 @@ namespace GolbonWebRoad.Domain.Interfaces.Repositories
         Product Add(Product product);
         void Update(Product product);
         Task DeleteAsync(int id);
+        
+        // ==========================================================
+        // === متدهای آماری برای داشبورد ===
+        // ==========================================================
+        
+        /// <summary>
+        /// تعداد کل محصولات
+        /// </summary>
+        /// <returns>تعداد کل محصولات</returns>
+        Task<int> GetTotalProductsCountAsync();
+
+        /// <summary>
+        /// تعداد محصولات کم موجود (کمتر از 10)
+        /// </summary>
+        /// <returns>تعداد محصولات کم موجود</returns>
+        Task<int> GetLowStockProductsCountAsync();
     }
 }

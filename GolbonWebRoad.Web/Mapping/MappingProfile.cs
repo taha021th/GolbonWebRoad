@@ -213,8 +213,55 @@ namespace GolbonWebRoad.Web.Mapping
                         : string.Empty));
             #endregion
 
+            #region Dashboard
+            // نگاشت Dashboard DTOs به ViewModels
+            CreateMap<GolbonWebRoad.Application.Features.Dashboard.Queries.DashboardStatsDto, GolbonWebRoad.Web.Areas.Admin.Models.Dashboard.DashboardViewModel>();
+            
+            CreateMap<GolbonWebRoad.Application.Features.Dashboard.Queries.RecentOrderDto, GolbonWebRoad.Web.Areas.Admin.Models.Dashboard.RecentOrderViewModel>()
+                .ForMember(dest => dest.TimeAgo, opt => opt.MapFrom(src => GetTimeAgo(src.OrderDate)));
+            
+            CreateMap<GolbonWebRoad.Application.Features.Dashboard.Queries.DailySalesDto, GolbonWebRoad.Web.Areas.Admin.Models.Dashboard.DailySalesViewModel>()
+                .ForMember(dest => dest.DayName, opt => opt.MapFrom(src => GetPersianDayName(src.Date)));
+            #endregion
 
+        }
 
+        /// <summary>
+        /// تبدیل تاریخ به متن نمایشی زمان (مثل "۵ دقیقه پیش")
+        /// </summary>
+        private static string GetTimeAgo(DateTime dateTime)
+        {
+            var timeSpan = DateTime.Now - dateTime;
+            
+            if (timeSpan.TotalMinutes < 1)
+                return "همین الان";
+            if (timeSpan.TotalMinutes < 60)
+                return $"{(int)timeSpan.TotalMinutes} دقیقه پیش";
+            if (timeSpan.TotalHours < 24)
+                return $"{(int)timeSpan.TotalHours} ساعت پیش";
+            if (timeSpan.TotalDays < 7)
+                return $"{(int)timeSpan.TotalDays} روز پیش";
+            
+            return dateTime.ToString("yyyy/MM/dd");
+        }
+
+        /// <summary>
+        /// تبدیل تاریخ به نام روز به فارسی
+        /// </summary>
+        private static string GetPersianDayName(DateTime date)
+        {
+            var dayOfWeek = date.DayOfWeek;
+            return dayOfWeek switch
+            {
+                DayOfWeek.Saturday => "شنبه",
+                DayOfWeek.Sunday => "یکشنبه",
+                DayOfWeek.Monday => "دوشنبه",
+                DayOfWeek.Tuesday => "سه‌شنبه",
+                DayOfWeek.Wednesday => "چهارشنبه",
+                DayOfWeek.Thursday => "پنج‌شنبه",
+                DayOfWeek.Friday => "جمعه",
+                _ => date.ToString("dddd")
+            };
         }
     }
 }
