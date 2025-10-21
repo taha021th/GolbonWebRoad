@@ -2,11 +2,13 @@
 using GolbonWebRoad.Application.Dtos.Users;
 using GolbonWebRoad.Application.Features.Brands.Commands;
 using GolbonWebRoad.Application.Features.Categories.Commands;
+using GolbonWebRoad.Application.Features.Dashboard.Queries;
 using GolbonWebRoad.Application.Features.Products.Commands;
 using GolbonWebRoad.Application.Features.Users.Commands;
 using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Web.Areas.Admin.Models.Brands;
 using GolbonWebRoad.Web.Areas.Admin.Models.Categories;
+using GolbonWebRoad.Web.Areas.Admin.Models.Dashboard;
 using GolbonWebRoad.Web.Areas.Admin.Models.Orders;
 using GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels;
 using GolbonWebRoad.Web.Areas.Admin.Models.Users;
@@ -214,13 +216,15 @@ namespace GolbonWebRoad.Web.Mapping
             #endregion
 
             #region Dashboard
-            // نگاشت Dashboard DTOs به ViewModels
-            CreateMap<GolbonWebRoad.Application.Features.Dashboard.Queries.DashboardStatsDto, GolbonWebRoad.Web.Areas.Admin.Models.Dashboard.DashboardViewModel>();
-            
-            CreateMap<GolbonWebRoad.Application.Features.Dashboard.Queries.RecentOrderDto, GolbonWebRoad.Web.Areas.Admin.Models.Dashboard.RecentOrderViewModel>()
+            // مپ کردن DTO اصلی به ویومدل اصلی
+            CreateMap<DashboardStatsDto, DashboardViewModel>();
+
+            // مپ کردن DTO سفارشات اخیر به ویومدل آن
+            CreateMap<RecentOrderDto, RecentOrderViewModel>()
                 .ForMember(dest => dest.TimeAgo, opt => opt.MapFrom(src => GetTimeAgo(src.OrderDate)));
-            
-            CreateMap<GolbonWebRoad.Application.Features.Dashboard.Queries.DailySalesDto, GolbonWebRoad.Web.Areas.Admin.Models.Dashboard.DailySalesViewModel>()
+
+            // مپ کردن DTO آمار روزانه به ویومدل آن
+            CreateMap<DailySalesDto, DailySalesViewModel>()
                 .ForMember(dest => dest.DayName, opt => opt.MapFrom(src => GetPersianDayName(src.Date)));
             #endregion
 
@@ -232,7 +236,7 @@ namespace GolbonWebRoad.Web.Mapping
         private static string GetTimeAgo(DateTime dateTime)
         {
             var timeSpan = DateTime.Now - dateTime;
-            
+
             if (timeSpan.TotalMinutes < 1)
                 return "همین الان";
             if (timeSpan.TotalMinutes < 60)
@@ -241,7 +245,7 @@ namespace GolbonWebRoad.Web.Mapping
                 return $"{(int)timeSpan.TotalHours} ساعت پیش";
             if (timeSpan.TotalDays < 7)
                 return $"{(int)timeSpan.TotalDays} روز پیش";
-            
+
             return dateTime.ToString("yyyy/MM/dd");
         }
 

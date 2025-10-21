@@ -1,6 +1,5 @@
 using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
-using GolbonWebRoad.Domain.Interfaces.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +37,7 @@ namespace GolbonWebRoad.Application.Features.Dashboard.Queries
         public async Task<DashboardStatsDto> Handle(GetDashboardStatsQuery request, CancellationToken cancellationToken)
         {
             // استفاده از Repository ها برای دریافت آمار به جای استفاده مستقیم از DbContext
-            
+
             // محاسبه آمار کلی سیستم از طریق Repository ها
             var totalRevenue = await _unitOfWork.OrderRepository.GetTotalRevenueAsync();
             var totalOrders = await _unitOfWork.OrderRepository.GetTotalOrdersCountAsync();
@@ -57,6 +56,11 @@ namespace GolbonWebRoad.Application.Features.Dashboard.Queries
 
             // دریافت آخرین سفارشات (۵ مورد اخیر)
             var recentOrdersEntities = await _unitOfWork.OrderRepository.GetRecentOrdersAsync(5);
+
+            // دریافت آمار فروش ۷ روز اخیر
+            var dailySalesStats = await _unitOfWork.OrderRepository.GetDailySalesStatsAsync(7);
+
+
             var recentOrders = recentOrdersEntities.Select(o => new RecentOrderDto
             {
                 Id = o.Id,
@@ -66,8 +70,7 @@ namespace GolbonWebRoad.Application.Features.Dashboard.Queries
                 OrderDate = o.OrderDate
             }).ToList();
 
-            // دریافت آمار فروش ۷ روز اخیر
-            var dailySalesStats = await _unitOfWork.OrderRepository.GetDailySalesStatsAsync(7);
+
             var dailySales = dailySalesStats.Select(ds => new DailySalesDto
             {
                 Date = ds.Date,
