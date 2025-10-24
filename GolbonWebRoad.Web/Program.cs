@@ -43,6 +43,9 @@ builder.Services.AddAutoMapper(config =>
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+// For in-memory caching used by query handlers/controllers
+builder.Services.AddMemoryCache();
+
 
 // 2. جایگزین کردن لاگر پیش‌فرض با Serilog
 builder.Host.UseSerilog((context, services, configuration) => configuration

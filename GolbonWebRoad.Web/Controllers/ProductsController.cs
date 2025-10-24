@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using GolbonWebRoad.Application.Features.Brands.Queries;
-using GolbonWebRoad.Application.Features.Categories.Queries;
 using GolbonWebRoad.Application.Features.Products.Queries;
 using GolbonWebRoad.Application.Features.Reviews.Commands;
 using GolbonWebRoad.Application.Features.Reviews.Queries;
@@ -23,32 +21,25 @@ namespace GolbonWebRoad.Web.Controllers
         }
         public async Task<IActionResult> Index(int? categoryId, int? brandId, string searchTerm, string sortOrder, int page = 1)
         {
-            // 1. Fetch raw product entities using the new query
-            var pagedProducts = await _mediator.Send(new GetPagedProductsQuery
+            var data = await _mediator.Send(new GetProductsPageDataQuery
             {
                 CategoryId = categoryId,
                 BrandId = brandId,
                 SearchTerm = searchTerm,
-                SortOrder=sortOrder,
+                SortOrder = sortOrder,
                 PageNumber = page,
                 PageSize = 6
             });
 
-            // 2. Fetch categories and brands for the filter sidebar
-            var categories = await _mediator.Send(new GetCategoriesQuery());
-            var brands = await _mediator.Send(new GetBrandsQuery());
-
-            // 3. Map everything to the final ViewModel here in the Controller
             var viewModel = new ProductIndexViewModel
             {
-                // The mapping now happens on the paged result of entities
-                Products = _mapper.Map<PagedResult<ProductViewModel>>(pagedProducts),
-                Categories = _mapper.Map<List<CategoryViewModel>>(categories),
-                Brands = _mapper.Map<List<BrandViewModel>>(brands),
+                Products = _mapper.Map<PagedResult<ProductViewModel>>(data.Products),
+                Categories = _mapper.Map<List<CategoryViewModel>>(data.Categories),
+                Brands = _mapper.Map<List<BrandViewModel>>(data.Brands),
                 CurrentCategoryId = categoryId,
                 CurrentBrandId = brandId,
                 SearchTerm = searchTerm,
-                CurrentSortOrder=sortOrder
+                CurrentSortOrder = sortOrder
             };
 
             return View(viewModel);

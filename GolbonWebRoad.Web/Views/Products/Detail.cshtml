@@ -11,14 +11,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@Model.Name - فروشگاه Tecture</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="~/css/fonts.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/all.min.css" />
+
+    <link rel="stylesheet" href="~/lib/swiper/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="~/lib/aos/aos.css" />
 
     @Html.Partial("_CommonStyles")
 
@@ -417,19 +415,19 @@
                     <div class="swiper-wrapper">
                         <!-- محصول مرتبط ۱ -->
                         <div class="swiper-slide">
-                            <div class="product-card"><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="کاناپه مدرن سبز"><div class="product-card-content"><h3>کاناپه مدرن سبز</h3><p class="price">8,500,000 تومان</p></div></div>
+                            <div class="product-card"><img src="/images/hero-background.jpg" alt="کاناپه مدرن سبز"><div class="product-card-content"><h3>کاناپه مدرن سبز</h3><p class="price">8,500,000 تومان</p></div></div>
                         </div>
                         <!-- محصول مرتبط ۲ -->
                         <div class="swiper-slide">
-                            <div class="product-card"><img src="https://images.unsplash.com/photo-1538688525198-9b88f6f53126?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="چراغ مطالعه رومیزی"><div class="product-card-content"><h3>چراغ مطالعه رومیزی</h3><p class="price">1,850,000 تومان</p></div></div>
+                            <div class="product-card"><img src="/images/hero-background.jpg" alt="چراغ مطالعه رومیزی"><div class="product-card-content"><h3>چراغ مطالعه رومیزی</h3><p class="price">1,850,000 تومان</p></div></div>
                         </div>
                         <!-- محصول مرتبط ۳ -->
                         <div class="swiper-slide">
-                           <div class="product-card"><img src="https://images.unsplash.com/photo-1540932239986-30128078f3c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="آباژور ایستاده"><div class="product-card-content"><h3>آباژور ایستاده</h3><p class="price">2,100,000 تومان</p></div></div>
+                            <div class="product-card"><img src="/images/hero-background.jpg" alt="آباژور ایستاده"><div class="product-card-content"><h3>آباژور ایستاده</h3><p class="price">2,100,000 تومان</p></div></div>
                         </div>
                         <!-- محصول مرتبط ۴ -->
                          <div class="swiper-slide">
-                            <div class="product-card"><img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="صندلی تک نفره کرم"><div class="product-card-content"><h3>صندلی تک نفره کرم</h3><p class="price">4,600,000 تومان</p></div></div>
+                            <div class="product-card"><img src="/images/hero-background.jpg" alt="صندلی تک نفره کرم"><div class="product-card-content"><h3>صندلی تک نفره کرم</h3><p class="price">4,600,000 تومان</p></div></div>
                         </div>
                     </div>
                 </div>
@@ -438,11 +436,12 @@
 
     </main>
     
-    @Html.Partial("_Footer")
-
-    @Html.Partial("_CommonScripts")
     
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    @Html.Partial("_Footer")
+    @Html.Partial("_CommonScripts")       
+    
+    <script src="~/lib/swiper/swiper-bundle.min.js"></script>
+    
     <script>
 
         // منطق گالری تصاویر

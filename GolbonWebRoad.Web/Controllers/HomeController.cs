@@ -21,16 +21,14 @@ namespace GolbonWebRoad.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var productsTask = await _mediator.Send(new GetProductsQuery { SortOrder="price_desc", JoinImages=true, JoinBrand=true, Count=8 });
-            var productIsFeaturedTask = await _mediator.Send(new GetProductByIsFeaturedQuery()); ;
-            var categoriesTask = await _mediator.Send(new GetCategoriesQuery { Take=9 });
+            var data = await _mediator.Send(new GolbonWebRoad.Application.Features.HomePage.Queries.GetHomePageDataQuery());
 
-
-
-            var viewModel = new HomeProductViewModel();
-            viewModel.Products= _mapper.Map<List<ProductViewModel>>(productsTask);
-            viewModel.ProductIsFeatured =_mapper.Map<ProductViewModel>(productIsFeaturedTask);
-            viewModel.Categories=_mapper.Map<List<CategoryViewModel>>(categoriesTask);
+            var viewModel = new HomeProductViewModel
+            {
+                Products = _mapper.Map<List<ProductViewModel>>(data.Products),
+                ProductIsFeatured = _mapper.Map<ProductViewModel>(data.ProductIsFeatured),
+                Categories = _mapper.Map<List<CategoryViewModel>>(data.Categories)
+            };
 
             return View(viewModel);
         }
