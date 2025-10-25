@@ -9,14 +9,111 @@
     <style>
         :root { --bg-color:#121212; --primary-text-color:#fff; --secondary-text-color:#a0a0a0; --card-bg:#1a1a1a; --border:#333; --accent:#4a90e2; }
         body.light-mode { --bg-color:#f4f4f5; --card-bg:#fff; --primary-text-color:#18181b; --secondary-text-color:#71717a; --border:#e4e4e7; }
-        body{background:var(--bg-color); color:var(--primary-text-color); font-family: Manrope, sans-serif}
-        .container{max-width:1000px;margin:0 auto;padding:20px}
-        .header{display:flex;justify-content:space-between;align-items:center;margin:20px 0}
-        .card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
-        .muted{color:var(--secondary-text-color)}
-        .btn{padding:8px 14px;border-radius:8px;border:2px solid var(--accent);background:var(--accent);color:#fff;text-decoration:none}
-        .btn-outline{background:transparent;color:var(--accent)}
-        .row{display:flex;gap:12px;align-items:center}
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg-color); color: var(--primary-text-color); font-family: Manrope, sans-serif; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; flex-wrap: wrap; gap: 15px; }
+        .header h1 { font-size: 1.8rem; }
+        
+        .address-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .address-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.1);
+        }
+        
+        .address-info {
+            flex: 1;
+        }
+        
+        .address-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .muted { color: var(--secondary-text-color); font-size: 0.9rem; }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 6px;
+            border: 2px solid var(--accent);
+            background: var(--accent);
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .btn:hover {
+            background: transparent;
+            color: var(--accent);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--accent);
+        }
+        
+        .btn-outline:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+        
+        .btn-danger {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: transparent;
+        }
+        
+        .btn-danger:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+        
+        @@media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .header .btn {
+                width: 100%;
+            }
+            
+            .address-card {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+            
+            .address-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .address-actions .btn,
+            .address-actions button {
+                flex: 1;
+                min-width: 0;
+            }
+        }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,22 +133,22 @@
             {
                 foreach (var a in Model.Items)
                 {
-                    <div class="card">
-                        <div>
+                    <div class="address-card">
+                        <div class="address-info">
                             <div><strong>@a.UserFullName</strong> <span class="muted">(@a.Phone)</span> @(a.IsDefault ? Html.Raw("<span class='muted'>- پیش‌فرض</span>") : null)</div>
                             <div class="muted">@a.AddressLine، @a.City، @a.Province - @a.PostalCode</div>
                         </div>
-                        <div class="row">
+                        <div class="address-actions">
                             <a class="btn btn-outline" asp-action="Edit" asp-route-id="@a.Id">ویرایش</a>
-                            <form asp-action="SetDefault" method="post">
+                            <form asp-action="SetDefault" method="post" style="display: inline;">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@a.Id" />
                                 <button type="submit" class="btn btn-outline">پیش‌فرض</button>
                             </form>
-                            <form asp-action="Delete" method="post" onsubmit="return confirm('حذف آدرس؟');">
+                            <form asp-action="Delete" method="post" onsubmit="return confirm('حذف آدرس؟');" style="display: inline;">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@a.Id" />
-                                <button type="submit" class="btn btn-outline" style="border-color:#e24a4a;color:#e24a4a">حذف</button>
+                                <button type="submit" class="btn btn-danger">حذف</button>
                             </form>
                         </div>
                     </div>
@@ -59,7 +156,7 @@
             }
             else
             {
-                <div class="card">هنوز آدرسی ثبت نکرده‌اید.</div>
+                <div class="address-card">هنوز آدرسی ثبت نکرده‌اید.</div>
             }
         </div>
     </body>

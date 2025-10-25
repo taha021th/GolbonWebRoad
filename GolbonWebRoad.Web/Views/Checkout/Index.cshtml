@@ -11,8 +11,7 @@
     <title>تسویه حساب - فروشگاه Tecture</title>
     
     <link rel="stylesheet" href="~/css/fonts.css" />
-    <link rel="stylesheet" href="~/lib/font-awesome/all.min.css" />    
-    <link rel="stylesheet" href="~/lib/aos/aos.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/all.min.css" />
 
     @Html.Partial("_CommonStyles")
 
@@ -211,14 +210,14 @@
     @Html.Partial("_Header")
 
     <main>
-        <header class="page-header" data-aos="fade-in">
+        <header class="page-header">
             <h1>تسویه حساب</h1>
         </header>
 
         <section class="checkout-section">
             <div class="container checkout-layout">
                 <!-- فرم اصلی که تمام اطلاعات را ارسال می‌کند -->
-                <form asp-action="PlaceOrder" method="post" class="checkout-form" data-aos="fade-up">
+                <form asp-action="PlaceOrder" method="post" class="checkout-form">
 
                     <div asp-validation-summary="All" class="text-danger"></div>
                     @if (TempData["CheckoutError"] != null)
@@ -309,7 +308,7 @@
             </div>
 
             <!-- خلاصه سفارش -->
-            <aside class="order-summary" data-aos="fade-left">
+            <aside class="order-summary">
                 <h2>خلاصه سفارش</h2>
                 <div class="summary-items">
                     @if (Model.CartItems != null && Model.CartItems.Any())
@@ -356,8 +355,6 @@
     @Html.Partial("_CommonScripts")
     
     <script>
-        AOS.init({ duration: 800, once: true });
-
         // منطق کامل تغییر حالت تم
         (function themeSwitcher() {
             const themeToggleBtn = document.getElementById('theme-toggle');

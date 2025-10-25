@@ -12,12 +12,12 @@
         <a href="/" class="logo">Tecture</a>
         <nav class="main-nav">
             <ul>
-                <li><a href="/">خانه</a></li>
-                <li><a href="#categories" onclick="scrollToSection('categories')">دسته‌بندی‌ها</a></li>
-                <li><a asp-controller="Products" asp-action="Index">محصولات</a></li>
-                <li><a href="#deal-of-the-day" onclick="scrollToSection('deal-of-the-day')">تخفیف‌ها</a></li>
-                <li><a href="#blog" onclick="scrollToSection('blog')">بلاگ</a></li>
-                <li><a asp-controller="Contactus" asp-action="Index">تماس با ما</a></li>
+                <li><a href="/"><i class="fa-solid fa-home"></i> خانه</a></li>
+                <li><a href="#categories" onclick="scrollToSection('categories')"><i class="fa-solid fa-th-large"></i> دسته‌بندی‌ها</a></li>
+                <li><a asp-controller="Products" asp-action="Index"><i class="fa-solid fa-box"></i> محصولات</a></li>
+                <li><a href="#deal-of-the-day" onclick="scrollToSection('deal-of-the-day')"><i class="fa-solid fa-tags"></i> تخفیف‌ها</a></li>
+                <li><a href="#blog" onclick="scrollToSection('blog')"><i class="fa-solid fa-newspaper"></i> بلاگ</a></li>
+                <li><a asp-controller="Contactus" asp-action="Index"><i class="fa-solid fa-envelope"></i> تماس با ما</a></li>
             </ul>
         </nav>
         <div class="header-actions">
@@ -43,12 +43,73 @@
                 <i class="fa-solid fa-shopping-bag"></i>
             </a>
             <i class="fa-solid fa-magnifying-glass"></i>
-            <i class="fa-solid fa-bars"></i>
+            <i class="fa-solid fa-bars mobile-menu-toggle" id="mobileMenuToggle"></i>
         </div>
     </div>
 </header>
 
+<!-- Mobile Menu -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+        <span class="logo">Tecture</span>
+        <i class="fa-solid fa-times mobile-menu-close" id="mobileMenuClose"></i>
+    </div>
+    <nav>
+        <ul>
+            <li><a href="/"><i class="fa-solid fa-home"></i> خانه</a></li>
+            <li><a href="#categories" onclick="scrollToSection('categories'); closeMobileMenu();"><i class="fa-solid fa-th-large"></i> دسته‌بندی‌ها</a></li>
+            <li><a asp-controller="Products" asp-action="Index"><i class="fa-solid fa-box"></i> محصولات</a></li>
+            <li><a href="#deal-of-the-day" onclick="scrollToSection('deal-of-the-day'); closeMobileMenu();"><i class="fa-solid fa-tags"></i> تخفیف‌ها</a></li>
+            <li><a href="#blog" onclick="scrollToSection('blog'); closeMobileMenu();"><i class="fa-solid fa-newspaper"></i> بلاگ</a></li>
+            <li><a asp-controller="Contactus" asp-action="Index"><i class="fa-solid fa-envelope"></i> تماس با ما</a></li>
+            @if (isAuthenticated)
+            {
+                <li><a asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-user-circle"></i> حساب کاربری</a></li>
+            }
+            else
+            {
+                <li><a asp-area="Identity" asp-page="/Account/Login"><i class="fa-solid fa-sign-in-alt"></i> ورود / ثبت‌نام</a></li>
+            }
+            <li><a asp-controller="Cart" asp-action="Index"><i class="fa-solid fa-shopping-bag"></i> سبد خرید</a></li>
+        </ul>
+    </nav>
+</div>
+
 <script>
+    // Mobile menu functionality
+    (function() {
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+        
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', function() {
+                mobileMenu.classList.add('active');
+                mobileMenuOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+        
+        function closeMobileMenuFn() {
+            mobileMenu.classList.remove('active');
+            mobileMenuOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        if (mobileMenuClose) {
+            mobileMenuClose.addEventListener('click', closeMobileMenuFn);
+        }
+        
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.addEventListener('click', closeMobileMenuFn);
+        }
+        
+        // Make closeMobileMenu available globally
+        window.closeMobileMenu = closeMobileMenuFn;
+    })();
+    
     // Function to scroll to sections (for home page anchors)
     function scrollToSection(sectionId) {
         // Only work if we're on the home page

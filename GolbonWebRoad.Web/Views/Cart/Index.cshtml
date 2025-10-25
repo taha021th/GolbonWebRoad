@@ -65,14 +65,14 @@
     @Html.Partial("_Header")
 
     <main>
-        <header class="page-header" data-aos="fade-in">
+        <header class="page-header">
             <h1>سبد خرید شما</h1>
         </header>
 
         <section class="cart-section">
             <div class="container cart-layout">
                 <!-- لیست محصولات در سبد -->
-                <div class="cart-items" data-aos="fade-up">
+                <div class="cart-items">
                     @if (Model != null && Model.CartItems != null && Model.CartItems.Any())
                     {
                         foreach (var item in Model.CartItems)
@@ -107,7 +107,7 @@
                 </div>
 
                 <!-- خلاصه سفارش -->
-                <aside class="order-summary" data-aos="fade-left">
+                <aside class="order-summary">
                     <h2>خلاصه سفارش</h2>
                     <div class="summary-row">
                         <span>جمع کل</span>

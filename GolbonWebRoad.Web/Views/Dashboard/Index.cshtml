@@ -18,32 +18,284 @@
     <style>
         /* --- استایل‌های خاص صفحه داشبورد --- */
 
-        .dashboard-section { padding: 50px 0; }
-        .dashboard-layout { display: grid; grid-template-columns: 280px 1fr; gap: 30px; align-items: flex-start; }
+        .dashboard-section { 
+            padding: 50px 0; 
+            min-height: 70vh;
+        }
+        
+        .dashboard-layout { 
+            display: grid; 
+            grid-template-columns: 280px 1fr; 
+            gap: 30px; 
+            align-items: flex-start;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
 
-        .dashboard-nav { background-color: var(--card-bg-color); border: 1px solid var(--border-color); padding: 20px; transition: background-color 0.3s ease, border-color 0.3s ease; }
-        .dashboard-nav ul { list-style: none; padding: 0; }
-        .dashboard-nav a { display: block; padding: 12px 15px; margin-bottom: 5px; font-weight: 700; border-right: 3px solid transparent; }
-        .dashboard-nav a.active, .dashboard-nav a:hover { color: var(--accent-color); border-right-color: var(--accent-color); background-color: rgba(74, 144, 226, 0.1); }
-        .dashboard-nav a i { margin-left: 10px; }
-        .dashboard-nav a.logout-link:hover { background-color: #dc3545; color: white; border-right-color: #dc3545; }
+        .dashboard-nav { 
+            background-color: var(--card-bg-color); 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px;
+            padding: 20px; 
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            position: sticky;
+            top: 80px;
+        }
+        
+        .dashboard-nav ul { 
+            list-style: none; 
+            padding: 0; 
+            margin: 0;
+        }
+        
+        .dashboard-nav a { 
+            display: block; 
+            padding: 12px 15px; 
+            margin-bottom: 5px; 
+            font-weight: 700; 
+            border-right: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard-nav a.active, .dashboard-nav a:hover { 
+            color: var(--accent-color); 
+            border-right-color: var(--accent-color); 
+            background-color: rgba(74, 144, 226, 0.1); 
+        }
+        
+        .dashboard-nav a i { 
+            margin-left: 10px; 
+        }
+        
+        .dashboard-nav a.logout-link:hover { 
+            background-color: #dc3545; 
+            color: white; 
+            border-right-color: #dc3545; 
+        }
 
-        .dashboard-content { background-color: var(--card-bg-color); border: 1px solid var(--border-color); padding: 30px; transition: background-color 0.3s ease, border-color 0.3s ease; }
-        .dashboard-content h2 { font-size: 1.8rem; margin-bottom: 25px; }
-        .dashboard-content p { color: var(--secondary-text-color); line-height: 1.8; }
-        .dashboard-panel { display: none; }
-        .dashboard-panel.active { display: block; }
+        .dashboard-content { 
+            background-color: var(--card-bg-color); 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px;
+            padding: 30px; 
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            min-height: 400px;
+        }
+        
+        .dashboard-content h2 { 
+            font-size: 1.8rem; 
+            margin-bottom: 25px;
+            color: var(--primary-text-color);
+        }
+        
+        .dashboard-content p { 
+            color: var(--secondary-text-color); 
+            line-height: 1.8; 
+        }
+        
+        .dashboard-panel { 
+            display: none; 
+        }
+        
+        .dashboard-panel.active { 
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-        .orders-table { width: 100%; border-collapse: collapse; }
-        .orders-table th, .orders-table td { padding: 15px; text-align: right; border-bottom: 1px solid var(--border-color); }
-        .orders-table thead { background-color: var(--bg-color); }
-        .status-badge { padding: 5px 10px; border-radius: 5px; font-size: 0.9rem; }
-        .status-completed { background-color: #28a745; color: white; }
-        .status-processing { background-color: #ffc107; color: #18181b; }
+        .orders-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px;
+        }
+        
+        .orders-table th, .orders-table td { 
+            padding: 15px; 
+            text-align: right; 
+            border-bottom: 1px solid var(--border-color); 
+        }
+        
+        .orders-table thead { 
+            background-color: rgba(74, 144, 226, 0.05);
+        }
+        
+        .orders-table th {
+            font-weight: 700;
+            color: var(--primary-text-color);
+        }
+        
+        .status-badge { 
+            padding: 5px 10px; 
+            border-radius: 5px; 
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+        
+        .status-completed { 
+            background-color: #28a745; 
+            color: white; 
+        }
+        
+        .status-processing { 
+            background-color: #ffc107; 
+            color: #18181b; 
+        }
+        
+        .muted {
+            color: var(--secondary-text-color);
+            font-size: 0.9rem;
+        }
+        
+        .address-card {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .address-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.1);
+        }
+        
+        .address-info {
+            flex: 1;
+        }
+        
+        .address-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 6px;
+            border: 2px solid var(--accent-color);
+            background-color: var(--accent-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .btn:hover {
+            background-color: transparent;
+            color: var(--accent-color);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: var(--accent-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            border-color: #ef4444;
+            color: #ef4444;
+            background-color: transparent;
+        }
+        
+        .btn-danger:hover {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        .address-footer-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
 
         /* --- Responsive --- */
         @@media (max-width: 768px) {
-            .dashboard-layout { grid-template-columns: 1fr; }
+            .dashboard-layout { 
+                grid-template-columns: 1fr; 
+            }
+            
+            .dashboard-nav {
+                position: static;
+            }
+            
+            .dashboard-content {
+                padding: 20px;
+            }
+            
+            .orders-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .orders-table thead {
+                display: none;
+            }
+            
+            .orders-table tbody {
+                display: block;
+            }
+            
+            .orders-table tr {
+                display: block;
+                margin-bottom: 15px;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 15px;
+            }
+            
+            .orders-table td {
+                display: block;
+                text-align: right;
+                padding: 8px 0;
+                border: none;
+            }
+            
+            .orders-table td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                display: inline-block;
+                margin-left: 10px;
+                color: var(--secondary-text-color);
+            }
+            
+            .address-card {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .address-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .address-actions .btn {
+                flex: 1;
+                min-width: auto;
+            }
+            
+            .address-footer-actions {
+                flex-direction: column;
+            }
+            
+            .address-footer-actions .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -51,14 +303,14 @@
     @Html.Partial("_Header")
 
     <main>
-        <header class="page-header" data-aos="fade-in">
+        <header class="page-header">
             <h1>حساب کاربری من</h1>
         </header>
 
         <section class="dashboard-section">
-            <div class="container dashboard-layout">
+            <div class="dashboard-layout">
                 <!-- منوی داشبورد -->
-                <aside class="dashboard-nav" data-aos="fade-right">
+                <aside class="dashboard-nav">
                     <ul>
                         <li><a href="#dashboard" class="dashboard-link active"><i class="fas fa-tachometer-alt"></i> پیشخوان</a></li>
                         <li><a href="#orders" class="dashboard-link"><i class="fas fa-box"></i> سفارش‌ها (@(Model?.Orders?.Count() ?? 0))</a></li>
@@ -69,7 +321,7 @@
                 </aside>
 
                 <!-- محتوای داشبورد -->
-                <div class="dashboard-content" data-aos="fade-left">
+                <div class="dashboard-content">
                     <!-- پنل پیشخوان -->
                     <div id="dashboard" class="dashboard-panel active">
                         <h2>پیشخوان</h2>
@@ -98,11 +350,11 @@
                                     {
                                         var statusClass = order.OrderStatus == "Completed" ? "status-completed" : "status-processing";
                                         <tr>
-                                            <td>#@order.Id</td>
-                                            <td>@order.OrderDate.ToString("yyyy/MM/dd HH:mm")</td>
-                                            <td><span class="status-badge @statusClass">@order.OrderStatus</span></td>
-                                            <td>@order.TotalAmount.ToString("N0") تومان</td>
-                                            <td><a asp-controller="Dashboard" asp-action="OrderDetail" asp-route-id="@order.Id" class="btn">مشاهده</a></td>
+                                            <td data-label="شماره سفارش">#@order.Id</td>
+                                            <td data-label="تاریخ">@order.OrderDate.ToString("yyyy/MM/dd HH:mm")</td>
+                                            <td data-label="وضعیت"><span class="status-badge @statusClass">@order.OrderStatus</span></td>
+                                            <td data-label="مبلغ کل">@order.TotalAmount.ToString("N0") تومان</td>
+                                            <td data-label=""><a asp-controller="Dashboard" asp-action="OrderDetail" asp-route-id="@order.Id" class="btn">مشاهده</a></td>
                                         </tr>
                                     }
                                 }
@@ -125,12 +377,12 @@
                         {
                             foreach (var a in addrsPanel)
                             {
-                                <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border-color);border-radius:10px;padding:12px;margin-bottom:8px;">
-                                    <div>
+                                <div class="address-card" style="display:flex;justify-content:space-between;align-items:center;">
+                                    <div class="address-info">
                                         <div><strong>@a.UserFullName</strong> <span class="muted">(@a.Phone)</span> @(a.IsDefault ? Html.Raw("<span class='muted'>- پیش‌فرض</span>") : null)</div>
                                         <div class="muted">@a.AddressLine، @a.City، @a.Province - @a.PostalCode</div>
                                     </div>
-                                    <div style="display:flex;gap:8px;">
+                                    <div class="address-actions">
                                         <form asp-controller="Addresses" asp-action="SetDefault" method="post">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@a.Id" />
@@ -139,7 +391,7 @@
                                         <form asp-controller="Addresses" asp-action="Delete" method="post" onsubmit="return confirm('حذف آدرس؟');">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@a.Id" />
-                                            <button type="submit" class="btn btn-outline" style="border-color:#e24a4a;color:#e24a4a">حذف</button>
+                                            <button type="submit" class="btn btn-danger">حذف</button>
                                         </form>
                                     </div>
                                 </div>
@@ -149,7 +401,7 @@
                         {
                             <div class="muted">آدرسی ثبت نشده است.</div>
                         }
-                        <div style="margin-top:10px;display:flex;gap:8px;">
+                        <div class="address-footer-actions">
                             <a asp-controller="Addresses" asp-action="Create" class="btn">افزودن آدرس</a>
                             <a asp-controller="Addresses" asp-action="Index" class="btn btn-outline">مدیریت کامل آدرس‌ها</a>
                         </div>

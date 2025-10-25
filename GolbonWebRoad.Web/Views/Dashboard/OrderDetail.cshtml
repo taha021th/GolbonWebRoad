@@ -10,7 +10,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <style>
         :root { --bg-color:#121212; --primary-text-color:#FFFFFF; --secondary-text-color:#a0a0a0; --card-bg-color:#1a1a1a; --border-color:#333333; --accent-color:#4a90e2; }
         body.light-mode { --bg-color:#f4f4f5; --card-bg-color:#FFFFFF; --primary-text-color:#18181b; --secondary-text-color:#71717a; --border-color:#e4e4e7; }
@@ -57,7 +56,7 @@
             <h1>سفارش #@Model.Id</h1>
         </div>
         <div class="container order-wrapper">
-            <section class="card items" data-aos="fade-right">
+            <section class="card items">
                 <h2>آیتم‌های سفارش</h2>
                 @if (Model.OrderItems != null && Model.OrderItems.Any())
                 {
@@ -86,7 +85,7 @@
                 <div class="total"><span>جمع کل</span><span>@Model.TotalAmount.ToString("N0") تومان</span></div>
             </section>
 
-            <aside class="card" data-aos="fade-left">
+            <aside class="card">
                 <h2>اطلاعات سفارش</h2>
                 <div class="meta">
                     <div class="row"><span>وضعیت</span><strong>@Model.OrderStatus</strong></div>
@@ -113,9 +112,7 @@
         </div>
     </main>
 
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
-        AOS.init({ duration: 800, once: true });
         (function themeSwitcher(){
             const btn=document.getElementById('theme-toggle');
             const body=document.body; const t=localStorage.getItem('theme'); if(t==='light'){ body.classList.add('light-mode'); }
