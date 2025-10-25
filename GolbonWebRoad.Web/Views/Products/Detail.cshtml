@@ -11,16 +11,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@Model.Name - فروشگاه Tecture</title>
 
-    
+    <script>
+        // FOUC fix: Add a class to html to hide elements until CSS is loaded
+        document.documentElement.classList.add('js-loading');
+    </script>
+
     <link rel="stylesheet" href="~/css/fonts.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/all.min.css" />
 
     <link rel="stylesheet" href="~/lib/swiper/swiper-bundle.min.css" />
-    <link rel="stylesheet" href="~/lib/aos/aos.css" />
 
     @Html.Partial("_CommonStyles")
 
     <style>
+        /* FOUC fix: hide header while loading */
+        .js-loading .main-header {
+            visibility: hidden;
+        }
+
         /* --- Product Detail Page Specific Styles --- */
         
         /* --- استایل‌های اصلی صفحه جزئیات محصول --- */
@@ -440,201 +448,135 @@
     @Html.Partial("_Footer")
     @Html.Partial("_CommonScripts")       
     
-    <script src="~/lib/swiper/swiper-bundle.min.js"></script>
+    <script src="~/lib/swiper/swiper-bundle.min.js" defer></script>
     
     <script>
-
-        // منطق گالری تصاویر
-        const mainImage = document.getElementById('mainProductImage');
-        const thumbnails = document.querySelectorAll('.thumbnails img');
-        thumbnails.forEach(thumb => {
-            thumb.addEventListener('click', function() {
-                document.querySelector('.thumbnails img.active').classList.remove('active');
-                this.classList.add('active');
-                mainImage.src = this.src.replace('w=200', 'w=800'); // Load higher resolution image
-            });
+        // FOUC fix: remove loading class after all resources are loaded
+        window.addEventListener('load', function() {
+            document.documentElement.classList.remove('js-loading');
         });
 
-        // منطق تب‌ها
-        const tabLinks = document.querySelectorAll('.tab-link');
-        const tabContents = document.querySelectorAll('.tab-content');
-        tabLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                const tabId = this.dataset.tab;
-                tabLinks.forEach(l => l.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
-
-        // اسلایدر محصولات مرتبط
-        const relatedSwiper = new Swiper('.related-products-swiper', {
-            spaceBetween: 30,
-            slidesPerView: 1,
-            breakpoints: {
-                640: { slidesPerView: 2 },
-                768: { slidesPerView: 3 },
-                1024: { slidesPerView: 4 },
-            },
-        });
-
-        // Quantity controls with stock limit
-        const qtyInput = document.getElementById('qtyInput');
-        const maxQty = parseInt(qtyInput.getAttribute('max') || '99', 10);
-        document.getElementById('qtyPlus').addEventListener('click', function () {
-            const current = parseInt(qtyInput.value || '1', 10);
-            qtyInput.value = Math.min(maxQty, current + 1);
-        });
-        document.getElementById('qtyMinus').addEventListener('click', function () {
-            const current = parseInt(qtyInput.value || '1', 10);
-            qtyInput.value = Math.max(1, current - 1);
-        });
-
-        // Variant selection logic: pick 1 value per attribute, find matching variant
-        const variants = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Variants));
-        const variantSelect = null; // replaced by pills
-        const variantPriceEl = document.getElementById('variantPrice');
-        const selectedVariantInput = document.getElementById('selectedVariantId');
-        const addToCartBtn = document.getElementById('addToCartBtn');
-
-        function updateFromSelect() {
-            if (!variantSelect) return;
-            const opt = variantSelect.options[variantSelect.selectedIndex];
-            const variantId = parseInt(opt.value);
-            const price = parseFloat(opt.getAttribute('data-price')) || 0;
-            const stock = parseInt(opt.getAttribute('data-stock')) || 0;
-
-            selectedVariantInput.value = isNaN(variantId) ? '' : variantId;
-            variantPriceEl.textContent = price ? `قیمت ورینت: ${price.toLocaleString()} تومان` : '';
-
-            // update qty max and button enabled state
-            const qtyInput = document.getElementById('qtyInput');
-            if (qtyInput) {
-                qtyInput.setAttribute('max', stock > 0 ? String(stock) : '0');
-                if (parseInt(qtyInput.value || '1') > stock) {
-                    qtyInput.value = stock > 0 ? '1' : '0';
-                }
-            }
-            if (addToCartBtn) {
-                addToCartBtn.disabled = stock <= 0;
-            }
-        }
-
-        // New: variant pills behavior
-        const variantPills = document.querySelectorAll('.variant-pill');
-        function setActivePill(pill) {
-            variantPills.forEach(p => {
-                const selected = p.classList.contains('selected');
-                if (selected) {
-                    p.classList.remove('selected');
-                    p.style.background = 'transparent';
-                    p.style.color = 'var(--primary-text-color)';
-                }
-            });
-            pill.classList.add('selected');
-            pill.style.background = 'var(--accent-color)';
-            pill.style.color = '#fff';
-        }
-        function updateFromPill(pill) {
-            const variantId = parseInt(pill.getAttribute('data-variant-id'));
-            const price = parseFloat(pill.getAttribute('data-price')) || 0;
-            const stock = parseInt(pill.getAttribute('data-stock')) || 0;
-
-            selectedVariantInput.value = isNaN(variantId) ? '' : variantId;
-            variantPriceEl.textContent = price ? `قیمت ورینت: ${price.toLocaleString()} تومان` : '';
-
-            const qtyInput = document.getElementById('qtyInput');
-            if (qtyInput) {
-                qtyInput.setAttribute('max', stock > 0 ? String(stock) : '0');
-                if (parseInt(qtyInput.value || '1') > stock) {
-                    qtyInput.value = stock > 0 ? '1' : '0';
-                }
-            }
-            if (addToCartBtn) {
-                addToCartBtn.disabled = stock <= 0;
-            }
-        }
-        variantPills.forEach(pill => {
-            if (!pill.classList.contains('disabled')) {
-                pill.addEventListener('click', function () {
-                    setActivePill(this);
-                    updateFromPill(this);
+        document.addEventListener('DOMContentLoaded', function() {
+            // منطق گالری تصاویر
+            const mainImage = document.getElementById('mainProductImage');
+            const thumbnails = document.querySelectorAll('.thumbnails img');
+            thumbnails.forEach(thumb => {
+                thumb.addEventListener('click', function() {
+                    document.querySelector('.thumbnails img.active').classList.remove('active');
+                    this.classList.add('active');
+                    mainImage.src = this.src.replace('w=200', 'w=800'); // Load higher resolution image
                 });
-            }
-        });
-        // initialize with pre-selected pill if exists
-        const initial = Array.from(variantPills).find(p => p.classList.contains('selected')) || variantPills[0];
-        if (initial) {
-            updateFromPill(initial);
-        }
+            });
 
-        // Review form functionality
-        (function reviewFormHandler() {
-            const ratingInputs = document.querySelectorAll('input[name="Rating"]');
-            const starLabels = document.querySelectorAll('.star-label');
-            const ratingText = document.querySelector('.rating-text');
-            const clearBtn = document.querySelector('.clear-form-btn');
-            const reviewForm = document.getElementById('reviewForm');
-            const reviewTextarea = document.getElementById('ReviewText');
+            // منطق تب‌ها
+            const tabLinks = document.querySelectorAll('.tab-link');
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    tabLinks.forEach(l => l.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
 
-            // Rating labels text
-            const ratingTexts = [
-                'لطفاً امتیاز خود را انتخاب کنید',
-                'خیلی ضعیف',
-                'ضعیف',
-                'متوسط',
-                'خوب',
-                'عالی'
-            ];
+            // اسلایدر محصولات مرتبط
+            const relatedSwiper = new Swiper('.related-products-swiper', {
+                spaceBetween: 30,
+                slidesPerView: 1,
+                breakpoints: {
+                    640: { slidesPerView: 2 },
+                    768: { slidesPerView: 3 },
+                    1024: { slidesPerView: 4 },
+                },
+            });
 
-            // Star rating interaction
-            starLabels.forEach((label, index) => {
-                label.addEventListener('click', function() {
-                    const rating = index + 1;
-                    
-                    // Update visual stars
-                    starLabels.forEach((l, i) => {
-                        const icon = l.querySelector('i');
-                        if (i < rating) {
-                            icon.className = 'fas fa-star';
-                            l.style.color = '#f5b327';
-                        } else {
-                            icon.className = 'far fa-star';
-                            l.style.color = '#ddd';
-                        }
-                    });
-                    
-                    // Update text
-                    if (ratingText) {
-                        ratingText.textContent = ratingTexts[rating];
-                        ratingText.style.color = 'var(--accent-color)';
+            // Quantity controls with stock limit
+            const qtyInput = document.getElementById('qtyInput');
+            const maxQty = parseInt(qtyInput.getAttribute('max') || '99', 10);
+            document.getElementById('qtyPlus').addEventListener('click', function () {
+                const current = parseInt(qtyInput.value || '1', 10);
+                qtyInput.value = Math.min(maxQty, current + 1);
+            });
+            document.getElementById('qtyMinus').addEventListener('click', function () {
+                const current = parseInt(qtyInput.value || '1', 10);
+                qtyInput.value = Math.max(1, current - 1);
+            });
+
+            // Variant selection logic
+            const variants = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Variants));
+            const variantPriceEl = document.getElementById('variantPrice');
+            const selectedVariantInput = document.getElementById('selectedVariantId');
+            const addToCartBtn = document.getElementById('addToCartBtn');
+
+            const variantPills = document.querySelectorAll('.variant-pill');
+            function setActivePill(pill) {
+                variantPills.forEach(p => {
+                    if (p.classList.contains('selected')) {
+                        p.classList.remove('selected');
+                        p.style.background = 'transparent';
+                        p.style.color = 'var(--primary-text-color)';
                     }
                 });
+                pill.classList.add('selected');
+                pill.style.background = 'var(--accent-color)';
+                pill.style.color = '#fff';
+            }
+            function updateFromPill(pill) {
+                const variantId = parseInt(pill.getAttribute('data-variant-id'));
+                const price = parseFloat(pill.getAttribute('data-price')) || 0;
+                const stock = parseInt(pill.getAttribute('data-stock')) || 0;
 
-                // Hover effects
-                label.addEventListener('mouseenter', function() {
-                    const rating = index + 1;
-                    starLabels.forEach((l, i) => {
-                        const icon = l.querySelector('i');
-                        if (i < rating) {
-                            icon.className = 'fas fa-star';
-                            l.style.color = '#f5b327';
-                        } else {
-                            icon.className = 'far fa-star';
-                            l.style.color = '#ddd';
-                        }
+                selectedVariantInput.value = isNaN(variantId) ? '' : variantId;
+                variantPriceEl.textContent = price ? `قیمت ورینت: ${price.toLocaleString()} تومان` : '';
+
+                const qtyInput = document.getElementById('qtyInput');
+                if (qtyInput) {
+                    qtyInput.setAttribute('max', stock > 0 ? String(stock) : '0');
+                    if (parseInt(qtyInput.value || '1') > stock) {
+                        qtyInput.value = stock > 0 ? '1' : '0';
+                    }
+                }
+                if (addToCartBtn) {
+                    addToCartBtn.disabled = stock <= 0;
+                }
+            }
+            variantPills.forEach(pill => {
+                if (!pill.classList.contains('disabled')) {
+                    pill.addEventListener('click', function () {
+                        setActivePill(this);
+                        updateFromPill(this);
                     });
-                });
+                }
             });
+            const initial = Array.from(variantPills).find(p => p.classList.contains('selected')) || variantPills[0];
+            if (initial) {
+                updateFromPill(initial);
+            }
 
-            // Reset hover when mouse leaves rating area
-            const ratingContainer = document.querySelector('.rating-input');
-            if (ratingContainer) {
-                ratingContainer.addEventListener('mouseleave', function() {
-                    const checkedRating = document.querySelector('input[name="Rating"]:checked');
-                    if (checkedRating) {
-                        const rating = parseInt(checkedRating.value);
+            // Review form functionality
+            (function reviewFormHandler() {
+                const ratingInputs = document.querySelectorAll('input[name="Rating"]');
+                const starLabels = document.querySelectorAll('.star-label');
+                const ratingText = document.querySelector('.rating-text');
+                const clearBtn = document.querySelector('.clear-form-btn');
+                const reviewForm = document.getElementById('reviewForm');
+                const reviewTextarea = document.getElementById('ReviewText');
+
+                const ratingTexts = [
+                    'لطفاً امتیاز خود را انتخاب کنید',
+                    'خیلی ضعیف',
+                    'ضعیف',
+                    'متوسط',
+                    'خوب',
+                    'عالی'
+                ];
+
+                starLabels.forEach((label, index) => {
+                    label.addEventListener('click', function() {
+                        const rating = index + 1;
+                        
                         starLabels.forEach((l, i) => {
                             const icon = l.querySelector('i');
                             if (i < rating) {
@@ -645,128 +587,161 @@
                                 l.style.color = '#ddd';
                             }
                         });
-                    } else {
+                        
+                        if (ratingText) {
+                            ratingText.textContent = ratingTexts[rating];
+                            ratingText.style.color = 'var(--accent-color)';
+                        }
+                    });
+
+                    label.addEventListener('mouseenter', function() {
+                        const rating = index + 1;
+                        starLabels.forEach((l, i) => {
+                            const icon = l.querySelector('i');
+                            if (i < rating) {
+                                icon.className = 'fas fa-star';
+                                l.style.color = '#f5b327';
+                            } else {
+                                icon.className = 'far fa-star';
+                                l.style.color = '#ddd';
+                            }
+                        });
+                    });
+                });
+
+                const ratingContainer = document.querySelector('.rating-input');
+                if (ratingContainer) {
+                    ratingContainer.addEventListener('mouseleave', function() {
+                        const checkedRating = document.querySelector('input[name="Rating"]:checked');
+                        if (checkedRating) {
+                            const rating = parseInt(checkedRating.value);
+                            starLabels.forEach((l, i) => {
+                                const icon = l.querySelector('i');
+                                if (i < rating) {
+                                    icon.className = 'fas fa-star';
+                                    l.style.color = '#f5b327';
+                                } else {
+                                    icon.className = 'far fa-star';
+                                    l.style.color = '#ddd';
+                                }
+                            });
+                        } else {
+                            starLabels.forEach(l => {
+                                const icon = l.querySelector('i');
+                                icon.className = 'far fa-star';
+                                l.style.color = '#ddd';
+                            });
+                        }
+                    });
+                }
+
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', function() {
+                        ratingInputs.forEach(input => input.checked = false);
                         starLabels.forEach(l => {
                             const icon = l.querySelector('i');
                             icon.className = 'far fa-star';
                             l.style.color = '#ddd';
                         });
-                    }
-                });
-            }
-
-            // Clear form button
-            if (clearBtn) {
-                clearBtn.addEventListener('click', function() {
-                    // Reset rating
-                    ratingInputs.forEach(input => input.checked = false);
-                    starLabels.forEach(l => {
-                        const icon = l.querySelector('i');
-                        icon.className = 'far fa-star';
-                        l.style.color = '#ddd';
+                        if (ratingText) {
+                            ratingText.textContent = ratingTexts[0];
+                            ratingText.style.color = 'var(--secondary-text-color)';
+                        }
+                        
+                        if (reviewTextarea) {
+                            reviewTextarea.value = '';
+                        }
                     });
-                    if (ratingText) {
-                        ratingText.textContent = ratingTexts[0];
-                        ratingText.style.color = 'var(--secondary-text-color)';
-                    }
-                    
-                    // Reset textarea
-                    if (reviewTextarea) {
-                        reviewTextarea.value = '';
-                    }
-                });
-            }
+                }
 
-            // Form validation
-            if (reviewForm) {
-                reviewForm.addEventListener('submit', function(e) {
-                    const selectedRating = document.querySelector('input[name="Rating"]:checked');
-                    const reviewText = reviewTextarea ? reviewTextarea.value.trim() : '';
-                    
-                    if (!selectedRating) {
-                        e.preventDefault();
-                        alert('لطفاً امتیاز خود را انتخاب کنید');
-                        return false;
-                    }
-                    
-                    if (!reviewText) {
-                        e.preventDefault();
-                        alert('لطفاً نظر خود را بنویسید');
-                        if (reviewTextarea) reviewTextarea.focus();
-                        return false;
-                    }
-                    
-                    if (reviewText.length < 10) {
-                        e.preventDefault();
-                        alert('نظر شما باید حداقل ۱۰ کاراکتر باشد');
-                        if (reviewTextarea) reviewTextarea.focus();
-                        return false;
-                    }
-                });
-            }
-        })();
+                if (reviewForm) {
+                    reviewForm.addEventListener('submit', function(e) {
+                        const selectedRating = document.querySelector('input[name="Rating"]:checked');
+                        const reviewText = reviewTextarea ? reviewTextarea.value.trim() : '';
+                        
+                        if (!selectedRating) {
+                            e.preventDefault();
+                            alert('لطفاً امتیاز خود را انتخاب کنید');
+                            return false;
+                        }
+                        
+                        if (!reviewText) {
+                            e.preventDefault();
+                            alert('لطفاً نظر خود را بنویسید');
+                            if (reviewTextarea) reviewTextarea.focus();
+                            return false;
+                        }
+                        
+                        if (reviewText.length < 10) {
+                            e.preventDefault();
+                            alert('نظر شما باید حداقل ۱۰ کاراکتر باشد');
+                            if (reviewTextarea) reviewTextarea.focus();
+                            return false;
+                        }
+                    });
+                }
+            })();
 
-        // Display success/error messages
-        (function messageHandler() {
-            const successMessage = '@TempData["Success"]';
-            const errorMessage = '@TempData["Error"]';
-            
-            if (successMessage) {
-                showNotification(successMessage, 'success');
-            }
-            
-            if (errorMessage) {
-                showNotification(errorMessage, 'error');
-            }
-            
-            function showNotification(message, type) {
-                const notification = document.createElement('div');
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    padding: 15px 20px;
-                    border-radius: 8px;
-                    color: white;
-                    font-weight: 600;
-                    z-index: 10000;
-                    max-width: 400px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                    transform: translateX(100%);
-                    transition: transform 0.3s ease;
-                `;
+            // Display success/error messages
+            (function messageHandler() {
+                const successMessage = '@TempData["Success"]';
+                const errorMessage = '@TempData["Error"]';
                 
-                if (type === 'success') {
-                    notification.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
-                } else {
-                    notification.style.background = 'linear-gradient(135deg, #f44336, #d32f2f)';
+                if (successMessage) {
+                    showNotification(successMessage, 'success');
                 }
                 
-                notification.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-                        <span>${message}</span>
-                    </div>
-                `;
+                if (errorMessage) {
+                    showNotification(errorMessage, 'error');
+                }
                 
-                document.body.appendChild(notification);
-                
-                // Animate in
-                setTimeout(() => {
-                    notification.style.transform = 'translateX(0)';
-                }, 100);
-                
-                // Auto remove after 5 seconds
-                setTimeout(() => {
-                    notification.style.transform = 'translateX(100%)';
+                function showNotification(message, type) {
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        padding: 15px 20px;
+                        border-radius: 8px;
+                        color: white;
+                        font-weight: 600;
+                        z-index: 10000;
+                        max-width: 400px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                        transform: translateX(100%);
+                        transition: transform 0.3s ease;
+                    `;
+                    
+                    if (type === 'success') {
+                        notification.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
+                    } else {
+                        notification.style.background = 'linear-gradient(135deg, #f44336, #d32f2f)';
+                    }
+                    
+                    notification.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                            <span>${message}</span>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(notification);
+                    
                     setTimeout(() => {
-                        if (notification.parentNode) {
-                            notification.parentNode.removeChild(notification);
-                        }
-                    }, 300);
-                }, 5000);
-            }
-        })();
+                        notification.style.transform = 'translateX(0)';
+                    }, 100);
+                    
+                    setTimeout(() => {
+                        notification.style.transform = 'translateX(100%)';
+                        setTimeout(() => {
+                            if (notification.parentNode) {
+                                notification.parentNode.removeChild(notification);
+                            }
+                        }, 300);
+                    }, 5000);
+                }
+            })();
+        });
     </script>
 </body>
 </html>

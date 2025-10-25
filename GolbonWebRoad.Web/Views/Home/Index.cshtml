@@ -1,4 +1,4 @@
-﻿@using GolbonWebRoad.Web.Models.Products
+@using GolbonWebRoad.Web.Models.Products
 @model HomeProductViewModel
 @{
     ViewData["Title"] = "صفحه اصلی";
@@ -15,11 +15,24 @@
     <link rel="stylesheet" href="~/lib/font-awesome/all.min.css" />
     
     <link rel="stylesheet" href="~/lib/swiper/swiper-bundle.min.css" />
-    <link rel="stylesheet" href="~/lib/aos/aos.css" />
+    @* AOS library removed for performance. Replaced with IntersectionObserver. *@
 
     @Html.Partial("_CommonStyles")
 
     <style>
+        /* === Performance & Animation Styles === */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            will-change: opacity, transform; /* Hint for browser animation optimization */
+        }
+
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
         /* === Home Page Specific Styles === */
         section {
             padding: 100px 0;
@@ -154,6 +167,7 @@
             border: 1px solid var(--border-color);
             transition: transform 0.3s ease;
             overflow: hidden;
+            will-change: transform;
         }
 
             .product-card:hover {
@@ -251,6 +265,7 @@
 
         .deal-image img {
             border: 10px solid var(--card-bg-color);
+            will-change: transform;
         }
 
         .deal-content .section-title {
@@ -389,6 +404,7 @@
 
         .about-image img {
             border: 10px solid var(--card-bg-color);
+            will-change: transform;
         }
 
         .about-text .section-title {
@@ -616,23 +632,23 @@
 <body>
     @Html.Partial("_Header")
     <main>
-        <section id="home" class="hero-section"><div class="container hero-content" data-aos="fade-in"><h1 data-aos="fade-up" data-aos-delay="200">فضایی که شایسته شماست</h1><p data-aos="fade-up" data-aos-delay="400">جدیدترین محصولات دکوراسیون داخلی را کشف کنید و خانه‌ای رویایی برای خود بسازید.</p><a href="#products" class="btn" data-aos="fade-up" data-aos-delay="600">مشاهده محصولات</a></div></section>
+        <section id="home" class="hero-section"><div class="container hero-content"><h1 class="fade-in-section is-visible">فضایی که شایسته شماست</h1><p class="fade-in-section is-visible">جدیدترین محصولات دکوراسیون داخلی را کشف کنید و خانه‌ای رویایی برای خود بسازید.</p><a href="#products" class="btn fade-in-section is-visible">مشاهده محصولات</a></div></section>
 
-        <section id="features" class="features-section"><div class="container" data-aos="fade-up"><h2 class="section-title">چرا ما را انتخاب کنید؟</h2><div class="grid-3-col"><div class="feature-card" data-aos="fade-up" data-aos-delay="100"><i class="fa-solid fa-truck-fast"></i><h3>ارسال سریع و مطمئن</h3><p>سفارش شما در سریع‌ترین زمان ممکن و با بسته‌بندی ایمن به دستتان خواهد رسید.</p></div><div class="feature-card" data-aos="fade-up" data-aos-delay="200"><i class="fa-solid fa-shield-halved"></i><h3>پرداخت امن</h3><p>با استفاده از درگاه‌های پرداخت امن، خریدی آسوده و مطمئن را تجربه کنید.</p></div><div class="feature-card" data-aos="fade-up" data-aos-delay="300"><i class="fa-solid fa-award"></i><h3>تضمین کیفیت کالا</h3><p>ما بهترین محصولات را از برندهای معتبر برای شما فراهم کرده‌ایم و کیفیت آن‌ها را تضمین می‌کنیم.</p></div></div></div></section>
+        <section id="features" class="features-section fade-in-section"><div class="container"><h2 class="section-title">چرا ما را انتخاب کنید؟</h2><div class="grid-3-col"><div class="feature-card"><i class="fa-solid fa-truck-fast"></i><h3>ارسال سریع و مطمئن</h3><p>سفارش شما در سریع‌ترین زمان ممکن و با بسته‌بندی ایمن به دستتان خواهد رسید.</p></div><div class="feature-card"><i class="fa-solid fa-shield-halved"></i><h3>پرداخت امن</h3><p>با استفاده از درگاه‌های پرداخت امن، خریدی آسوده و مطمئن را تجربه کنید.</p></div><div class="feature-card"><i class="fa-solid fa-award"></i><h3>تضمین کیفیت کالا</h3><p>ما بهترین محصولات را از برندهای معتبر برای شما فراهم کرده‌ایم و کیفیت آن‌ها را تضمین می‌کنیم.</p></div></div></div></section>
 
         @if (Model.ProductIsFeatured != null)
         {
             var featuredProduct = Model.ProductIsFeatured;
 
-            <section id="deal-of-the-day" class="deal-section">
-                <div class="container" data-aos="fade-up">
+            <section id="deal-of-the-day" class="deal-section fade-in-section">
+                <div class="container">
                     <div class="deal-layout">
-                        <div class="deal-image" data-aos="fade-right">
+                        <div class="deal-image">
                             <a asp-controller="Products" asp-action="Detail" asp-route-slog="@featuredProduct.Slog">
-                                <img src="@(string.IsNullOrEmpty(featuredProduct.ImageUrl) ? $"https://placehold.co/600x600/EFEFEF/AAAAAA?text={featuredProduct.Name}" : $"{featuredProduct.ImageUrl}")" alt="@featuredProduct.Name">
+                                <img loading="lazy" src="@(string.IsNullOrEmpty(featuredProduct.ImageUrl) ? $"https://placehold.co/600x600/EFEFEF/AAAAAA?text={featuredProduct.Name}" : $"{featuredProduct.ImageUrl}")" alt="@featuredProduct.Name" width="600" height="600">
                             </a>
                         </div>
-                        <div class="deal-content" data-aos="fade-left">
+                        <div class="deal-content">
                             <h2 class="section-title">پیشنهاد شگفت‌انگیز</h2>
                             <h3><a asp-controller="Products" asp-action="Detail" asp-route-slog="@featuredProduct.Slog">@featuredProduct.Name</a></h3>
                             <p class="deal-description">@featuredProduct.ShortDescription</p>
@@ -657,8 +673,8 @@
             </section>
         }
 
-        <section id="products" class="product-slider-section">
-            <div class="container" data-aos="fade-up">
+        <section id="products" class="product-slider-section fade-in-section">
+            <div class="container">
                 <h2 class="section-title">محصولات منتخب ما</h2>
                 <div class="swiper product-swiper">
                     <div class="swiper-wrapper">
@@ -669,7 +685,7 @@
                                 <div class="swiper-slide">
                                     <div class="product-card">
                                         <a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Id">
-                                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? $"https://placehold.co/400x300/EFEFEF/AAAAAA?text={product.Name}" : $"{product.ImageUrl}")" alt="@product.Name">
+                                            <img loading="lazy" src="@(string.IsNullOrEmpty(product.ImageUrl) ? $"https://placehold.co/400x300/EFEFEF/AAAAAA?text={product.Name}" : $"{product.ImageUrl}")" alt="@product.Name" width="400" height="300">
                                         </a>
                                         <div class="product-card-content">
                                             <h3><a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Slog">@product.Name</a></h3>
@@ -688,8 +704,8 @@
             </div>
         </section>
 
-        <section id="categories" class="category-slider-section">
-            <div class="container" data-aos="fade-up">
+        <section id="categories" class="category-slider-section fade-in-section">
+            <div class="container">
                 <h2 class="section-title">خرید بر اساس دسته‌بندی</h2>
                 <div class="swiper category-swiper">
                     <div class="swiper-wrapper">
@@ -699,7 +715,7 @@
                             {
                                 <div class="swiper-slide">
                                     <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@category.Id" class="category-slide-card">
-                                        <img src="@(string.IsNullOrEmpty(category.ImageUrl) ? $"https://placehold.co/600x750/EFEFEF/AAAAAA?text={category.Name}" : $"{category.ImageUrl}")" alt="@category.Name">
+                                        <img loading="lazy" src="@(string.IsNullOrEmpty(category.ImageUrl) ? $"https://placehold.co/600x750/EFEFEF/AAAAAA?text={category.Name}" : $"{category.ImageUrl}")" alt="@category.Name" width="600" height="750">
                                         <div class="category-overlay">
                                             <h3>@category.Name</h3>
                                             <span>مشاهده محصولات <i class="fa-solid fa-arrow-left-long"></i></span>
@@ -714,45 +730,68 @@
             </div>
         </section>
 
-        <section id="about" class="about-section"><div class="container" data-aos="fade-up"><div class="about-layout"><div class="about-text" data-aos="fade-left"><h2 class="section-title">داستان ما: عشق به طراحی و کیفیت</h2><p>ما در Tecture معتقدیم که خانه، قلب زندگی است. جایی برای آرامش، خاطره‌سازی و ابراز شخصیت. به همین دلیل، با وسواس و علاقه، مجموعه‌ای از بهترین و باکیفیت‌ترین محصولات دکوراسیون داخلی را گرد هم آورده‌ایم تا به شما کمک کنیم فضایی منحصربه‌فرد و الهام‌بخش خلق کنید.</p><br><p>هدف ما فراتر از فروش یک محصول است؛ ما می‌خواهیم همراه شما در مسیر زیباسازی خانه‌تان باشیم.</p></div><div class="about-image" data-aos="fade-right"><img src="/images/hero-background.jpg" alt="Minimalist Interior"></div></div></div></section>
+        <section id="about" class="about-section fade-in-section"><div class="container"><div class="about-layout"><div class="about-text"><h2 class="section-title">داستان ما: عشق به طراحی و کیفیت</h2><p>ما در Tecture معتقدیم که خانه، قلب زندگی است. جایی برای آرامش، خاطره‌سازی و ابراز شخصیت. به همین دلیل، با وسواس و علاقه، مجموعه‌ای از بهترین و باکیفیت‌ترین محصولات دکوراسیون داخلی را گرد هم آورده‌ایم تا به شما کمک کنیم فضایی منحصربه‌فرد و الهام‌بخش خلق کنید.</p><br><p>هدف ما فراتر از فروش یک محصول است؛ ما می‌خواهیم همراه شما در مسیر زیباسازی خانه‌تان باشیم.</p></div><div class="about-image"><img loading="lazy" src="/images/hero-background.jpg" alt="Minimalist Interior" width="500" height="600"></div></div></div></section>
 
-        <section id="testimonials" class="testimonials-section"><div class="container" data-aos="fade-up"><h2 class="section-title">نظرات مشتریان ما</h2><div class="grid-3-col"><div class="testimonial-card" data-aos="fade-up" data-aos-delay="100"><img src="/images/hero-background.jpg" alt="Brenda Gregory"><p>"کیفیت محصولات عالی بود و بسته‌بندی بسیار حرفه‌ای انجام شده بود. قطعاً دوباره از شما خرید می‌کنم."</p><h4 class="author">سارا محمدی</h4><span class="role">خریدار</span></div><div class="testimonial-card" data-aos="fade-up" data-aos-delay="200"><img src="/images/hero-background.jpg" alt="Edward Monroe"><p>"پشتیبانی بسیار خوب و پاسخگو بود. محصول زودتر از موعد به دستم رسید. ممنونم از تیم خوبتون."</p><h4 class="author">علی رضایی</h4><span class="role">خریدار</span></div><div class="testimonial-card" data-aos="fade-up" data-aos-delay="300"><img src="/images/hero-background.jpg" alt="Alisa Bro"><p>"تنوع محصولات و ایده‌های چیدمان در سایت شما بی‌نظیره. برای خرید جهیزیه خیلی بهم کمک کرد."</p><h4 class="author">مریم احمدی</h4><span class="role">خریدار</span></div></div></div></section>
+        <section id="testimonials" class="testimonials-section fade-in-section"><div class="container"><h2 class="section-title">نظرات مشتریان ما</h2><div class="grid-3-col"><div class="testimonial-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Brenda Gregory" width="80" height="80"><p>"کیفیت محصولات عالی بود و بسته‌بندی بسیار حرفه‌ای انجام شده بود. قطعاً دوباره از شما خرید می‌کنم."</p><h4 class="author">سارا محمدی</h4><span class="role">خریدار</span></div><div class="testimonial-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Edward Monroe" width="80" height="80"><p>"پشتیبانی بسیار خوب و پاسخگو بود. محصول زودتر از موعد به دستم رسید. ممنونم از تیم خوبتون."</p><h4 class="author">علی رضایی</h4><span class="role">خریدار</span></div><div class="testimonial-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Alisa Bro" width="80" height="80"><p>"تنوع محصولات و ایده‌های چیدمان در سایت شما بی‌نظیره. برای خرید جهیزیه خیلی بهم کمک کرد."</p><h4 class="author">مریم احمدی</h4><span class="role">خریدار</span></div></div></div></section>
 
-        <section id="blog" class="blog-section"><div class="container" data-aos="fade-up"><h2 class="section-title">جدیدترین مقالات و ایده‌ها</h2><div class="grid-3-col"><div class="blog-card" data-aos="fade-up" data-aos-delay="100"><img src="/images/hero-background.jpg" alt="Blog Post 1"><div class="blog-card-content"><h3>چگونه رنگ مناسب برای دیوارها انتخاب کنیم؟</h3><a href="#">بیشتر بخوانید ←</a></div></div><div class="blog-card" data-aos="fade-up" data-aos-delay="200"><img src="/images/hero-background.jpg" alt="Blog Post 2"><div class="blog-card-content"><h3>۵ نکته کلیدی برای چیدمان فضاهای کوچک</h3><a href="#">بیشتر بخوانید ←</a></div></div><div class="blog-card" data-aos="fade-up" data-aos-delay="300"><img src="/images/hero-background.jpg" alt="Blog Post 3"><div class="blog-card-content"><h3>نورپردازی در دکوراسیون: جادویی که نباید نادیده گرفت</h3><a href="#">بیشتر بخوانید ←</a></div></div></div></div></section>
+        <section id="blog" class="blog-section fade-in-section"><div class="container"><h2 class="section-title">جدیدترین مقالات و ایده‌ها</h2><div class="grid-3-col"><div class="blog-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Blog Post 1" width="400" height="300"><div class="blog-card-content"><h3>چگونه رنگ مناسب برای دیوارها انتخاب کنیم؟</h3><a href="#">بیشتر بخوانید ←</a></div></div><div class="blog-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Blog Post 2" width="400" height="300"><div class="blog-card-content"><h3>۵ نکته کلیدی برای چیدمان فضاهای کوچک</h3><a href="#">بیشتر بخوانید ←</a></div></div><div class="blog-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Blog Post 3" width="400" height="300"><div class="blog-card-content"><h3>نورپردازی در دکوراسیون: جادویی که نباید نادیده گرفت</h3><a href="#">بیشتر بخوانید ←</a></div></div></div></div></section>
     </main>
     
 
-    <script src="~/lib/swiper/swiper-bundle.min.js"></script>
+    <script src="~/lib/swiper/swiper-bundle.min.js" defer></script>
     @Html.Partial("_CommonScripts")
 
     @if (Model.ProductIsFeatured != null)
     {
         <script>
-            // Countdown Timer
-            (function startCountdown() {
-                const today = new Date(); const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1); tomorrow.setHours(0, 0, 0, 0); const countDownDate = tomorrow.getTime();
-                const timer = setInterval(function () {
-                    const now = new Date().getTime(); const distance = countDownDate - now;
-                    const days = Math.floor(distance / (1000 * 60 * 60 * 24)); const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)); const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                    // Add a check to ensure elements exist before setting innerText
-                    if (document.getElementById("days")) document.getElementById("days").innerText = days;
-                    if (document.getElementById("hours")) document.getElementById("hours").innerText = hours;
-                    if (document.getElementById("minutes")) document.getElementById("minutes").innerText = minutes;
-                    if (document.getElementById("seconds")) document.getElementById("seconds").innerText = seconds;
-                    if (distance < 0) {
-                        clearInterval(timer);
-                        if (document.getElementById("countdown-timer")) document.getElementById("countdown-timer").innerHTML = "<p>تخفیف به پایان رسید!</p>";
-                    }
-                }, 1000);
-            })();
+            // Countdown Timer (can also be deferred)
+            document.addEventListener("DOMContentLoaded", function() {
+                (function startCountdown() {
+                    const today = new Date(); const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1); tomorrow.setHours(0, 0, 0, 0); const countDownDate = tomorrow.getTime();
+                    const timer = setInterval(function () {
+                        const now = new Date().getTime(); const distance = countDownDate - now;
+                        const days = Math.floor(distance / (1000 * 60 * 60 * 24)); const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)); const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                        if (document.getElementById("days")) document.getElementById("days").innerText = days;
+                        if (document.getElementById("hours")) document.getElementById("hours").innerText = hours;
+                        if (document.getElementById("minutes")) document.getElementById("minutes").innerText = minutes;
+                        if (document.getElementById("seconds")) document.getElementById("seconds").innerText = seconds;
+                        if (distance < 0) {
+                            clearInterval(timer);
+                            if (document.getElementById("countdown-timer")) document.getElementById("countdown-timer").innerHTML = "<p>تخفیف به پایان رسید!</p>";
+                        }
+                    }, 1000);
+                })();
+            });
         </script>
     }
 
-    <script>
-        // Swiper Sliders
-        const categorySwiper = new Swiper('.category-swiper', { effect: 'coverflow', grabCursor: true, centeredSlides: true, slidesPerView: 'auto', loop: true, coverflowEffect: { rotate: 50, stretch: 0, depth: 100, modifier: 1, slideShadows: true, }, pagination: { el: '.swiper-pagination', }, });
+    <script defer>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Swiper Sliders
+            const categorySwiper = new Swiper('.category-swiper', { effect: 'coverflow', grabCursor: true, centeredSlides: true, slidesPerView: 'auto', loop: true, coverflowEffect: { rotate: 50, stretch: 0, depth: 100, modifier: 1, slideShadows: true, }, pagination: { el: '.swiper-pagination', }, });
+            const productSwiper = new Swiper('.product-swiper', { loop: true, spaceBetween: 30, slidesPerView: 1, breakpoints: { 640: { slidesPerView: 2, spaceBetween: 20 }, 768: { slidesPerView: 3, spaceBetween: 30 }, 1024: { slidesPerView: 4, spaceBetween: 30 }, }, pagination: { el: '.product-swiper .swiper-pagination', clickable: true, }, navigation: { nextEl: '.product-swiper .swiper-button-next', prevEl: '.product-swiper .swiper-button-prev', }, });
 
-        const productSwiper = new Swiper('.product-swiper', { loop: true, spaceBetween: 30, slidesPerView: 1, breakpoints: { 640: { slidesPerView: 2, spaceBetween: 20 }, 768: { slidesPerView: 3, spaceBetween: 30 }, 1024: { slidesPerView: 4, spaceBetween: 30 }, }, pagination: { el: '.product-swiper .swiper-pagination', clickable: true, }, navigation: { nextEl: '.product-swiper .swiper-button-next', prevEl: '.product-swiper .swiper-button-prev', }, });
+            // Intersection Observer for fade-in animations
+            const observerOptions = {
+                root: null, // relative to the viewport
+                rootMargin: '0px',
+                threshold: 0.1 // trigger when 10% of the element is visible
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target); // Stop observing once visible
+                    }
+                });
+            }, observerOptions);
+
+            const sections = document.querySelectorAll('.fade-in-section:not(.is-visible)');
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
     </script>
 </body>
 </html>
