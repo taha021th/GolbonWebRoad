@@ -52,7 +52,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
                 if (request.Image != null)
                 {
                     var imageUrl = await _fileStorageService.SaveFileAsync(request.Image, "categories");
-                    categoryEntity.ImageUrl = imageUrl;
+                    categoryEntity.ImageUrl = imageUrl.Url;
                 }
 
 

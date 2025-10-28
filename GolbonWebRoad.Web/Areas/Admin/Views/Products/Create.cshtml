@@ -3,7 +3,7 @@
     ViewData["Title"] = "افزودن محصول جدید";
 }
 
-<form asp-action="Create" method="post" enctype="multipart/form-data">
+<form asp-controller="Products" asp-action="Create" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
 
     <div class="d-flex justify-content-between align-items-center mb-4">

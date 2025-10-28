@@ -23,7 +23,7 @@ namespace GolbonWebRoad.Domain.Interfaces.Repositories
         /// <summary>
         /// یک محصول را با شناسه آن و با امکان بارگذاری اطلاعات مرتبط (join) برمی‌گرداند.
         /// </summary>
-        Task<Product?> GetByIdAsync(int id, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false);
+        Task<Product?> GetByIdAsync(int id, bool? asNoTracking = false, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false);
 
         /// <summary>
         /// لیستی از تمام محصولات را با امکان فیلتر، مرتب‌سازی و محدود کردن تعداد برمی‌گرداند.

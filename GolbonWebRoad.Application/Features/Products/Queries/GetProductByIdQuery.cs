@@ -10,6 +10,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
     public class GetProductByIdQuery : IRequest<Product>
     {
         public int Id { get; set; }
+        public bool AsNoTracking { get; set; }
         public bool? JoinCategory { get; set; }
         public bool? JoinReviews { get; set; }
         public bool? JoinImages { get; set; }
@@ -46,7 +47,7 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
 
             try
             {
-                var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id, joinCategory: request.JoinCategory, joinImages: request.JoinImages, joinBrand: request.JoinBrand, joinReviews: request.JoinReviews);
+                var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id, asNoTracking: request.AsNoTracking, joinCategory: request.JoinCategory, joinImages: request.JoinImages, joinBrand: request.JoinBrand, joinReviews: request.JoinReviews);
 
                 if (product == null)
                 {

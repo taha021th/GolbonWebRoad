@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using GolbonWebRoad.Application.Enums;
 using GolbonWebRoad.Application.Interfaces.Services;
 using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
@@ -51,6 +52,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         private readonly IMapper _mapper;
         private readonly IFileStorageService _fileStorageService;
         private readonly ILogger<CreateProductCommandHandler> _logger; // ۲. ILogger را تعریف کنید
+        private const string FileDirectory = "products";
 
         // ۳. ILogger را از طریق سازنده تزریق کنید
         public CreateProductCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CreateProductCommandHandler> logger, IFileStorageService fileStorageService)
@@ -63,36 +65,52 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
 
         public async Task<int> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("شروع فرآیند ایجاد محصول جدید با نام '{ProductName}'.", request.Name);
+            _logger.LogInformation("شروع فرآیند ایجاد محصول '{ProductName}'.", request.Name);
+            var product = _mapper.Map<Product>(request);
+            var uploadedFileNames = new List<string>();
 
             try
             {
-                var product = _mapper.Map<Product>(request);
-
-                // Handle main image upload (separate uploader)
+                // --- فاز اول: آپلود تصویر اصلی ---
                 if (request.MainImage != null)
                 {
-                    var mainUrl = await _fileStorageService.SaveFileAsync(request.MainImage, "products");
-                    product.MainImageUrl = mainUrl;
+                    // <--- ۳. نتیجه را در متغیر SingleSaveResult دریافت کنید
+                    var mainImageResult = await _fileStorageService.SaveFileAsync(request.MainImage, FileDirectory);
+
+                    // <--- ۴. وضعیت (Status) را چک کنید
+                    if (mainImageResult.Status != FileValidationStatus.Success)
+                    {
+                        // <--- ۵. در صورت خطا، یک Exception پرتاب کنید تا catch اجرا شود
+                        throw new ValidationException(mainImageResult.ErrorMessage);
+                    }
+
+                    // <--- ۶. اگر موفق بود، از Url و FileName داخل نتیجه استفاده کنید
+                    product.MainImageUrl = mainImageResult.Url;
+                    uploadedFileNames.Add(mainImageResult.FileName); // افزودن به لیست Rollback
                 }
 
+                // --- فاز دوم: آپلود گالری (در حلقه) ---
                 if (request.Images != null && request.Images.Any())
                 {
-                    _logger.LogInformation("در حال آپلود {ImageCount} تصویر.", request.Images.Count);
-                    bool isFirstImage = true;
                     foreach (var imageFile in request.Images)
                     {
-                        var imageUrl = await _fileStorageService.SaveFileAsync(imageFile, "products");
-                        product.Images.Add(new ProductImage
+                        // <--- ۷. نتیجه را در متغیر SingleSaveResult دریافت کنید
+                        var galleryResult = await _fileStorageService.SaveFileAsync(imageFile, FileDirectory);
+
+                        // <--- ۸. وضعیت (Status) را چک کنید
+                        if (galleryResult.Status != FileValidationStatus.Success)
                         {
-                            ImageUrl = imageUrl,
-                            IsMainImage = isFirstImage
-                        });
-                        isFirstImage = false;
+                            // <--- ۹. در صورت خطا، یک Exception پرتاب کنید تا کل فرآیند متوقف و Rollback شود
+                            throw new ValidationException($"خطا در آپلود فایل گالری '{imageFile.FileName}': {galleryResult.ErrorMessage}");
+                        }
+
+                        // <--- ۱۰. اگر موفق بود، از Url و FileName داخل نتیجه استفاده کنید
+                        product.Images.Add(new ProductImage { ImageUrl = galleryResult.Url, IsMainImage = false });
+                        uploadedFileNames.Add(galleryResult.FileName); // افزودن به لیست Rollback
                     }
                 }
 
-                // Removed legacy color binding; attributes/variants handle options now
+                // --- فاز سوم: ذخیره در دیتابیس ---
                 _unitOfWork.ProductRepository.Add(product);
                 await _unitOfWork.CompleteAsync();
 
@@ -101,8 +119,35 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex, "خطای بحرانی در هنگام ایجاد محصول با نام '{ProductName}'.", request.Name);
-                throw;
+                // --- فاز Rollback ---
+                // (این بخش کاملاً درست کار می‌کند چون ما خطاها را به Exception تبدیل کردیم)
+                _logger.LogCritical(ex, "خطا در ایجاد محصول '{ProductName}'. شروع عملیات Rollback فایل‌ها.", request.Name);
+
+                foreach (var fileName in uploadedFileNames)
+                {
+                    await DeleteFileSilentlyAsync(fileName);
+                }
+
+                throw; // خطای اصلی را پرتاب کن
+            }
+        }
+
+        /// <summary>
+        /// متد کمکی برای حذف فایل در فاز Rollback
+        /// این متد خطاها را می‌گیرد تا خود فرآیند Rollback متوقف نشود
+        /// </summary>
+        private async Task DeleteFileSilentlyAsync(string fileName)
+        {
+            try
+            {
+                // فرض می‌کنیم نام فایل (GUID.webp) را داریم
+                await _fileStorageService.DeleteFileAsync(fileName, FileDirectory);
+                _logger.LogWarning("فایل {FileName} با موفقیت (Rollback) حذف شد.", fileName);
+            }
+            catch (Exception deleteEx)
+            {
+                // اگر حذف هم خطا داد، فقط لاگ می‌کنیم
+                _logger.LogError(deleteEx, "خطا در هنگام Rollback (حذف) فایل {FileName}.", fileName);
             }
         }
     }

@@ -78,7 +78,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
                     await _fileStorageService.DeleteFileAsync(Path.GetFileName(request.ExistingImage), "categories");
                     _logger.LogInformation("تصویر {ImageUrl} حذف شد.", request.ExistingImage);
                     var newImageUrl = await _fileStorageService.SaveFileAsync(request.NewImage, "categories");
-                    categoryToUpdate.ImageUrl=newImageUrl;
+                    categoryToUpdate.ImageUrl=newImageUrl.Url;
                 }
                 else
                 {

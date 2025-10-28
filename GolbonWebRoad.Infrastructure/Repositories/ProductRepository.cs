@@ -108,9 +108,14 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             };
         }
 
-        public async Task<Product?> GetByIdAsync(int id, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false)
+        public async Task<Product?> GetByIdAsync(int id, bool? asNoTracking = false, bool? joinCategory = false, bool? joinReviews = false, bool? joinImages = false, bool? joinBrand = false)
         {
+
             var query = _context.Products.AsQueryable();
+            if (asNoTracking==true)
+            {
+                query=query.AsNoTracking();
+            }
 
             if (joinCategory == true) query = query.Include(c => c.Category);
             if (joinReviews == true) query = query.Include(r => r.Reviews);
