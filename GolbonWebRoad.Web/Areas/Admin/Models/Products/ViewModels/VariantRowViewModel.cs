@@ -42,5 +42,13 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
         [Display(Name = "ارتفاع (سانتیمتر)")]
         [Range(0, double.MaxValue)]
         public decimal Height { get; set; }
+
+        [Display(Name = "GTIN")]
+        [MaxLength(50)]
+        public string? Gtin { get; set; }
+
+        [Display(Name = "MPN")]
+        [MaxLength(100)]
+        public string? Mpn { get; set; }
     }
 }

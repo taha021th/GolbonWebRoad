@@ -16,6 +16,8 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
         public decimal Length { get; set; }
         public decimal Width { get; set; }
         public decimal Height { get; set; }
+        public string? Gtin { get; set; }
+        public string? Mpn { get; set; }
     }
 
     public class CreateProductVariantCommandValidator : AbstractValidator<CreateProductVariantCommand>
@@ -33,6 +35,8 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
             RuleFor(x => x.Length).GreaterThanOrEqualTo(0);
             RuleFor(x => x.Width).GreaterThanOrEqualTo(0);
             RuleFor(x => x.Height).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.Gtin).MaximumLength(50);
+            RuleFor(x => x.Mpn).MaximumLength(100);
             RuleFor(x => x.OldPrice)
                 .GreaterThan(x => x.Price)
                 .When(x => x.OldPrice.HasValue)
@@ -79,7 +83,9 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
                 Weight = request.Weight,
                 Length = request.Length,
                 Width = request.Width,
-                Height = request.Height
+                Height = request.Height,
+                Gtin = request.Gtin,
+                Mpn = request.Mpn
             };
 
             if (request.AttributeValueIds != null && request.AttributeValueIds.Any())

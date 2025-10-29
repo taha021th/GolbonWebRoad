@@ -9,7 +9,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tecture - فروشگاه آنلاین شما</title>
+    <title>فروشگاه آنلاین مبلمان و دکوراسیون داخلی | Tecture</title>
+    <meta name="description" content="جدیدترین مدل‌های مبلمان، صندلی، میز و اکسسوری دکوراسیون داخلی را با بهترین کیفیت و طراحی منحصربه‌فرد در فروشگاه آنلاین Tecture بیابید. خانه‌ای رویایی بسازید.">
 
     <link rel="stylesheet" href="~/css/fonts.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/all.min.css" />
@@ -672,8 +673,8 @@
                 <div class="container">
                     <div class="deal-layout">
                         <div class="deal-image">
-                            <a asp-controller="Products" asp-action="Detail" asp-route-slog="@featuredProduct.Slog">
-                                <img loading="lazy" src="@(string.IsNullOrEmpty(featuredProduct.ImageUrl) ? $"https://placehold.co/600x600/EFEFEF/AAAAAA?text={featuredProduct.Name}" : $"{featuredProduct.ImageUrl}")" alt="@featuredProduct.Name" width="600" height="600">
+                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@featuredProduct.Slog">
+                                <img loading="lazy" src="@(string.IsNullOrEmpty(featuredProduct.ImageUrl) ? $"https://placehold.co/600x600/EFEFEF/AAAAAA?text={featuredProduct.Name}" : $"{featuredProduct.ImageUrl}")" alt="@(string.IsNullOrEmpty(featuredProduct.MainImageAltText) ? featuredProduct.Name : featuredProduct.MainImageAltText)" width="600" height="600">
                             </a>
                         </div>
                         <div class="deal-content">
@@ -713,7 +714,7 @@
                                 <div class="swiper-slide">
                                     <div class="product-card">
                                         <a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Id">
-                                            <img loading="lazy" src="@(string.IsNullOrEmpty(product.ImageUrl) ? $"https://placehold.co/400x300/EFEFEF/AAAAAA?text={product.Name}" : $"{product.ImageUrl}")" alt="@product.Name" width="400" height="300">
+                                            <img loading="lazy" src="@(string.IsNullOrEmpty(product.ImageUrl) ? $"https://placehold.co/400x300/EFEFEF/AAAAAA?text={product.Name}" : $"{product.ImageUrl}")" alt="تصویر محصول @product.Name" width="400" height="300">
                                         </a>
                                         <div class="product-card-content">
                                             <h3><a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Slog">@product.Name</a></h3>
@@ -743,7 +744,7 @@
                             {
                                 <div class="swiper-slide">
                                     <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@category.Id" class="category-slide-card">
-                                        <img loading="lazy" src="@(string.IsNullOrEmpty(category.ImageUrl) ? $"https://placehold.co/600x750/EFEFEF/AAAAAA?text={category.Name}" : $"{category.ImageUrl}")" alt="@category.Name" width="600" height="750">
+                                        <img loading="lazy" src="@(string.IsNullOrEmpty(category.ImageUrl) ? $"https://placehold.co/600x750/EFEFEF/AAAAAA?text={category.Name}" : $"{category.ImageUrl}")" alt="خرید محصولات دسته‌بندی @category.Name" width="600" height="750">
                                         <div class="category-overlay">
                                             <h3>@category.Name</h3>
                                             <span>مشاهده محصولات <i class="fa-solid fa-arrow-left-long"></i></span>

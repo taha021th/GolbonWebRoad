@@ -87,6 +87,12 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
                         Price = v.Price,
                         OldPrice = v.OldPrice,
                         StockQuantity = v.StockQuantity,
+                        Gtin=v.Gtin,
+                        Height=v.Height,
+                        Length=v.Length,
+                        Mpn=v.Mpn,
+                        Weight=v.Weight,
+                        Width=v.Width,
                         AttributeValueIds = v.AttributeValueIds ?? new List<int>()
                     };
                     await _mediator.Send(createVariant);
@@ -116,6 +122,8 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
                 Length = v.Length,
                 Width = v.Width,
                 Height = v.Height,
+                Mpn=v.Mpn,
+                Gtin=v.Gtin,
                 AttributeValueIds = v.AttributeValues?.Select(av => av.Id).ToList() ?? new List<int>()
             }).ToList();
             await PopulateDropdownsAsync(viewModel);
@@ -155,7 +163,60 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
                 var command = _mapper.Map<UpdateProductCommand>(viewModel);
                 await _mediator.Send(command);
 
-                // ... (منطق مدیریت Variants بدون تغییر) ...
+                // --- START: Variant Processing Logic ---
+                if (viewModel.Variants != null && viewModel.Variants.Any())
+                {
+                    foreach (var variantVM in viewModel.Variants)
+                    {
+                        if (variantVM.MarkForDeletion && variantVM.Id.HasValue)
+                        {
+                            // 3. Delete Variant
+                            await _mediator.Send(new DeleteProductVariantCommand { Id = variantVM.Id.Value });
+                        }
+                        else if (!variantVM.Id.HasValue)
+                        {
+                            // 1. Add New Variant
+                            var createVariantCmd = new CreateProductVariantCommand
+                            {
+                                ProductId = viewModel.Id,
+                                Sku = variantVM.Sku,
+                                Price = variantVM.Price,
+                                OldPrice = variantVM.OldPrice,
+                                StockQuantity = variantVM.StockQuantity,
+                                Gtin = variantVM.Gtin,
+                                Mpn = variantVM.Mpn,
+                                Weight = variantVM.Weight,
+                                Length = variantVM.Length,
+                                Width = variantVM.Width,
+                                Height = variantVM.Height,
+                                AttributeValueIds = variantVM.AttributeValueIds ?? new List<int>()
+                            };
+                            await _mediator.Send(createVariantCmd);
+                        }
+                        else if (variantVM.Id.HasValue)
+                        {
+                            // 2. Update Existing Variant
+                            var updateVariantCmd = new UpdateProductVariantCommand
+                            {
+                                Id = variantVM.Id.Value,
+                                Sku = variantVM.Sku,
+                                Price = variantVM.Price,
+                                OldPrice = variantVM.OldPrice,
+                                StockQuantity = variantVM.StockQuantity,
+                                Gtin = variantVM.Gtin,
+                                Mpn = variantVM.Mpn,
+                                Weight = variantVM.Weight,
+                                Length = variantVM.Length,
+                                Width = variantVM.Width,
+                                Height = variantVM.Height,
+
+                                AttributeValueIds = variantVM.AttributeValueIds ?? new List<int>()
+                            };
+                            await _mediator.Send(updateVariantCmd);
+                        }
+                    }
+                }
+                // --- END: Variant Processing Logic ---
 
                 TempData["SuccessMessage"] = "محصول با موفقیت ویرایش شد";
                 return RedirectToAction(nameof(Index));

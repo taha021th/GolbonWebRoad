@@ -90,7 +90,8 @@ namespace GolbonWebRoad.Application.Mapping
             // نگاشت دوطرفه بین موجودیت محصول و DTO کامل آن
             // استفاده (Product -> ProductDto): در تمام کوئری‌های محصولات برای نمایش به کاربر
             // استفاده (ProductDto -> Product): در سناریوهایی که ممکن است نیاز به تبدیل برعکس باشد
-            CreateMap<Product, ProductDto>().ReverseMap();
+            CreateMap<Product, ProductDto>()
+                .ForMember(dest => dest.MainImageAltText, opt => opt.MapFrom(src => src.MainImageAltText));
             //برای تبدیل پروداکت به ProductSummaryDto در CategoryDto
             CreateMap<Product, ProductSummaryDto>();
             CreateMap<Product, ProductAdminSummaryDto>()

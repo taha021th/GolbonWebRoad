@@ -19,6 +19,13 @@ namespace GolbonWebRoad.Domain.Entities
         public string ShortDescription { get; set; }
         public string Description { get; set; }
         public decimal BasePrice { get; set; }
+
+        // SEO Fields
+        public string? MetaTitle { get; set; }
+        public string? MetaDescription { get; set; }
+        public string? CanonicalUrl { get; set; }
+        public string? MainImageAltText { get; set; }
+
         public bool IsFeatured { get; set; }
         public string? MainImageUrl { get; set; } // تصویر اصلی محصول برای نمایش در کارت‌ها
         public DateTime CreatedAt { get; set; }
@@ -80,6 +87,10 @@ public class ProductVariant
     public decimal Price { get; set; }
     public decimal? OldPrice { get; set; } // قیمت قبلی برای نمایش تخفیف
     public int StockQuantity { get; set; } // موجودی انبار فقط برای این متغیر
+
+    // SEO - Unique Product Identifiers
+    public string? Gtin { get; set; } // Global Trade Item Number (e.g., UPC, EAN)
+    public string? Mpn { get; set; } // Manufacturer Part Number
     /// <summary>
     /// وزن گرم
     /// </summary>

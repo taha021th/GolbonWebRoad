@@ -53,6 +53,30 @@
             </div>
 
             <div class="card shadow-sm mb-4">
+                <div class="card-header">اطلاعات سئو (اختیاری)</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="MetaTitle" class="form-label">عنوان سئو (Meta Title)</label>
+                        <input asp-for="MetaTitle" class="form-control" />
+                        <span asp-validation-for="MetaTitle" class="text-danger"></span>
+                        <small class="text-muted d-block mt-1">اگر خالی بماند، از نام محصول استفاده می‌شود.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MetaDescription" class="form-label">توضیحات سئو (Meta Description)</label>
+                        <textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="MetaDescription" class="text-danger"></span>
+                        <small class="text-muted d-block mt-1">توضیحات کوتاه برای نمایش در نتایج گوگل (حدود ۱۵۵ کاراکتر). اگر خالی بماند، از توضیحات کوتاه محصول استفاده می‌شود.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="CanonicalUrl" class="form-label">آدرس کانونیکال (Canonical URL)</label>
+                        <input asp-for="CanonicalUrl" class="form-control" dir="ltr" />
+                        <span asp-validation-for="CanonicalUrl" class="text-danger"></span>
+                        <small class="text-muted d-block mt-1">برای جلوگیری از محتوای تکراری. در حالت عادی نیازی به پر کردن این فیلد نیست.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
                 <div class="card-header">تصویر اصلی</div>
                 <div class="card-body">
                     @if (!string.IsNullOrEmpty(Model.CurrentMainImageUrl))
@@ -67,6 +91,12 @@
                         <input type="file" asp-for="NewMainImage" class="form-control" />
                         <span asp-validation-for="NewMainImage" class="text-danger"></span>
                         <small class="text-muted d-block mt-2">در صورت انتخاب، تصویر اصلی محصول جایگزین می‌شود.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MainImageAltText" class="form-label">متن جایگزین تصویر اصلی (Alt Text)</label>
+                        <input asp-for="MainImageAltText" class="form-control" />
+                        <span asp-validation-for="MainImageAltText" class="text-danger"></span>
+                        <small class="text-muted d-block mt-1">یک توصیف کوتاه از تصویر برای کمک به سئو و کاربران نابینا.</small>
                     </div>
                 </div>
             </div>
@@ -109,6 +139,8 @@
                             <tr>
                                 <th>ویژگی‌ها</th>
                                 <th>SKU</th>
+                                <th>GTIN</th>
+                                <th>MPN</th>
                                 <th class="text-end">قیمت</th>
                                 <th class="text-end">قیمت قدیم</th>
                                 <th class="text-end">موجودی</th>
@@ -131,6 +163,8 @@
                                 <tr data-variant-index="@i" data-variant-id="@v.Id">
                                     <td>@string.Join(" / ", valueTexts)</td>
                                     <td>@v.Sku</td>
+                                    <td>@(v.Gtin ?? "-")</td>
+                                    <td>@(v.Mpn ?? "-")</td>
                                     <td class="text-end">@v.Price.ToString("N0")</td>
                                     <td class="text-end">@((v.OldPrice.HasValue ? v.OldPrice.Value.ToString("N0") : "-"))</td>
                                     <td class="text-end">@v.StockQuantity</td>
@@ -158,6 +192,8 @@
                                 <input type="hidden" name="Variants[@i].Length" value="@Model.Variants[i].Length" />
                                 <input type="hidden" name="Variants[@i].Width" value="@Model.Variants[i].Width" />
                                 <input type="hidden" name="Variants[@i].Height" value="@Model.Variants[i].Height" />
+                                <input type="hidden" name="Variants[@i].Gtin" value="@Model.Variants[i].Gtin" />
+                                <input type="hidden" name="Variants[@i].Mpn" value="@Model.Variants[i].Mpn" />
                                 @for(var j = 0; j < Model.Variants[i].AttributeValueIds.Count; j++)
                                 {
                                     <input type="hidden" name="Variants[@i].AttributeValueIds[@j]" value="@Model.Variants[i].AttributeValueIds[j]" />
@@ -235,6 +271,16 @@
                 <div class="mb-3">
                     <label for="variant-stock" class="form-label">موجودی</label>
                     <input type="number" id="variant-stock" class="form-control" min="0">
+                </div>
+                 <div class="row g-2 mb-3">
+                     <div class="col-6">
+                        <label for="variant-gtin" class="form-label">GTIN</label>
+                        <input type="text" id="variant-gtin" class="form-control">
+                    </div>
+                     <div class="col-6">
+                        <label for="variant-mpn" class="form-label">MPN</label>
+                        <input type="text" id="variant-mpn" class="form-control">
+                    </div>
                 </div>
                 <div class="row g-2">
                     <div class="col-6 col-md-3">
@@ -316,6 +362,8 @@
                 const price = document.getElementById('variant-price').value;
                 const oldPrice = document.getElementById('variant-old-price').value;
                 const stock = document.getElementById('variant-stock').value;
+                const gtin = document.getElementById('variant-gtin').value;
+                const mpn = document.getElementById('variant-mpn').value;
                 const weight = document.getElementById('variant-weight').value || 0;
                 const length = document.getElementById('variant-length').value || 0;
                 const width = document.getElementById('variant-width').value || 0;
@@ -344,18 +392,20 @@
                     return;
                 }
 
-                addVariantToTable(sku, price, oldPrice, stock, weight, length, width, height, selectedValues, selectedTexts);
-                addHiddenInputsForVariant(null, sku, price, oldPrice, stock, weight, length, width, height, selectedValues);
+                addVariantToTable(sku, price, oldPrice, stock, weight, length, width, height, gtin, mpn, selectedValues, selectedTexts);
+                addHiddenInputsForVariant(null, sku, price, oldPrice, stock, weight, length, width, height, gtin, mpn, selectedValues);
                 addVariantModal.hide();
                 resetModalForm();
             });
 
-            function addVariantToTable(sku, price, oldPrice, stock, weight, length, width, height, valueIds, valueTexts) {
+            function addVariantToTable(sku, price, oldPrice, stock, weight, length, width, height, gtin, mpn, valueIds, valueTexts) {
                 const row = document.createElement('tr');
                 row.setAttribute('data-variant-index', variantIndex);
                 row.innerHTML = `
                     <td>${valueTexts.join(' / ')}</td>
                     <td>${sku}</td>
+                    <td>${gtin || '-'}</td>
+                    <td>${mpn || '-'}</td>
                     <td class="text-end">${formatNumber(price)}</td>
                     <td class="text-end">${formatNumber(oldPrice)}</td>
                     <td class="text-end">${formatNumber(stock)}</td>
@@ -368,7 +418,7 @@
                 variantsTbody.appendChild(row);
             }
 
-            function addHiddenInputsForVariant(variantId, sku, price, oldPrice, stock, weight, length, width, height, valueIds) {
+            function addHiddenInputsForVariant(variantId, sku, price, oldPrice, stock, weight, length, width, height, gtin, mpn, valueIds) {
                 let inputsHtml = `<div data-variant-index="${variantIndex}" ${variantId ? `data-variant-id="${variantId}"`: ''}>`;
                 if (variantId) {
                      inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Id" value="${variantId}" />`;
@@ -381,6 +431,8 @@
                 inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Length" value="${length}" />`;
                 inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Width" value="${width}" />`;
                 inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Height" value="${height}" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Gtin" value="${gtin}" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Mpn" value="${mpn}" />`;
                 valueIds.forEach((id, i) => {
                     inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].AttributeValueIds[${i}]" value="${id}" />`;
                 });
@@ -398,6 +450,8 @@
                 document.getElementById('variant-length').value = '';
                 document.getElementById('variant-width').value = '';
                 document.getElementById('variant-height').value = '';
+                document.getElementById('variant-gtin').value = '';
+                document.getElementById('variant-mpn').value = '';
                 document.getElementById('modal-attributes-container').innerHTML = '';
             }
 

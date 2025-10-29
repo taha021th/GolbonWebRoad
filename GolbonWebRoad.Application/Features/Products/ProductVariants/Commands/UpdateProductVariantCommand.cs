@@ -17,6 +17,8 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
         public decimal Length { get; set; }
         public decimal Width { get; set; }
         public decimal Height { get; set; }
+        public string? Gtin { get; set; }
+        public string? Mpn { get; set; }
     }
 
     public class UpdateProductVariantCommandValidator : AbstractValidator<UpdateProductVariantCommand>
@@ -34,6 +36,8 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
             RuleFor(x => x.Length).GreaterThanOrEqualTo(0);
             RuleFor(x => x.Width).GreaterThanOrEqualTo(0);
             RuleFor(x => x.Height).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.Gtin).MaximumLength(50);
+            RuleFor(x => x.Mpn).MaximumLength(100);
             RuleFor(x => x.OldPrice)
                 .GreaterThan(x => x.Price)
                 .When(x => x.OldPrice.HasValue)
@@ -84,6 +88,8 @@ namespace GolbonWebRoad.Application.Features.Products.ProductVariants.Commands
             variant.Length = request.Length;
             variant.Width = request.Width;
             variant.Height = request.Height;
+            variant.Gtin = request.Gtin;
+            variant.Mpn = request.Mpn;
 
             // به‌روزرسانی ویژگی‌های انتخاب‌شده
             // ابتدا بررسی می‌کنیم که آیا تغییری لازم است

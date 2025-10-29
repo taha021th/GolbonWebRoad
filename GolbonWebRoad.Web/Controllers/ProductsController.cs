@@ -42,6 +42,36 @@ namespace GolbonWebRoad.Web.Controllers
                 CurrentSortOrder = sortOrder
             };
 
+            // Dynamic SEO Meta Tags Generation
+            if (categoryId.HasValue)
+            {
+                var category = viewModel.Categories.FirstOrDefault(c => c.Id == categoryId.Value);
+                if (category != null)
+                {
+                    viewModel.MetaTitle = $"خرید و قیمت {category.Name} | فروشگاه Tecture";
+                    viewModel.MetaDescription = $"آخرین مدل‌های {category.Name} را با بهترین قیمت و کیفیت از فروشگاه آنلاین Tecture بررسی و خریداری کنید.";
+                }
+            }
+            else if (brandId.HasValue)
+            {
+                var brand = viewModel.Brands.FirstOrDefault(b => b.Id == brandId.Value);
+                if (brand != null)
+                {
+                    viewModel.MetaTitle = $"محصولات برند {brand.Name} | فروشگاه Tecture";
+                    viewModel.MetaDescription = $"جدیدترین محصولات برند {brand.Name} را با ضمانت اصالت کالا از Tecture خریداری کنید.";
+                }
+            }
+            else if (!string.IsNullOrEmpty(searchTerm))
+            {
+                viewModel.MetaTitle = $"نتایج جستجو برای '{searchTerm}'";
+                viewModel.MetaDescription = $"نتایج جستجوی محصولات برای عبارت '{searchTerm}' در فروشگاه Tecture.";
+            }
+            else
+            {
+                viewModel.MetaTitle = "همه محصولات | فروشگاه Tecture";
+                viewModel.MetaDescription = "مجموعه کامل محصولات و مبلمان فروشگاه آنلاین دکوراسیون داخلی Tecture را مشاهده کنید.";
+            }
+
             return View(viewModel);
         }
         public async Task<IActionResult> Detail(int id)
@@ -60,6 +90,14 @@ namespace GolbonWebRoad.Web.Controllers
             var reviews = await _mediator.Send(new GetReviewsByProductIdQuery { ProductId = id, JoinUser = true });
             // ۵. مپ کردن انتیتی اصلی به ViewModel
             var viewModel = _mapper.Map<ProductDetailViewModel>(productEntity);
+
+
+
+            // SEO Fields
+            viewModel.MetaTitle = productEntity.MetaTitle;
+            viewModel.MetaDescription = productEntity.MetaDescription;
+            viewModel.CanonicalUrl = productEntity.CanonicalUrl;
+            viewModel.MainImageAltText = productEntity.MainImageAltText;
 
             // ۶. پردازش و آماده‌سازی ViewModel با اطلاعات دریافتی از کوئری‌ها
             viewModel.Reviews = _mapper.Map<List<ReviewViewModel>>(reviews);

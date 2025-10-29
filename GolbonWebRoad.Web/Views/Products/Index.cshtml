@@ -12,7 +12,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"] - فروشگاه Tecture</title>
+    <title>@Model.MetaTitle</title>
+    <meta name="description" content="@Model.MetaDescription">
 
     
     <link rel="stylesheet" href="~/css/fonts.css" />
@@ -285,7 +286,7 @@
                         <div class="plp-product-card card-like product-card-fade-in">
                             <div class="image-container">
                                 <a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Id">
-                                    <img loading="lazy" width="400" height="280" src="@(string.IsNullOrEmpty(product.ImageUrl) ? $"https://placehold.co/400x280/EFEFEF/AAAAAA?text={product.Name}" : $"{product.ImageUrl}")" alt="@product.Name">
+                                    <img loading="lazy" width="400" height="280" src="@(string.IsNullOrEmpty(product.ImageUrl) ? $"https://placehold.co/400x280/EFEFEF/AAAAAA?text={product.Name}" : $"{product.ImageUrl}")" alt="@(string.IsNullOrEmpty(product.MainImageAltText) ? product.Name : product.MainImageAltText)">
                                 </a>
                                 <div class="product-overlay">
                                     <button class="overlay-btn" title="افزودن به سبد خرید"><i class="fas fa-shopping-bag"></i></button>

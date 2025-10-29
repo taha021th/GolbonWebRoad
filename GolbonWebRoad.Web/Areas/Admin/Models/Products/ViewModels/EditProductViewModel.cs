@@ -28,6 +28,23 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
         [Range(1, double.MaxValue, ErrorMessage = "مقدار {0} باید بیشتر از صفر باشد.")]
         public decimal BasePrice { get; set; }
 
+        // SEO Fields
+        [Display(Name = "عنوان سئو (Meta Title)")]
+        [MaxLength(255)]
+        public string? MetaTitle { get; set; }
+
+        [Display(Name = "توضیحات سئو (Meta Description)")]
+        [MaxLength(500)]
+        public string? MetaDescription { get; set; }
+
+        [Display(Name = "آدرس کانونیکال (Canonical URL)")]
+        [MaxLength(1000)]
+        public string? CanonicalUrl { get; set; }
+        
+        [Display(Name = "متن جایگزین تصویر اصلی (Alt Text)")]
+        [MaxLength(255)]
+        public string? MainImageAltText { get; set; }
+
         [Display(Name = "دسته‌بندی")]
         [Required(ErrorMessage = "انتخاب {0} الزامی است.")]
         public int CategoryId { get; set; }

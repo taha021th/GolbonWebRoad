@@ -51,11 +51,41 @@
             </div>
 
             <div class="card shadow-sm mb-4">
+                <div class="card-header">اطلاعات سئو (اختیاری)</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="MetaTitle" class="form-label">عنوان سئو (Meta Title)</label>
+                        <input asp-for="MetaTitle" class="form-control" />
+                        <span asp-validation-for="MetaTitle" class="text-danger"></span>
+                        <small class="text-muted d-block mt-1">اگر خالی بماند، از نام محصول استفاده می‌شود.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MetaDescription" class="form-label">توضیحات سئو (Meta Description)</label>
+                        <textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="MetaDescription" class="text-danger"></span>
+                         <small class="text-muted d-block mt-1">توضیحات کوتاه برای نمایش در نتایج گوگل (حدود ۱۵۵ کاراکتر). اگر خالی بماند، از توضیحات کوتاه محصول استفاده می‌شود.</small>
+                    </div>
+                     <div class="mb-3">
+                        <label asp-for="CanonicalUrl" class="form-label">آدرس کانونیکال (Canonical URL)</label>
+                        <input asp-for="CanonicalUrl" class="form-control" dir="ltr" />
+                        <span asp-validation-for="CanonicalUrl" class="text-danger"></span>
+                        <small class="text-muted d-block mt-1">برای جلوگیری از محتوای تکراری. در حالت عادی نیازی به پر کردن این فیلد نیست.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
                 <div class="card-header">تصویر اصلی</div>
                 <div class="card-body">
                     <label asp-for="MainImage" class="form-label"></label>
                     <input type="file" asp-for="MainImage" class="form-control" />
                     <span asp-validation-for="MainImage" class="text-danger"></span>
+                    <div class="mt-3">
+                        <label asp-for="MainImageAltText" class="form-label">متن جایگزین تصویر اصلی (Alt Text)</label>
+                        <input asp-for="MainImageAltText" class="form-control" />
+                        <span asp-validation-for="MainImageAltText" class="text-danger"></span>
+                        <small class="text-muted d-block mt-1">یک توصیف کوتاه از تصویر برای کمک به سئو و کاربران نابینا.</small>
+                    </div>
                     <small class="text-muted d-block mt-2">این تصویر در کارت‌های پنل ادمین و لیست محصولات به عنوان تصویر اصلی نمایش داده می‌شود.</small>
                 </div>
             </div>
@@ -80,6 +110,8 @@
                             <tr>
                                 <th>ویژگی‌ها</th>
                                 <th>SKU</th>
+                                <th>GTIN</th>
+                                <th>MPN</th>
                                 <th class="text-end">قیمت</th>
                                 <th class="text-end">قیمت قدیم</th>
                                 <th class="text-end">موجودی</th>
@@ -170,6 +202,16 @@
                     <label for="variant-stock" class="form-label">موجودی</label>
                     <input type="number" id="variant-stock" class="form-control" min="0">
                 </div>
+                <div class="row g-2 mb-3">
+                     <div class="col-6">
+                        <label for="variant-gtin" class="form-label">GTIN</label>
+                        <input type="text" id="variant-gtin" class="form-control">
+                    </div>
+                     <div class="col-6">
+                        <label for="variant-mpn" class="form-label">MPN</label>
+                        <input type="text" id="variant-mpn" class="form-control">
+                    </div>
+                </div>
                 <div class="row g-2">
                     <div class="col-6 col-md-3">
                         <label for="variant-weight" class="form-label">وزن (گرم)</label>
@@ -257,6 +299,8 @@
                 const price = document.getElementById('variant-price').value;
                 const oldPrice = document.getElementById('variant-old-price').value;
                 const stock = document.getElementById('variant-stock').value;
+                const gtin = document.getElementById('variant-gtin').value;
+                const mpn = document.getElementById('variant-mpn').value;
                 const weight = document.getElementById('variant-weight').value || 0;
                 const length = document.getElementById('variant-length').value || 0;
                 const width = document.getElementById('variant-width').value || 0;
@@ -287,20 +331,22 @@
                 }
 
 
-                addVariantToTable(sku, price, oldPrice, stock, weight, length, width, height, selectedValues, selectedTexts);
-                addHiddenInputsForVariant(sku, price, oldPrice, stock, weight, length, width, height, selectedValues);
+                addVariantToTable(sku, price, oldPrice, stock, weight, length, width, height, gtin, mpn, selectedValues, selectedTexts);
+                addHiddenInputsForVariant(sku, price, oldPrice, stock, weight, length, width, height, gtin, mpn, selectedValues);
                 
                 addVariantModal.hide();
                 resetModalForm();
             });
 
-            function addVariantToTable(sku, price, oldPrice, stock, weight, length, width, height, valueIds, valueTexts) {
+            function addVariantToTable(sku, price, oldPrice, stock, weight, length, width, height, gtin, mpn, valueIds, valueTexts) {
                 const tbody = document.getElementById('variants-tbody');
                 const row = document.createElement('tr');
                 row.setAttribute('data-variant-index', variantIndex);
                 row.innerHTML = `
                     <td>${valueTexts.join(' / ')}</td>
                     <td>${sku}</td>
+                    <td>${gtin || '-'}</td>
+                    <td>${mpn || '-'}</td>
                     <td class="text-end">${formatNumber(price)}</td>
                     <td class="text-end">${formatNumber(oldPrice)}</td>
                     <td class="text-end">${formatNumber(stock)}</td>
@@ -315,17 +361,19 @@
                 tbody.appendChild(row);
             }
 
-            function addHiddenInputsForVariant(sku, price, oldPrice, stock, weight, length, width, height, valueIds) {
+            function addHiddenInputsForVariant(sku, price, oldPrice, stock, weight, length, width, height, gtin, mpn, valueIds) {
                 const container = document.getElementById('variants-hidden-inputs');
                 let inputsHtml = `<div data-variant-index="${variantIndex}">`;
                 inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Sku" value="${sku}" />`;
                 inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Price" value="${price}" />`;
                 inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].OldPrice" value="${oldPrice}" />`;
                 inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].StockQuantity" value="${stock}" />`;
-                inputsHtml += `<input type=\"hidden\" name=\"Variants[${variantIndex}].Weight\" value=\"${weight}\" />`;
-                inputsHtml += `<input type=\"hidden\" name=\"Variants[${variantIndex}].Length\" value=\"${length}\" />`;
-                inputsHtml += `<input type=\"hidden\" name=\"Variants[${variantIndex}].Width\" value=\"${width}\" />`;
-                inputsHtml += `<input type=\"hidden\" name=\"Variants[${variantIndex}].Height\" value=\"${height}\" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Weight" value="${weight}" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Length" value="${length}" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Width" value="${width}" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Height" value="${height}" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Gtin" value="${gtin}" />`;
+                inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].Mpn" value="${mpn}" />`;
                 
                 valueIds.forEach((id, i) => {
                     inputsHtml += `<input type="hidden" name="Variants[${variantIndex}].AttributeValueIds[${i}]" value="${id}" />`;
@@ -346,6 +394,8 @@
                 document.getElementById('variant-length').value = '';
                 document.getElementById('variant-width').value = '';
                 document.getElementById('variant-height').value = '';
+                document.getElementById('variant-gtin').value = '';
+                document.getElementById('variant-mpn').value = '';
                 document.getElementById('modal-attributes-container').innerHTML = '';
             }
 

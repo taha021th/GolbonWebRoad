@@ -16,6 +16,7 @@
         public decimal Price { get; set; }
         public decimal? OldPrice { get; set; }
         public string ImageUrl { get; set; }
+        public string? MainImageAltText { get; set; }
         public string CategoryName { get; set; }
         public string BrandName { get; set; }
     }
@@ -24,6 +25,10 @@
         public PagedResult<ProductViewModel> Products { get; set; }
         public List<CategoryViewModel> Categories { get; set; }
         public List<BrandViewModel> Brands { get; set; }
+
+        // SEO Fields
+        public string MetaTitle { get; set; }
+        public string MetaDescription { get; set; }
 
         // To keep track of current filters
         public int? CurrentCategoryId { get; set; }
@@ -95,6 +100,12 @@
         public string ShortDescription { get; set; }
         public string Description { get; set; }
         public string? MainImageUrl { get; set; }
+
+        // SEO Fields
+        public string? MetaTitle { get; set; }
+        public string? MetaDescription { get; set; }
+        public string? CanonicalUrl { get; set; }
+        public string? MainImageAltText { get; set; }
 
 
         public CategoryViewModel Category { get; set; }
