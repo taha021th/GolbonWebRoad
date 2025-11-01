@@ -26,6 +26,9 @@ namespace GolbonWebRoad.Application.Dtos.Products
         public ICollection<ProductColorDto> ProductColors { get; set; }
 
         public Brand Brand { get; set; }
+
+        // متن جایگزین تصویر اصلی برای اهداف دسترسی و سئو
+        public string? MainImageAltText { get; set; }
     }
 
 }

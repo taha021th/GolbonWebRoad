@@ -20,6 +20,13 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         public bool IsFeatured { get; set; }
         public int CategoryId { get; set; }
         public int? BrandId { get; set; }
+
+        // SEO Fields
+        public string? MetaTitle { get; set; }
+        public string? MetaDescription { get; set; }
+        public string? CanonicalUrl { get; set; }
+        public string? MainImageAltText { get; set; }
+
         public IFormFile? MainImage { get; set; } // تصویر اصلی محصول
         // Colors removed in favor of attribute-based variants
         // public List<ColorInputDto> Colors { get; set; } = new();
@@ -43,6 +50,12 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
             RuleFor(p => p.BrandId)
                 .GreaterThan(0).WithMessage("انتخاب برند الزامی است.")
                 .When(p => p.BrandId.HasValue);
+
+            // SEO validations (optional, keep len reasonable)
+            RuleFor(p => p.MetaTitle).MaximumLength(255);
+            RuleFor(p => p.MetaDescription).MaximumLength(500);
+            RuleFor(p => p.CanonicalUrl).MaximumLength(1000);
+            RuleFor(p => p.MainImageAltText).MaximumLength(255);
         }
     }
 

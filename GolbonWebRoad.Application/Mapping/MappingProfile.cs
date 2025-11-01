@@ -43,11 +43,9 @@ namespace GolbonWebRoad.Application.Mapping
             CreateMap<CartItem, CartItemDto>();
             CreateMap<CartItem, CartItemSummaryDto>();
             #endregion
-
             #region Reviews
             CreateMap<CreateReviewCommand, Review>();
             #endregion
-
             #region Categories
             // --- نگاشت‌های مربوط به دسته‌بندی‌ها ---
 
@@ -76,14 +74,11 @@ namespace GolbonWebRoad.Application.Mapping
             // استفاده: در UpdateCategoryCommandHandler
             CreateMap<UpdateCategoryCommand, Category>();
             #endregion
-
             #region Brands
             CreateMap<Brand, BrandDto>();
             CreateMap<CreateBrandCommand, Brand>();
             CreateMap<UpdateBrandCommand, Brand>();
             #endregion
-
-
             #region Products
             // --- نگاشت‌های مربوط به محصولات ---
 
@@ -122,8 +117,6 @@ namespace GolbonWebRoad.Application.Mapping
 
 
             #endregion
-
-
             #region ProductColor
 
             CreateMap<ProductColor, ProductColorDto>();
@@ -131,7 +124,6 @@ namespace GolbonWebRoad.Application.Mapping
             #region Color
             CreateMap<Color, ColorDto>();
             #endregion
-
             #region Orders
             // --- نگاشت‌های مربوط به سفارشات ---
 
@@ -152,7 +144,6 @@ namespace GolbonWebRoad.Application.Mapping
             // استفاده: در اکشن UpdateStatus در OrdersController
             CreateMap<UpdateOrderStatusRequestDto, UpdateOrderStatusCommand>();
             #endregion
-
             #region Logs
             CreateMap<Log, LogDto>();
             #endregion

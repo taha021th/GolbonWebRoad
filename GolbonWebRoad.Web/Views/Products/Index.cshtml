@@ -14,8 +14,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@Model.MetaTitle</title>
     <meta name="description" content="@Model.MetaDescription">
+    <!-- اگر صفحه فیلتر شده باشد، برای جلوگیری از ایندکس شدن نتایج فیلترشده، noindex اعمال می‌شود -->
+    @if (ViewBag.Noindex == true) { <meta name="robots" content="noindex,follow" /> }
 
-    
     <link rel="stylesheet" href="~/css/fonts.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/all.min.css">
     <!-- AOS library removed for performance -->

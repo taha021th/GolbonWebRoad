@@ -23,6 +23,13 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         public bool IsFeatured { get; set; }
         public int CategoryId { get; set; }
         public int? BrandId { get; set; }
+
+        // SEO Fields
+        public string? MetaTitle { get; set; }
+        public string? MetaDescription { get; set; }
+        public string? CanonicalUrl { get; set; }
+        public string? MainImageAltText { get; set; }
+
         public IFormFile? NewMainImage { get; set; } // تصویر اصلی جدید
         public List<IFormFile> NewImages { get; set; } = new();
         public List<string> ImagesToDelete { get; set; } = new();
@@ -50,6 +57,12 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
             RuleFor(p => p.BrandId)
                 .GreaterThan(0).WithMessage("انتخاب برند الزامی است.")
                 .When(p => p.BrandId.HasValue);
+
+            // SEO validations (optional)
+            RuleFor(p => p.MetaTitle).MaximumLength(255);
+            RuleFor(p => p.MetaDescription).MaximumLength(500);
+            RuleFor(p => p.CanonicalUrl).MaximumLength(1000);
+            RuleFor(p => p.MainImageAltText).MaximumLength(255);
         }
     }
 

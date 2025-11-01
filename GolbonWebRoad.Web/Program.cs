@@ -56,6 +56,9 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 
 builder.Services.AddControllersWithViews();
 
+// SEO services
+builder.Services.AddSingleton<GolbonWebRoad.Web.Services.Seo.ISeoSettingsService, GolbonWebRoad.Web.Services.Seo.FileSeoSettingsService>(); // ثبت سرویس تنظیمات سئو برای دسترسی در کنترلرها/ویوها
+
 // Payment gateways registration
 builder.Services.AddSingleton(provider =>
 {

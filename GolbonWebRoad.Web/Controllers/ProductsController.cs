@@ -3,6 +3,7 @@ using GolbonWebRoad.Application.Features.Products.Queries;
 using GolbonWebRoad.Application.Features.Reviews.Commands;
 using GolbonWebRoad.Application.Features.Reviews.Queries;
 using GolbonWebRoad.Web.Models.Products;
+using GolbonWebRoad.Web.Services.Seo;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +15,12 @@ namespace GolbonWebRoad.Web.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
-        public ProductsController(IMediator mediator, IMapper mapper)
+        private readonly ISeoSettingsService _seo;
+        public ProductsController(IMediator mediator, IMapper mapper, ISeoSettingsService seo)
         {
             _mediator=mediator;
             _mapper=mapper;
+            _seo = seo;
         }
         public async Task<IActionResult> Index(int? categoryId, int? brandId, string searchTerm, string sortOrder, int page = 1)
         {
@@ -72,6 +75,13 @@ namespace GolbonWebRoad.Web.Controllers
                 viewModel.MetaDescription = "مجموعه کامل محصولات و مبلمان فروشگاه آنلاین دکوراسیون داخلی Tecture را مشاهده کنید.";
             }
 
+            // اگر صفحه لیست محصولات با فیلتر (دسته/برند/جستجو) باز شود، برای جلوگیری از ایندکس شدن نتایج فیلترشده، تگ noindex اعمال می‌کنیم
+            var settings = await _seo.GetAsync();
+            if (settings.NoindexOnFilteredLists && (categoryId.HasValue || brandId.HasValue || !string.IsNullOrWhiteSpace(searchTerm)))
+            {
+                ViewBag.Noindex = true;
+            }
+
             return View(viewModel);
         }
         public async Task<IActionResult> Detail(int id)
@@ -91,12 +101,23 @@ namespace GolbonWebRoad.Web.Controllers
             // ۵. مپ کردن انتیتی اصلی به ViewModel
             var viewModel = _mapper.Map<ProductDetailViewModel>(productEntity);
 
-
-
-            // SEO Fields
-            viewModel.MetaTitle = productEntity.MetaTitle;
-            viewModel.MetaDescription = productEntity.MetaDescription;
-            viewModel.CanonicalUrl = productEntity.CanonicalUrl;
+            // پر کردن فیلدهای سئو محصول: اگر MetaTitle/Description تنظیم نشده باشد، از قالب‌های پیش‌فرض استفاده می‌کنیم
+            var settings = await _seo.GetAsync();
+            viewModel.MetaTitle = !string.IsNullOrWhiteSpace(productEntity.MetaTitle)
+                ? productEntity.MetaTitle
+                : (settings.DefaultMetaTitleTemplate ?? "{name}").Replace("{name}", productEntity.Name ?? "");
+            viewModel.MetaDescription = !string.IsNullOrWhiteSpace(productEntity.MetaDescription)
+                ? productEntity.MetaDescription
+                : (settings.DefaultMetaDescriptionTemplate ?? "خرید {name}").Replace("{name}", productEntity.Name ?? "");
+            if (settings.AutoCanonicalEnabled && string.IsNullOrWhiteSpace(productEntity.CanonicalUrl))
+            {
+                var req = HttpContext.Request;
+                viewModel.CanonicalUrl = $"{req.Scheme}://{req.Host}/Products/Detail/{productEntity.Id}";
+            }
+            else
+            {
+                viewModel.CanonicalUrl = productEntity.CanonicalUrl;
+            }
             viewModel.MainImageAltText = productEntity.MainImageAltText;
 
             // ۶. پردازش و آماده‌سازی ViewModel با اطلاعات دریافتی از کوئری‌ها
