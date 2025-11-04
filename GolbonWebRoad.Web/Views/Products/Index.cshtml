@@ -227,7 +227,11 @@
                     <ul>
                         @foreach (var category in Model.Categories)
                         {
-                            <li><label><input type="checkbox" name="categoryId" value="@category.Id" @(Model.CurrentCategoryId == category.Id ? "checked" : "")> @category.Name</label></li>
+                            <li>
+                                <a asp-controller="Categories" asp-action="Detail" asp-route-id="@category.Id">
+                                    @category.Name
+                                </a>
+                            </li>
                         }
                     </ul>
                 </div>
@@ -246,7 +250,11 @@
                     <ul>
                         @foreach (var brand in Model.Brands)
                         {
-                            <li><label><input type="checkbox" name="brandId" value="@brand.Id" @(Model.CurrentBrandId == brand.Id ? "checked" : "")> @brand.Name</label></li>
+                            <li>
+                                <a asp-controller="Brands" asp-action="Detail" asp-route-id="@brand.Id">
+                                    @brand.Name
+                                </a>
+                            </li>
                         }
                     </ul>
                 </div>
@@ -265,19 +273,54 @@
                         }
                     </p>
                     <div class="sort-by">
-                        <form id="sort-form" asp-action="Index" method="get">
-                            @foreach (var param in queryParams.Where(q => q.Key != "sortOrder"))
-                            {
-                                <input type="hidden" name="@param.Key" value="@param.Value" />
-                            }
-                            <label for="sortOrder">مرتب‌سازی بر اساس: </label>
-                            <select name="sortOrder" id="sortOrder" onchange="this.form.submit()">
-                                <option value="" selected="@(string.IsNullOrEmpty(Model.CurrentSortOrder))">جدیدترین</option>
-                                <option value="popularity">پرفروش‌ترین</option>
-                                <option value="price_asc" selected="@(Model.CurrentSortOrder == "price_asc")">ارزان‌ترین</option>
-                                <option value="price_desc" selected="@(Model.CurrentSortOrder == "price_desc")">گران‌ترین</option>
-                            </select>
-                        </form>
+                        @if (Model.CurrentCategoryId.HasValue)
+                        {
+                            <form id="sort-form" asp-route="CategoryDetail" asp-route-id="@Model.CurrentCategoryId" method="get">
+                                @foreach (var param in queryParams.Where(q => q.Key != "sortOrder" && q.Key != "page"))
+                                {
+                                    <input type="hidden" name="@param.Key" value="@param.Value" />
+                                }
+                                <label for="sortOrder">مرتب‌سازی بر اساس: </label>
+                                <select name="sortOrder" id="sortOrder" onchange="this.form.submit()">
+                                    <option value="" selected="@(string.IsNullOrEmpty(Model.CurrentSortOrder))">جدیدترین</option>
+                                    <option value="popularity">پرفروش‌ترین</option>
+                                    <option value="price_asc" selected="@(Model.CurrentSortOrder == "price_asc")">ارزان‌ترین</option>
+                                    <option value="price_desc" selected="@(Model.CurrentSortOrder == "price_desc")">گران‌ترین</option>
+                                </select>
+                            </form>
+                        }
+                        else if (Model.CurrentBrandId.HasValue)
+                        {
+                            <form id="sort-form" asp-route="BrandDetail" asp-route-id="@Model.CurrentBrandId" method="get">
+                                @foreach (var param in queryParams.Where(q => q.Key != "sortOrder" && q.Key != "page"))
+                                {
+                                    <input type="hidden" name="@param.Key" value="@param.Value" />
+                                }
+                                <label for="sortOrder">مرتب‌سازی بر اساس: </label>
+                                <select name="sortOrder" id="sortOrder" onchange="this.form.submit()">
+                                    <option value="" selected="@(string.IsNullOrEmpty(Model.CurrentSortOrder))">جدیدترین</option>
+                                    <option value="popularity">پرفروش‌ترین</option>
+                                    <option value="price_asc" selected="@(Model.CurrentSortOrder == "price_asc")">ارزان‌ترین</option>
+                                    <option value="price_desc" selected="@(Model.CurrentSortOrder == "price_desc")">گران‌ترین</option>
+                                </select>
+                            </form>
+                        }
+                        else
+                        {
+                            <form id="sort-form" asp-controller="Products" asp-action="Index" method="get">
+                                @foreach (var param in queryParams.Where(q => q.Key != "sortOrder" && q.Key != "page"))
+                                {
+                                    <input type="hidden" name="@param.Key" value="@param.Value" />
+                                }
+                                <label for="sortOrder">مرتب‌سازی بر اساس: </label>
+                                <select name="sortOrder" id="sortOrder" onchange="this.form.submit()">
+                                    <option value="" selected="@(string.IsNullOrEmpty(Model.CurrentSortOrder))">جدیدترین</option>
+                                    <option value="popularity">پرفروش‌ترین</option>
+                                    <option value="price_asc" selected="@(Model.CurrentSortOrder == "price_asc")">ارزان‌ترین</option>
+                                    <option value="price_desc" selected="@(Model.CurrentSortOrder == "price_desc")">گران‌ترین</option>
+                                </select>
+                            </form>
+                        }
                     </div>
                 </div>
 
@@ -302,25 +345,82 @@
                     }
                 </div>
 
-                @if (Model.Products.TotalPages > 1)
+                @if ((ViewBag.HidePagination != true) && Model.Products.TotalPages > 1)
                 {
                     <nav class="pagination">
                          <ul class="pagination" style="list-style:none; padding:0;">
                             @if (Model.Products.HasPreviousPage)
                             {
-                                <li class="page-item"><a class="page-link" asp-all-route-data="queryParams" asp-route-page="@(Model.Products.PageNumber - 1)">&laquo;</a></li>
+                                <li class="page-item">
+                                    @if (Model.CurrentCategoryId.HasValue)
+                                    {
+                                        <a class="page-link" asp-route="CategoryDetail" asp-route-id="@Model.CurrentCategoryId" asp-all-route-data="queryParams" asp-route-page="@(Model.Products.PageNumber - 1)">&laquo;</a>
+                                    }
+                                    else if (Model.CurrentBrandId.HasValue)
+                                    {
+                                        <a class="page-link" asp-route="BrandDetail" asp-route-id="@Model.CurrentBrandId" asp-all-route-data="queryParams" asp-route-page="@(Model.Products.PageNumber - 1)">&laquo;</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="page-link" asp-controller="Products" asp-action="Index" asp-all-route-data="queryParams" asp-route-page="@(Model.Products.PageNumber - 1)">&laquo;</a>
+                                    }
+                                </li>
                             }
 
                             @for (int i = 1; i <= Model.Products.TotalPages; i++)
                             {
-                                <li class="page-item @(i == Model.Products.PageNumber ? "active" : "")">
-                                    <a class="page-link" asp-all-route-data="queryParams" asp-route-page="@i">@i</a>
-                                </li>
+                                if (i == Model.Products.PageNumber)
+                                {
+                                    <li class="page-item active">
+                                        @if (Model.CurrentCategoryId.HasValue)
+                                        {
+                                        <a class="page-link" asp-route="CategoryDetail" asp-route-id="@Model.CurrentCategoryId" asp-all-route-data="queryParams" asp-route-page="@i">@i</a>
+                                        }
+                                        else if (Model.CurrentBrandId.HasValue)
+                                        {
+                                        <a class="page-link" asp-route="BrandDetail" asp-route-id="@Model.CurrentBrandId" asp-all-route-data="queryParams" asp-route-page="@i">@i</a>
+                                        }
+                                        else
+                                        {
+                                            <a class="page-link" asp-controller="Products" asp-action="Index" asp-all-route-data="queryParams" asp-route-page="@i">@i</a>
+                                        }
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="page-item">
+                                        @if (Model.CurrentCategoryId.HasValue)
+                                        {
+                                            <a class="page-link" asp-controller="Categories" asp-action="Detail" asp-route-id="@Model.CurrentCategoryId" asp-all-route-data="queryParams" asp-route-page="@i">@i</a>
+                                        }
+                                        else if (Model.CurrentBrandId.HasValue)
+                                        {
+                                            <a class="page-link" asp-controller="Brands" asp-action="Detail" asp-route-id="@Model.CurrentBrandId" asp-all-route-data="queryParams" asp-route-page="@i">@i</a>
+                                        }
+                                        else
+                                        {
+                                            <a class="page-link" asp-controller="Products" asp-action="Index" asp-all-route-data="queryParams" asp-route-page="@i">@i</a>
+                                        }
+                                    </li>
+                                }
                             }
                             
                             @if (Model.Products.HasNextPage)
                             {
-                                <li class="page-item"><a class="page-link" asp-all-route-data="queryParams" asp-route-page="@(Model.Products.PageNumber + 1)">&raquo;</a></li>
+                                <li class="page-item">
+                                    @if (Model.CurrentCategoryId.HasValue)
+                                    {
+                                        <a class="page-link" asp-route="CategoryDetail" asp-route-id="@Model.CurrentCategoryId" asp-all-route-data="queryParams" asp-route-page="@(Model.Products.PageNumber + 1)">&raquo;</a>
+                                    }
+                                    else if (Model.CurrentBrandId.HasValue)
+                                    {
+                                        <a class="page-link" asp-route="BrandDetail" asp-route-id="@Model.CurrentBrandId" asp-all-route-data="queryParams" asp-route-page="@(Model.Products.PageNumber + 1)">&raquo;</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="page-link" asp-controller="Products" asp-action="Index" asp-all-route-data="queryParams" asp-route-page="@(Model.Products.PageNumber + 1)">&raquo;</a>
+                                    }
+                                </li>
                             }
                         </ul>
                     </nav>
@@ -335,32 +435,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Simple script to handle checkbox filters
-            document.querySelectorAll('.filters-sidebar input[type="checkbox"]').forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const form = document.createElement('form');
-                    form.method = 'get';
-                    form.action = '@Url.Action("Index", "Products")';
-
-                    document.querySelectorAll('#sort-form input[type="hidden"]').forEach(hidden => {
-                        if(hidden.name !== this.name) {
-                            form.appendChild(hidden.cloneNode(true));
-                        }
-                    });
-
-                    if (this.checked) {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = this.name;
-                        input.value = this.value;
-                        form.appendChild(input);
-                    }
-                    
-                    document.body.appendChild(form);
-                    form.submit();
-                });
-            });
-
             // Intersection Observer for fade-in animations
             const observerOptions = {
                 root: null, 

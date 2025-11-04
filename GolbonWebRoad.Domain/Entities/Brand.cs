@@ -7,6 +7,7 @@ namespace GolbonWebRoad.Domain.Entities
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string? ImageUrl { get; set; }
         public virtual IEnumerable<Product> Products { get; set; }
     }
 }

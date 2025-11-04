@@ -15,7 +15,8 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
             _seoSettingsService = seoSettingsService;
         }
 
-        // صفحه نمایش فرم تنظیمات
+        // صفحه نمایش فرم تنظیمات 
+        //محتویات فایل روبوتز رو میگیره و داخل تکست ایریا نمایش میده تا ادمین ببینه و بتونه ویرایش کنه
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -24,6 +25,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         }
 
         // ذخیره تغییرات تنظیمات سئو
+        //در واقع تنظیمات روبوتز رو تغییر میده ادمین و اینجا ذخیره میشه
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index([FromForm] SeoSettings model)

@@ -18,9 +18,16 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         {
             return await _context.Brands.ToListAsync();
         }
-        public async Task<Brand> GetByIdAsync(int id)
+        public async Task<Brand> GetByIdAsync(int id, bool? joinProduct = false)
         {
-            return await _context.Brands.FindAsync(id);
+            var query = _context.Brands.AsQueryable();
+            if (joinProduct==true)
+                query=query.Include(p => p.Products);
+
+            return await query.FirstOrDefaultAsync(id => id==id);
+
+
+
         }
 
         public async Task AddAsync(Brand brand)

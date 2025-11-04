@@ -7,6 +7,7 @@ namespace GolbonWebRoad.Application.Features.Brands.Queries
 {
     public class GetBrandsQuery : IRequest<IEnumerable<Brand>>
     {
+
     }
     public class GetBrandsQueryHandler : IRequestHandler<GetBrandsQuery, IEnumerable<Brand>>
     {

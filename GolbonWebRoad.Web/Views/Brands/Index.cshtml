@@ -1,0 +1,45 @@
+@using GolbonWebRoad.Web.Models.Brands
+@model List<BrandSummaryViewModel>
+@{
+    ViewData["Title"] = "برندها";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فهرست برندها</title>
+    <link rel="stylesheet" href="~/css/fonts.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/all.min.css">
+    @Html.Partial("_CommonStyles")
+    <style>
+        .grid { display:grid; grid-template-columns: repeat(6, 1fr); gap:20px; }
+        .brand-card { background: var(--card-bg-color); border:1px solid var(--border-color); text-align:center; padding:20px; transition: transform .2s ease, box-shadow .2s ease; }
+        .brand-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+        .brand-card img { width:100%; height:100px; object-fit:contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,.2)); background: var(--bg-color); }
+        .brand-card h3 { font-size: .95rem; margin-top:12px; }
+        @@media (max-width: 1200px){ .grid { grid-template-columns: repeat(4,1fr);} }
+        @@media (max-width: 768px){ .grid { grid-template-columns: repeat(2,1fr);} }
+    </style>
+</head>
+<body>
+    @Html.Partial("_Header")
+    <main class="container" style="padding:40px 0;">
+        <header class="page-header">
+            <h1>برندها</h1>
+        </header>
+
+        <section class="grid">
+            @foreach (var b in Model)
+            {
+                <a class="brand-card card-like" asp-controller="Brands" asp-action="Detail" asp-route-id="@b.Id">
+                    <img loading="lazy" src="@(string.IsNullOrWhiteSpace(b.ImageUrl) ? "https://placehold.co/300x100?text=Brand" : b.ImageUrl)" alt="@b.Name" />
+                    <h3>@b.Name</h3>
+                </a>
+            }
+        </section>
+    </main>
+    @Html.Partial("_CommonScripts")
+</body>
+</html>

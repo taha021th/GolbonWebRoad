@@ -61,6 +61,7 @@ namespace GolbonWebRoad.Web.Services.Seo
         }
 
         // ساخت آدرس مطلق برای /sitemap.xml با توجه به دامنه درخواست فعلی
+        //دریافت سایت url سایت مپ 
         public string GetSitemapAbsoluteUrl(HttpContext httpContext)
         {
             var req = httpContext.Request;

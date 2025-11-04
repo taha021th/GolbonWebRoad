@@ -1,0 +1,159 @@
+@using GolbonWebRoad.Web.Models.Products
+@model ProductIndexViewModel
+
+@{
+    ViewData["Title"] = Model.MetaTitle;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // پیدا کردن دسته فعلی از لیست Categories
+    var category = Model.Categories?.FirstOrDefault(c => c.Id == Model.CurrentCategoryId);
+    var categoryName = category?.Name ?? "دسته‌بندی";
+    var categoryContent = category != null ?
+        (category.GetType().GetProperty("Content")?.GetValue(category)?.ToString() ?? string.Empty)
+        : string.Empty;
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@Model.MetaTitle</title>
+    <meta name="description" content="@Model.MetaDescription" />
+    @if (ViewBag.Noindex == true)
+    {
+        <meta name="robots" content="noindex, follow" />
+    }
+
+    <link rel="stylesheet" href="~/css/fonts.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/all.min.css">
+    @Html.Partial("_CommonStyles")
+</head>
+<body>
+    @Html.Partial("_Header")
+
+    <main class="container" style="padding:40px 0;">
+        <!-- هدر دسته -->
+        <header class="page-header" style="margin-bottom:24px;">
+            <div style="height:220px; overflow:hidden; border:1px solid var(--border-color); background:var(--card-bg-color); border-radius:8px;">
+                <img src="@(category?.ImageUrl ?? "https://placehold.co/1200x220?text=" + System.Web.HttpUtility.UrlEncode(categoryName))"
+                     alt="@categoryName"
+                     style="width:100%; height:220px; object-fit:cover;" />
+            </div>
+            <h1 style="margin-top:16px; font-size:1.8rem;">دسته: @categoryName</h1>
+            <nav class="breadcrumb" style="margin-top:8px; font-size:0.9rem; color:#666;">
+                <a asp-action="Index" asp-controller="Home">خانه</a>
+                <span> / </span>
+                <a asp-action="Index" asp-controller="Categories">دسته‌بندی‌ها</a>
+                <span> / </span>
+                <span>@categoryName</span>
+            </nav>
+        </header>
+
+        <!-- توضیحات دسته (اگر Content داشته باشد) -->
+        @if (!string.IsNullOrWhiteSpace(categoryContent))
+        {
+            <div class="card-like" style="padding:20px; margin-bottom:30px; background:var(--card-bg-color); border-radius:8px; border:1px solid var(--border-color);">
+                @Html.Raw(categoryContent)
+            </div>
+        }
+
+        <!-- لیست محصولات -->
+        @if (Model.Products?.Items != null && Model.Products.Items.Any())
+        {
+            <section class="product-grid"
+                     style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:24px; margin-bottom:40px;">
+                @foreach (var product in Model.Products.Items)
+                {
+                    <article class="plp-product-card card-like"
+                             style="border:1px solid var(--border-color); border-radius:8px; overflow:hidden; background:var(--card-bg-color); transition:transform 0.2s;">
+                        <div class="image-container" style="position:relative; overflow:hidden; height:180px;">
+                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Id">
+                                <img loading="lazy"
+                                     width="400" height="280"
+                                     src="@(string.IsNullOrEmpty(product.ImageUrl)
+                                         ? $"https://placehold.co/400x280/EFEFEF/999999?text={System.Web.HttpUtility.UrlEncode(product.Name)}"
+                                         : product.ImageUrl)"
+                                     alt="@(string.IsNullOrEmpty(product.MainImageAltText) ? product.Name : product.MainImageAltText)"
+                                     style="width:100%; height:100%; object-fit:cover; transition:transform 0.3s;"
+                                     onmouseover="this.style.transform='scale(1.05)'"
+                                     onmouseout="this.style.transform='scale(1)'">
+                            </a>
+                        </div>
+                        <div class="product-info" style="padding:16px;">
+                            <h3 style="margin:0 0 8px 0; font-size:1rem; line-height:1.4;">
+                                <a asp-controller="Products"
+                                   asp-action="Detail"
+                                   asp-route-id="@product.Id"
+                                   style="color:var(--text-color); text-decoration:none;">
+                                    @product.Name
+                                </a>
+                            </h3>
+                            <p class="price" style="margin:0; font-weight:600; color:var(--primary-color);">
+                                @product.Price.ToString("N0") تومان
+                            </p>
+                        </div>
+                    </article>
+                }
+            </section>
+
+            <!-- پیجینیشن -->
+            @if (Model.Products.TotalPages > 1 && ViewBag.HidePagination != true)
+            {
+                <nav class="pagination" aria-label="صفحات محصولات"
+                     style="display:flex; justify-content:center; gap:8px; margin:40px 0; flex-wrap:wrap;">
+
+                    @if (Model.Products.HasPreviousPage)
+                    {
+                        <a asp-route-page="@(Model.Products.PageNumber - 1)"
+                           asp-route-id="@Model.CurrentCategoryId"
+                           asp-route-sortOrder="@Model.CurrentSortOrder"
+                           class="page-link"
+                           style="padding:8px 14px; border:1px solid var(--border-color); border-radius:6px; text-decoration:none; color:var(--text-color); background:var(--card-bg-color);">
+                            قبلی
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="page-link disabled"
+                              style="padding:8px 14px; border:1px solid #ddd; border-radius:6px; color:#aaa; background:#f9f9f9;">
+                            قبلی
+                        </span>
+                    }
+
+                    <span style="align-self:center; padding:8px; color:#666; font-size:0.9rem;">
+                        صفحه <strong>@Model.Products.PageNumber</strong> از <strong>@Model.Products.TotalPages</strong>
+                    </span>
+
+                    @if (Model.Products.HasNextPage)
+                    {
+                        <a asp-route-page="@(Model.Products.PageNumber + 1)"
+                           asp-route-id="@Model.CurrentCategoryId"
+                           asp-route-sortOrder="@Model.CurrentSortOrder"
+                           class="page-link"
+                           style="padding:8px 14px; border:1px solid var(--border-color); border-radius:6px; text-decoration:none; color:var(--text-color); background:var(--card-bg-color);">
+                            بعدی
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="page-link disabled"
+                              style="padding:8px 14px; border:1px solid #ddd; border-radius:6px; color:#aaa; background:#f9f9f9;">
+                            بعدی
+                        </span>
+                    }
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="empty-state" style="text-align:center; padding:60px 20px; color:#666;">
+                <p style="font-size:1.1rem;">محصولی برای این دسته یافت نشد.</p>
+            </div>
+        }
+    </main>
+
+    @Html.Partial("_Footer")
+    @Html.Partial("_CommonScripts")
+</body>
+</html>

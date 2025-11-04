@@ -22,6 +22,7 @@ namespace GolbonWebRoad.Web.Controllers
             _mapper=mapper;
             _seo = seo;
         }
+        [Route("products")]
         public async Task<IActionResult> Index(int? categoryId, int? brandId, string searchTerm, string sortOrder, int page = 1)
         {
             var data = await _mediator.Send(new GetProductsPageDataQuery
@@ -84,6 +85,7 @@ namespace GolbonWebRoad.Web.Controllers
 
             return View(viewModel);
         }
+        [Route("product/{id}")]
         public async Task<IActionResult> Detail(int id)
         {
             if (id == 0)

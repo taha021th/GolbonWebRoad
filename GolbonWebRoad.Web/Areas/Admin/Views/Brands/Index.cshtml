@@ -15,13 +15,17 @@
             </div>
             <div class="card-body">
                 @* The form posts to the Create action of BrandsController *@
-                <form asp-action="Create" method="post">
+                <form asp-area="Admin" asp-controller="Brands" asp-action="Create" method="post" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
 
                     <div class="mb-3">
                         <label for="Name" class="form-label">نام برند</label>
-                        @* This input will be bound to the 'Name' property of CreateBrandViewModel *@
                         <input name="Name" id="Name" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Image" class="form-label">تصویر برند (اختیاری)</label>
+                        <input type="file" name="Image" id="Image" class="form-control" accept="image/*" />
                     </div>
 
                     <div class="text-end">
@@ -42,6 +46,7 @@
                     <table class="table table-striped table-hover mb-0">
                         <thead class="table-light">
                             <tr>
+                                <th class="py-3 px-4">تصویر</th>
                                 <th class="py-3 px-4">نام برند</th>
                                 <th class="py-3 px-4 text-center">عملیات</th>
                             </tr>
@@ -52,12 +57,22 @@
                                 @foreach (var item in Model)
                                 {
                                     <tr>
+                                        <td class="align-middle px-4" style="width:100px;">
+                                            @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                            {
+                                                <img src="@item.ImageUrl" alt="@item.Name" class="img-thumbnail" style="max-height:50px; max-width:90px; object-fit:cover;" />
+                                            }
+                                            else
+                                            {
+                                                <img src="https://placehold.co/90x50?text=No+Image" class="img-thumbnail" alt="No image" />
+                                            }
+                                        </td>
                                         <td class="align-middle px-4">@item.Name</td>
                                         <td class="align-middle text-center px-4">
-                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="ویرایش">
+                                            <a asp-area="Admin" asp-controller="Brands" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="ویرایش">
                                                 <i class="fas fa-pen"></i>
                                             </a>
-                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف">
+                                            <a asp-area="Admin" asp-controller="Brands" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </td>
@@ -67,7 +82,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="2" class="text-center py-4 text-muted">هیچ برندی یافت نشد.</td>
+                                    <td colspan="3" class="text-center py-4 text-muted">هیچ برندی یافت نشد.</td>
                                 </tr>
                             }
                         </tbody>

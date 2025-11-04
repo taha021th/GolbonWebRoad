@@ -8,6 +8,7 @@ namespace GolbonWebRoad.Application.Features.Brands.Queries
     public class GetBrandByIdQuery : IRequest<Brand>
     {
         public int Id { get; set; }
+        public bool joinProduct { get; set; }
     }
     public class GetBrandByIdQueryHandler : IRequestHandler<GetBrandByIdQuery, Brand>
     {
@@ -21,7 +22,7 @@ namespace GolbonWebRoad.Application.Features.Brands.Queries
         }
         public async Task<Brand> Handle(GetBrandByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _unitOfWork.BrandRepository.GetByIdAsync(request.Id);
+            return await _unitOfWork.BrandRepository.GetByIdAsync(request.Id, request.joinProduct);
         }
     }
 }

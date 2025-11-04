@@ -160,7 +160,9 @@ namespace GolbonWebRoad.Web.Mapping
             #endregion
 
             #region Ui
-
+            CreateMap<Category, GolbonWebRoad.Web.Models.Categories.CategoryViewModel>()
+                .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products));
+            CreateMap<Category, GolbonWebRoad.Web.Models.Categories.CategorySummaryViewModel>();
             #endregion
             #endregion
 
@@ -168,10 +170,17 @@ namespace GolbonWebRoad.Web.Mapping
             #region Brand
             #region admin
             CreateMap<Brand, GolbonWebRoad.Web.Areas.Admin.Models.Brands.BrandViewModel>();
-            CreateMap<Brand, EditBrandViewModel>();
+            CreateMap<Brand, EditBrandViewModel>()
+                .ForMember(dest => dest.ExistingImage, opt => opt.MapFrom(src => src.ImageUrl));
             CreateMap<CreateBrandViewModel, CreateBrandCommand>();
             CreateMap<EditBrandViewModel, UpdateBrandCommand>();
             CreateMap<Brand, DeleteBrandViewModel>();
+            #endregion
+
+            #region Ui
+            CreateMap<Brand, GolbonWebRoad.Web.Models.Brands.BrandSummaryViewModel>();
+            CreateMap<Brand, GolbonWebRoad.Web.Models.Brands.BrandDetailViewModel>()
+                .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products));
             #endregion
             #endregion
 

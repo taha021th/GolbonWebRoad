@@ -40,7 +40,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
             }
             var command = _mapper.Map<CreateBrandCommand>(model);
             await _mediator.Send(command);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Brands", new { area = "Admin" });
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -63,7 +63,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
             }
             var command = _mapper.Map<UpdateBrandCommand>(model);
             await _mediator.Send(command);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Brands", new { area = "Admin" });
         }
 
         public async Task<IActionResult> Delete(int id)
@@ -78,7 +78,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _mediator.Send(new DeleteBrandCommand { Id=id });
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Brands", new { area = "Admin" });
         }
     }
 }
