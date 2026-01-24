@@ -1,0 +1,17 @@
+@model GolbonWebRoad.Web.Areas.Admin.Models.Faqs.FaqViewModel
+@{
+    ViewData["Title"] = "حذف سوال";
+}
+<div class="alert alert-warning">آیا از حذف این سوال مطمئن هستید؟</div>
+<dl class="row">
+    <dt class="col-sm-2">سوال</dt>
+    <dd class="col-sm-10">@Model.Question</dd>
+    <dt class="col-sm-2">دسته</dt>
+    <dd class="col-sm-10">@Model.CategoryName</dd>
+</dl>
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button class="btn btn-danger" type="submit">حذف</button>
+    <a asp-action="Index" class="btn btn-secondary">انصراف</a>
+</form>

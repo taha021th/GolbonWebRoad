@@ -50,6 +50,9 @@ namespace GolbonWebRoad.Web.Controllers
             // صفحه اصلی
             AddUrl(baseUrl + "/");
 
+            // صفحه سوالات متداول (FAQ)
+            AddUrl(baseUrl + "/Faq", changefreq: "monthly", priority: "0.4");
+
             // لیست محصولات
             AddUrl(baseUrl + "/Products/Index", changefreq: "daily", priority: "0.6");
 

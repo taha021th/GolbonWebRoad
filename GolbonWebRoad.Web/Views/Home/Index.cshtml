@@ -12,13 +12,196 @@
     <title>فروشگاه آنلاین مبلمان و دکوراسیون داخلی | Tecture</title>
     <meta name="description" content="جدیدترین مدل‌های مبلمان، صندلی، میز و اکسسوری دکوراسیون داخلی را با بهترین کیفیت و طراحی منحصربه‌فرد در فروشگاه آنلاین Tecture بیابید. خانه‌ای رویایی بسازید.">
 
+    @{
+        // URLs and SEO data
+        var request = Context.Request;
+        var homeUrl = $"{request.Scheme}://{request.Host}/";
+        var siteName = "فروشگاه گلبن Tecture";
+        var ogTitle = "فروشگاه آنلاین مبلمان و دکوراسیون داخلی | Tecture";
+        var ogDesc = "جدیدترین مدل‌های مبلمان، صندلی، میز و اکسسوری دکوراسیون داخلی را با بهترین کیفیت و طراحی منحصربه‌فرد بیابید";
+        var ogImage = !string.IsNullOrWhiteSpace(Model.ProductIsFeatured?.ImageUrl)
+            ? Model.ProductIsFeatured.ImageUrl
+            : (Model.Products?.FirstOrDefault()?.ImageUrl ?? "/images/hero-background.jpg");
+
+        // Organization JSON-LD Schema
+        var organization = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "Organization",
+            ["name"] = siteName,
+            ["url"] = homeUrl,
+            ["logo"] = $"{request.Scheme}://{request.Host}/images/logo.png",
+            ["description"] = ogDesc,
+            ["address"] = new Dictionary<string, object?>
+            {
+                ["@type"] = "PostalAddress",
+                ["addressCountry"] = "IR"
+            },
+            ["contactPoint"] = new Dictionary<string, object?>
+            {
+                ["@type"] = "ContactPoint",
+                ["contactType"] = "customer service",
+                ["availableLanguage"] = "Persian"
+            }
+        };
+
+        // WebSite JSON-LD Schema with SearchAction
+        var website = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "WebSite",
+            ["name"] = siteName,
+            ["url"] = homeUrl,
+            ["description"] = ogDesc,
+            ["inLanguage"] = "fa-IR",
+            ["potentialAction"] = new Dictionary<string, object?>
+            {
+                ["@type"] = "SearchAction",
+                ["target"] = new Dictionary<string, object?>
+                {
+                    ["@type"] = "EntryPoint",
+                    ["urlTemplate"] = $"{homeUrl}products?searchTerm={{search_term_string}}"
+                },
+                ["query-input"] = "required name=search_term_string"
+            }
+        };
+
+        // Breadcrumb JSON-LD (Home only)
+        var breadcrumb = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "BreadcrumbList",
+            ["itemListElement"] = new List<Dictionary<string, object?>>
+            {
+                new Dictionary<string, object?> { ["@type"] = "ListItem", ["position"] = 1, ["name"] = "خانه", ["item"] = homeUrl }
+            }
+        };
+
+        // ItemList JSON-LD for featured products
+        var items = new List<Dictionary<string, object?>>();
+        if (Model.Products != null && Model.Products.Any())
+        {
+            var position = 1;
+            foreach (var p in Model.Products.Take(12))
+            {
+                var pUrl = $"{request.Scheme}://{request.Host}/Products/Detail/{p.Id}";
+                items.Add(new Dictionary<string, object?>
+                {
+                    ["@type"] = "ListItem",
+                    ["position"] = position++,
+                    ["url"] = pUrl,
+                    ["name"] = p.Name,
+                    ["image"] = string.IsNullOrWhiteSpace(p.ImageUrl) ? null : p.ImageUrl,
+                    ["offers"] = new Dictionary<string, object?>
+                    {
+                        ["@type"] = "Offer",
+                        ["price"] = p.Price,
+                        ["priceCurrency"] = "IRR"
+                    }
+                });
+            }
+        }
+        var itemListSchema = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "ItemList",
+            ["name"] = "محصولات منتخب",
+            ["itemListOrder"] = "https://schema.org/ItemListOrderAscending",
+            ["numberOfItems"] = items.Count,
+            ["itemListElement"] = items
+        };
+
+        // WebPage JSON-LD Schema (align with product pages' WebPage/Collection usage)
+        var webpage = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "WebPage",
+            ["name"] = ogTitle,
+            ["description"] = ogDesc,
+            ["url"] = homeUrl,
+            ["inLanguage"] = "fa-IR",
+            ["isPartOf"] = new Dictionary<string, object?>
+            {
+                ["@type"] = "WebSite",
+                ["url"] = homeUrl
+            },
+            ["primaryImageOfPage"] = new Dictionary<string, object?>
+            {
+                ["@type"] = "ImageObject",
+                ["url"] = ogImage
+            }
+        };
+
+        // CollectionPage JSON-LD to describe featured items on the homepage
+        var collection = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "CollectionPage",
+            ["name"] = ogTitle,
+            ["description"] = ogDesc,
+            ["url"] = homeUrl,
+            ["inLanguage"] = "fa-IR"
+        };
+
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+    }
+
+    <link rel="canonical" href="@homeUrl" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="@ogTitle" />
+    <meta property="og:description" content="@ogDesc" />
+    <meta property="og:url" content="@homeUrl" />
+    <meta property="og:site_name" content="@siteName" />
+    <meta property="og:locale" content="fa_IR" />
+    <meta property="og:image" content="@ogImage" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="@siteName" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@ogTitle" />
+    <meta name="twitter:description" content="@ogDesc" />
+    <meta name="twitter:image" content="@ogImage" />
+    <meta name="twitter:image:alt" content="@siteName" />
+    <meta name="twitter:url" content="@homeUrl" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(organization, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(website, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(webpage, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(collection, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(breadcrumb, jsonOptions))
+    </script>
+    @if (items.Any())
+    {
+        <script type="application/ld+json">
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(itemListSchema, jsonOptions))
+        </script>
+    }
+
     <link rel="stylesheet" href="~/css/fonts.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/all.min.css" />
     
     <link rel="stylesheet" href="~/lib/swiper/swiper-bundle.min.css" />
     @* AOS library removed for performance. Replaced with IntersectionObserver. *@
 
-    @Html.Partial("_CommonStyles")
+    <partial name="_CommonStyles" />
 
     <style>
         /* === Performance & Animation Styles === */

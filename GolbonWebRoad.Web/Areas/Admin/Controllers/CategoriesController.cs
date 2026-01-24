@@ -23,7 +23,8 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var categories = await _mediator.Send(new GetCategoriesQuery());
-            return View(categories);
+            var viewModel = _mapper.Map<List<CategoryViewModel>>(categories);
+            return View(viewModel);
         }
         public IActionResult Create()
         {

@@ -7,6 +7,8 @@ namespace GolbonWebRoad.Web.Models.Products
         public decimal Price { get; set; }
         public decimal? OldPrice { get; set; }
         public int StockQuantity { get; set; }
+        public string? Gtin { get; set; }
+        public string? Mpn { get; set; }
         public List<int> AttributeValueIds { get; set; } = new List<int>();
     }
 

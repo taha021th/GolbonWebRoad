@@ -12,6 +12,7 @@ using GolbonWebRoad.Web.Areas.Admin.Models.Dashboard;
 using GolbonWebRoad.Web.Areas.Admin.Models.Orders;
 using GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels;
 using GolbonWebRoad.Web.Areas.Admin.Models.Users;
+using CategoryViewModel = GolbonWebRoad.Web.Models.Categories.CategoryViewModel;
 
 namespace GolbonWebRoad.Web.Mapping
 {
@@ -62,7 +63,9 @@ namespace GolbonWebRoad.Web.Mapping
             // Removed ProductColor mapping
 
             CreateMap<ProductVariant, GolbonWebRoad.Web.Models.Products.VariantDisplayViewModel>()
-                .ForMember(dest => dest.AttributeValueIds, opt => opt.MapFrom(src => src.AttributeValues != null ? src.AttributeValues.Select(av => av.Id).ToList() : new List<int>()));
+                .ForMember(dest => dest.AttributeValueIds, opt => opt.MapFrom(src => src.AttributeValues != null ? src.AttributeValues.Select(av => av.Id).ToList() : new List<int>()))
+                .ForMember(dest => dest.Gtin, opt => opt.MapFrom(src => src.Gtin))
+                .ForMember(dest => dest.Mpn, opt => opt.MapFrom(src => src.Mpn));
 
             CreateMap<ProductAttributeValue, GolbonWebRoad.Web.Models.Products.AttributeValueDisplayViewModel>();
 
@@ -137,7 +140,7 @@ namespace GolbonWebRoad.Web.Mapping
             CreateMap<GolbonWebRoad.Application.Dtos.CartItems.CartItemDto, GolbonWebRoad.Web.Models.Cart.CartItemViewModel>();
 
             // 2. Map Category/Brand DTOs to simple ViewModels for filter lists
-            CreateMap<Category, Models.Products.CategoryViewModel>();
+            CreateMap<Category, CategoryViewModel>();
             CreateMap<Brand, Models.Products.BrandViewModel>();
 
             // 3. **FIX**: Create a generic map for PagedResult classes
@@ -156,6 +159,15 @@ namespace GolbonWebRoad.Web.Mapping
             CreateMap<Category, EditCategoryViewModel>()
                 .ForMember(dest => dest.ExistingImage, opt => opt.MapFrom(src => src.ImageUrl));
             CreateMap<EditCategoryViewModel, UpdateCategoryCommand>();
+
+            // FAQs admin
+            CreateMap<GolbonWebRoad.Application.Dtos.Faqs.FaqDto, GolbonWebRoad.Web.Areas.Admin.Models.Faqs.FaqViewModel>()
+                .ForMember(d => d.CategoryName, o => o.MapFrom(s => s.CategoryName))
+                .ForMember(d => d.CategoryId, o => o.MapFrom(s => s.FaqCategoryId));
+            CreateMap<GolbonWebRoad.Web.Areas.Admin.Models.Faqs.CreateFaqViewModel, GolbonWebRoad.Application.Features.Faqs.Commands.CreateFaqCommand>()
+                .ForMember(d => d.FaqCategoryId, o => o.MapFrom(s => s.CategoryId));
+            CreateMap<GolbonWebRoad.Web.Areas.Admin.Models.Faqs.EditFaqViewModel, GolbonWebRoad.Application.Features.Faqs.Commands.UpdateFaqCommand>()
+                .ForMember(d => d.FaqCategoryId, o => o.MapFrom(s => s.CategoryId));
 
             #endregion
 

@@ -8,6 +8,7 @@ using GolbonWebRoad.Application.Dtos.Orders;
 using GolbonWebRoad.Application.Dtos.ProductColors;
 using GolbonWebRoad.Application.Dtos.ProductImages;
 using GolbonWebRoad.Application.Dtos.Products;
+using GolbonWebRoad.Application.Dtos.Faqs;
 using GolbonWebRoad.Application.Features.Brands.Commands;
 using GolbonWebRoad.Application.Features.CartItems.Commands;
 using GolbonWebRoad.Application.Features.Categories.Commands;
@@ -15,6 +16,7 @@ using GolbonWebRoad.Application.Features.Categories.Queries;
 using GolbonWebRoad.Application.Features.Orders.Commands;
 using GolbonWebRoad.Application.Features.Products.Commands;
 using GolbonWebRoad.Application.Features.Reviews.Commands;
+using GolbonWebRoad.Application.Features.Faqs.Commands;
 using GolbonWebRoad.Domain.Entities;
 
 namespace GolbonWebRoad.Application.Mapping
@@ -103,22 +105,10 @@ namespace GolbonWebRoad.Application.Mapping
             CreateMap<CreateProductCommand, Product>()
                 .ForMember(dest => dest.Images, opt => opt.Ignore());
 
-
-
-
-            //CreateMap<Product, ProductDto>()
-            //    .ForMember(dest => dest.ImageUrl,
-            //               opt => opt.MapFrom(src =>
-            //                   src.Images != null && src.Images.Any()
-            //                   ? src.Images.FirstOrDefault(i => i.IsMainImage)?.ImageUrl
-            //                   : null));
             CreateMap<UpdateProductCommand, Product>();
             CreateMap<ProductImage, ProductImageDto>();
-
-
             #endregion
             #region ProductColor
-
             CreateMap<ProductColor, ProductColorDto>();
             #endregion
             #region Color
@@ -126,26 +116,22 @@ namespace GolbonWebRoad.Application.Mapping
             #endregion
             #region Orders
             // --- نگاشت‌های مربوط به سفارشات ---
-
-            // نگاشت دوطرفه بین موجودیت سفارش و DTO کامل آن
-            // استفاده (Order -> OrderDto): در تمام کوئری‌های سفارشات برای نمایش به کاربر
             CreateMap<Order, OrderDto>().ReverseMap();
-
-            // از موجودیت آیتم سفارش به DTO آن
-            // استفاده: به عنوان پراپرتی در OrderDto برای نمایش جزئیات سفارش
             CreateMap<OrderItem, OrderItemDto>();
             CreateMap<OrderItem, OrderItemSummaryDto>();
-
-            // از DTO ورودی کنترلر به کامند داخلی اپلیکیشن
-            // استفاده: در اکشن Create در OrdersController
             CreateMap<CreateOrderRequestDto, CreateOrderCommand>();
-
-            // از DTO ورودی کنترلر به کامند داخلی اپلیکیشن
-            // استفاده: در اکشن UpdateStatus در OrdersController
             CreateMap<UpdateOrderStatusRequestDto, UpdateOrderStatusCommand>();
             #endregion
             #region Logs
             CreateMap<Log, LogDto>();
+            #endregion
+            #region Faqs
+            CreateMap<Faq, FaqDto>()
+                .ForMember(d => d.FaqCategoryId, o => o.MapFrom(s => s.FaqCategoryId))
+                .ForMember(d => d.CategoryName, o => o.MapFrom(s => s.Category != null ? s.Category.Name : null));
+            CreateMap<CreateFaqCommand, Faq>();
+            CreateMap<UpdateFaqCommand, Faq>();
+            CreateMap<FaqCategory, FaqCategoryDto>();
             #endregion
         }
     }

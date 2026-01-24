@@ -56,6 +56,18 @@
                 <div class="card-header">اطلاعات سئو (اختیاری)</div>
                 <div class="card-body">
                     <div class="mb-3">
+                        <label asp-for="H1Title" class="form-label">H1Title</label>
+                        <input asp-for="H1Title" class="form-control" />
+                        <span asp-validation-for="H1Title" class="text-danger"></span>
+                        <small class="text-muted d-block mt-1">اگر خالی بماند، از نام محصول استفاده می‌شود.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MetaRobots" class="form-label">MetaRobots</label>
+                        <input asp-for="MetaRobots" class="form-control" />
+                        <span asp-validation-for="MetaRobots" class="text-danger"></span>
+                        <small class="text-muted d-block mt-1">اگر خالی بماند، از نام محصول استفاده می‌شود.</small>
+                    </div>
+                    <div class="mb-3">
                         <label asp-for="MetaTitle" class="form-label">عنوان سئو (Meta Title)</label>
                         <input asp-for="MetaTitle" class="form-control" />
                         <span asp-validation-for="MetaTitle" class="text-danger"></span>

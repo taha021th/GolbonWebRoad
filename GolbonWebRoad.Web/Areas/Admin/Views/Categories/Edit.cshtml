@@ -2,7 +2,11 @@
 @{
     ViewData["Title"] = "ویرایش دسته‌بندی: " + Model.Name;
 }
-
+<html>
+<head>
+    <meta name="robots" content="noindex, nofollow" />
+</head>
+<body>
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
         <div class="card shadow-sm">
@@ -20,11 +24,19 @@
                         <input asp-for="Name" class="form-control" />
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
+                    
 
                     <div class="mb-3">
                         <label asp-for="Slog" class="form-label"></label>
                         <input asp-for="Slog" class="form-control" />
                         <span asp-validation-for="Slog" class="text-danger"></span>
+                    </div>
+
+                    <!-- فیلد جدید: Content -->
+                    <div class="mb-3">
+                        <label asp-for="Content" class="form-label">محتوا</label>
+                        <textarea asp-for="Content" class="form-control" rows="6"></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
@@ -49,3 +61,8 @@
         </div>
     </div>
 </div>
+</body>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+</html>

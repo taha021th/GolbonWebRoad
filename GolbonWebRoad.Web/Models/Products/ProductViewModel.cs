@@ -1,4 +1,6 @@
-﻿namespace GolbonWebRoad.Web.Models.Products
+﻿using GolbonWebRoad.Web.Models.Categories;
+
+namespace GolbonWebRoad.Web.Models.Products
 {
     public class HomeProductViewModel
     {
@@ -36,20 +38,46 @@
         public string SearchTerm { get; set; }
         public string CurrentSortOrder { get; set; }
     }
-
-    // Simple ViewModels for filter lists
-    public class CategoryViewModel
+    public class CategoryProductsIndexViewModel
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string ImageUrl { get; set; }
+        public PagedResult<ProductViewModel> Products { get; set; }
+
+        public CategoryViewModel Category { get; set; }
+
+        // SEO Fields
+        public string MetaTitle { get; set; }
+        public string MetaDescription { get; set; }
+
+        // To keep track of current filters
+        public int? CurrentCategoryId { get; set; }
+        public int? CurrentBrandId { get; set; }
+        public string SearchTerm { get; set; }
+        public string CurrentSortOrder { get; set; }
     }
+    public class BrandProductsIndexViewModel
+    {
+        public PagedResult<ProductViewModel> Products { get; set; }
+        public List<CategoryViewModel> Categories { get; set; }
+        public BrandViewModel Brands { get; set; }
+        public string MetaTitle { get; set; }
+        public string MetaDescription { get; set; }
+
+        public int? CurrentCategoryId { get; set; }
+        public int? CurrentBrandId { get; set; }
+        public string SearchTerm { get; set; }
+        public string CurrentSortOrder { get; set; }
+
+    }
+
+
 
     public class BrandViewModel
     {
         public int Id { get; set; }
-        public string ImageUrl { get; set; }
         public string Name { get; set; }
+        public string Content { get; set; }
+        public string ImageUrl { get; set; }
+
     }
 
     // A generic class for paged results to be used in views    
@@ -107,7 +135,8 @@
         public string? MetaDescription { get; set; }
         public string? CanonicalUrl { get; set; }
         public string? MainImageAltText { get; set; }
-
+        public string? H1Title { get; set; }
+        public string? MetaRobots { get; set; }
 
         public CategoryViewModel Category { get; set; }
         public BrandViewModel Brand { get; set; }

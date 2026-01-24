@@ -15,11 +15,12 @@ namespace GolbonWebRoad.Domain.Interfaces
         IProductAttributeValueRepository ProductAttributeValueRepository { get; }
         IProductVariantRepository ProductVariantRepository { get; }
         IUserAddressRepository UserAddressRepository { get; }
+        IFaqRepository FaqRepository { get; }
+        IFaqCategoryRepository FaqCategoryRepository { get; }
         Task<int> CompleteAsync();
 
 
     }
 
 }
-
 

@@ -1,12 +1,13 @@
-@using GolbonWebRoad.Web.Models.Products
-@model ProductIndexViewModel
-
+@model GolbonWebRoad.Web.Models.Products.BrandProductsIndexViewModel
 @{
     ViewData["Title"] = Model.MetaTitle;
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var brand = Model.Brands?.FirstOrDefault(b => b.Id == Model.CurrentBrandId);
+    var brand = Model.Brands;
     var brandName = brand?.Name ?? "برند";
+    var brandContent = brand?.Content ?? string.Empty;
+    var hasContent = !string.IsNullOrWhiteSpace(brandContent);
+    var isLongContent = hasContent && brandContent.Length > 600;
 }
 
 <!DOCTYPE html>
@@ -21,121 +22,431 @@
         <meta name="robots" content="noindex, follow" />
     }
 
+    @{
+        // URLs and data preparation
+        var request = Context.Request;
+        var brandUrl = $"{request.Scheme}://{request.Host}/brand/{Model.CurrentBrandId}/{brandName}";
+        var pageNumber = Model.Products?.PageNumber ?? 1;
+        var pageSize = Model.Products?.PageSize ?? 12;
+        var isFiltered = !string.IsNullOrWhiteSpace(Model.CurrentSortOrder);
+
+        // Canonical: only for unfiltered; include pagination ?page=n
+        var canonicalUrl = isFiltered ? null : (pageNumber > 1 ? $"{brandUrl}?page={pageNumber}" : brandUrl);
+
+        // Open Graph & Twitter image
+        var ogTitle = Model.MetaTitle;
+        var ogDesc = Model.MetaDescription;
+        var ogImage = !string.IsNullOrWhiteSpace(brand?.ImageUrl)
+            ? brand.ImageUrl
+            : (Model.Products?.Items?.FirstOrDefault()?.ImageUrl ?? "https://placehold.co/1200x630/EFEFEF/AAAAAA?text=Brand");
+
+        // Breadcrumb JSON-LD
+        var homeUrl = $"{request.Scheme}://{request.Host}/";
+        var brandsUrl = $"{request.Scheme}://{request.Host}/brands";
+        var breadcrumb = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "BreadcrumbList",
+            ["itemListElement"] = new List<Dictionary<string, object?>>
+            {
+                new Dictionary<string, object?> { ["@type"] = "ListItem", ["position"] = 1, ["name"] = "خانه", ["item"] = homeUrl },
+                new Dictionary<string, object?> { ["@type"] = "ListItem", ["position"] = 2, ["name"] = "برندها", ["item"] = brandsUrl },
+                new Dictionary<string, object?> { ["@type"] = "ListItem", ["position"] = 3, ["name"] = brandName, ["item"] = brandUrl }
+            }
+        };
+
+        // CollectionPage JSON-LD
+        var collection = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "CollectionPage",
+            ["name"] = brandName,
+            ["description"] = Model.MetaDescription,
+            ["url"] = brandUrl,
+            ["inLanguage"] = "fa-IR"
+        };
+
+        // ItemList JSON-LD
+        var items = new List<Dictionary<string, object?>>();
+        if (Model.Products?.Items != null)
+        {
+            var position = ((pageNumber - 1) * pageSize) + 1;
+            foreach (var p in Model.Products.Items)
+            {
+                var pUrl = $"{request.Scheme}://{request.Host}/Products/Detail/{p.Id}";
+                items.Add(new Dictionary<string, object?>
+                {
+                    ["@type"] = "ListItem",
+                    ["position"] = position++,
+                    ["url"] = pUrl,
+                    ["name"] = p.Name,
+                    ["image"] = string.IsNullOrWhiteSpace(p.ImageUrl) ? null : p.ImageUrl,
+                    ["offers"] = new Dictionary<string, object?>
+                    {
+                        ["@type"] = "Offer",
+                        ["price"] = p.Price,
+                        ["priceCurrency"] = "IRR"
+                    }
+                });
+            }
+        }
+        var itemListSchema = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "ItemList",
+            ["itemListOrder"] = "https://schema.org/ItemListOrderAscending",
+            ["numberOfItems"] = Model.Products?.Items?.Count ?? 0,
+            ["itemListElement"] = items
+        };
+
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+    }
+
+    @if (!string.IsNullOrEmpty(canonicalUrl))
+    {
+        <link rel="canonical" href="@canonicalUrl" />
+    }
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="@ogTitle" />
+    <meta property="og:description" content="@ogDesc" />
+    <meta property="og:url" content="@brandUrl" />
+    <meta property="og:site_name" content="@Context.Request.Host" />
+    <meta property="og:locale" content="fa_IR" />
+    <meta property="og:image" content="@ogImage" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@ogTitle" />
+    <meta name="twitter:description" content="@ogDesc" />
+    <meta name="twitter:image" content="@ogImage" />
+    <meta name="twitter:url" content="@brandUrl" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(breadcrumb, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(collection, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(itemListSchema, jsonOptions))
+    </script>
+
     <link rel="stylesheet" href="~/css/fonts.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/all.min.css">
-    @Html.Partial("_CommonStyles")
+    <partial name="_CommonStyles" />
+
+    <style>
+        /* --- بنر --- */
+        .brand-banner {
+            height: 240px;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            margin-bottom: 24px;
+        }
+        .brand-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .brand-banner:hover img { transform: scale(1.04); }
+
+        /* --- عنوان --- */
+        .brand-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color, #1a1a1a);
+            margin: 0 0 12px;
+        }
+
+        /* --- محتوای برند — سازگار با دارک/لایت --- */
+        .brand-content {
+            background: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 28px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.07);
+            max-width: 960px;
+            margin: 0 auto 40px;
+            line-height: 1.85;
+            font-size: 1.04rem;
+            color: var(--text-color, #2c2c2c); /* سازگار با مود */
+        }
+        .content-preview {
+            display: -webkit-box;
+            -webkit-line-clamp: 6;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .read-more {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 16px;
+        }
+        .read-more i { transition: transform 0.2s; }
+        .read-more.expanded i { transform: rotate(180deg); }
+
+        /* --- عنوان محصولات --- */
+        .products-section-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-color, #1a1a1a);
+            margin-bottom: 28px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary-color);
+            display: inline-block;
+        }
+
+        /* --- گرید محصولات --- */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        @@media (min-width: 768px) {
+            .products-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @@media (min-width: 992px) {
+            .products-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        /* --- کارت محصول --- */
+        .product-card {
+            background: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+        }
+        .product-image {
+            height: 180px;
+            overflow: hidden;
+        }
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover .product-image img {
+            transform: scale(1.07);
+        }
+        .product-info {
+            padding: 16px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .product-name {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin: 0 0 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: var(--text-color, #1a1a1a);
+        }
+        .product-price {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        /* --- پیجینیشن --- */
+        .pagination .btn {
+            min-width: 40px;
+            border-radius: 8px !important;
+            padding: 8px 16px;
+        }
+        .pagination .disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
-    @Html.Partial("_Header")
+    <partial name="_Header" />
 
-    <main class="container" style="padding:40px 0;">
-        <!-- هدر برند -->
-        <header class="page-header" style="text-align:center; margin-bottom:30px;">
-            <img src="@(brand?.ImageUrl ?? "https://placehold.co/300x100/4285f4/ffffff?text=" + System.Web.HttpUtility.UrlEncode(brandName))"
-                 alt="@brandName"
-                 style="max-height:80px; object-fit:contain; display:block; margin:0 auto 16px; border-radius:6px;" />
-            <h1 style="font-size:1.9rem; margin:8px 0;">برند: @brandName</h1>
-            <nav class="breadcrumb" style="font-size:0.9rem; color:#666;">
+    <main class="container" style="padding: 50px 0 80px;">
+        <!-- بنر برند -->
+        <div class="brand-banner">
+            <img src="@(brand?.ImageUrl ?? $"https://placehold.co/1200x240?text={System.Web.HttpUtility.UrlEncode(brandName)}")"
+                 alt="@brandName" />
+        </div>
+
+        <!-- عنوان و breadcrumb -->
+        <header class="text-center mb-5">
+            <h1 class="brand-title">@brandName</h1>
+            <nav class="breadcrumb justify-content-center small text-muted mt-2">
                 <a asp-action="Index" asp-controller="Home">خانه</a>
-                <span> / </span>
+                <span class="mx-2">/</span>
                 <a asp-action="Index" asp-controller="Brands">برندها</a>
-                <span> / </span>
-                <span>@brandName</span>
+                <span class="mx-2">/</span>
+                <span class="text-dark">@brandName</span>
             </nav>
         </header>
 
-        <!-- لیست محصولات -->
-        @if (Model.Products?.Items != null && Model.Products.Items.Any())
+        <!-- محتوای برند — با قابلیت جمع‌شدن -->
+        @if (hasContent)
         {
-            <section class="product-grid"
-                     style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:24px; margin-bottom:40px;">
-                @foreach (var product in Model.Products.Items)
-                {
-                    <article class="plp-product-card card-like"
-                             style="border:1px solid var(--border-color); border-radius:8px; overflow:hidden; background:var(--card-bg-color); transition:transform 0.2s;">
-                        <div class="image-container" style="position:relative; overflow:hidden; height:180px;">
-                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Id">
-                                <img loading="lazy"
-                                     width="400" height="280"
-                                     src="@(string.IsNullOrEmpty(product.ImageUrl)
-                                         ? $"https://placehold.co/400x280/EFEFEF/999999?text={System.Web.HttpUtility.UrlEncode(product.Name)}"
-                                         : product.ImageUrl)"
-                                     alt="@(string.IsNullOrEmpty(product.MainImageAltText) ? product.Name : product.MainImageAltText)"
-                                     style="width:100%; height:100%; object-fit:cover; transition:transform 0.3s;">
-                            </a>
+            <section class="mb-5">
+                <div class="brand-content">
+                    @if (isLongContent)
+                    {
+                        <div id="contentPreview" class="content-preview">
+                            @Html.Raw(brandContent)
                         </div>
-                        <div class="product-info" style="padding:16px;">
-                            <h3 style="margin:0 0 8px 0; font-size:1rem; line-height:1.4;">
-                                <a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Id"
-                                   style="color:var(--text-color); text-decoration:none;">
-                                    @product.Name
-                                </a>
-                            </h3>
-                            <p class="price" style="margin:0; font-weight:600; color:var(--primary-color);">
-                                @product.Price.ToString("N0") تومان
-                            </p>
+                        <div id="contentFull" style="display: none;">
+                            @Html.Raw(brandContent)
                         </div>
-                    </article>
-                }
+                        <div class="read-more" id="readMoreBtn">
+                            نمایش بیشتر
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    }
+                    else
+                    {
+                        @Html.Raw(brandContent)
+                    }
+                </div>
             </section>
+        }
 
-            <!-- پیجینیشن -->
-            @if (Model.Products.TotalPages > 1 && ViewBag.HidePagination != true)
+        <!-- محصولات -->
+        <section>
+            <h2 class="products-section-title">
+                محصولات @brandName
+                @if (Model.Products?.TotalCount > 0)
+                {
+                    <small class="text-muted fw-normal">(@Model.Products.TotalCount مورد)</small>
+                }
+            </h2>
+
+            @if (Model.Products?.Items != null && Model.Products.Items.Any())
             {
-                <nav class="pagination" aria-label="صفحات محصولات"
-                     style="display:flex; justify-content:center; gap:8px; margin:40px 0; flex-wrap:wrap;">
-
-                    @if (Model.Products.HasPreviousPage)
+                <div class="products-grid">
+                    @foreach (var product in Model.Products.Items)
                     {
-                        <a asp-route-page="@(Model.Products.PageNumber - 1)"
-                           asp-route-id="@Model.CurrentBrandId"
-                           asp-route-sortOrder="@Model.CurrentSortOrder"
-                           class="page-link"
-                           style="padding:8px 14px; border:1px solid var(--border-color); border-radius:6px; text-decoration:none; color:var(--text-color); background:var(--card-bg-color);">
-                            قبلی
+                        <a asp-controller="Products" asp-action="Detail" asp-route-id="@product.Id"
+                           class="text-decoration-none">
+                            <article class="product-card">
+                                <div class="product-image">
+                                    <img loading="lazy"
+                                         src="@(string.IsNullOrEmpty(product.ImageUrl)
+                                             ? $"https://placehold.co/400x280/EFEFEF/999999?text={System.Web.HttpUtility.UrlEncode(product.Name)}"
+                                             : product.ImageUrl)"
+                                         alt="@(product.MainImageAltText ?? product.Name)" />
+                                </div>
+                                <div class="product-info">
+                                    <h3 class="product-name">
+                                        @product.Name
+                                    </h3>
+                                    <p class="product-price">
+                                        @product.Price.ToString("N0") تومان
+                                    </p>
+                                </div>
+                            </article>
                         </a>
                     }
-                    else
-                    {
-                        <span class="page-link disabled"
-                              style="padding:8px 14px; border:1px solid #ddd; border-radius:6px; color:#aaa; background:#f9f9f9;">
-                            قبلی
-                        </span>
-                    }
+                </div>
 
-                    <span style="align-self:center; padding:8px; color:#666; font-size:0.,9rem;">
-                        صفحه <strong>@Model.Products.PageNumber</strong> از <strong>@Model.Products.TotalPages</strong>
-                    </span>
+                <!-- پیجینیشن -->
+                @if (Model.Products.TotalPages > 1 && ViewBag.HidePagination != true)
+                {
+                    <nav class="pagination d-flex justify-content-center gap-2 flex-wrap mt-5">
+                        @if (Model.Products.HasPreviousPage)
+                        {
+                            <a asp-route-page="@(Model.Products.PageNumber - 1)"
+                               asp-route-id="@Model.CurrentBrandId"
+                               asp-route-sortOrder="@Model.CurrentSortOrder"
+                               class="btn btn-outline-secondary btn-sm">
+                                قبلی
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="btn btn-outline-secondary btn-sm disabled">قبلی</span>
+                        }
 
-                    @if (Model.Products.HasNextPage)
-                    {
-                        <a asp-route-page="@(Model.Products.PageNumber + 1)"
-                           asp-route-id="@Model.CurrentBrandId"
-                           asp-route-sortOrder="@Model.CurrentSortOrder"
-                           class="page-link"
-                           style="padding:8px 14px; border:1px solid var(--border-color); border-radius:6px; text-decoration:none; color:var(--text-color); background:var(--card-bg-color);">
-                            بعدی
-                        </a>
-                    }
-                    else
-                    {
-                        <span class="page-link disabled"
-                              style="padding:8px 14px; border:1px solid #ddd; border-radius:6px; color:#aaa; background:#f9f9f9;">
-                            بعدی
+                        <span class="align-self-center px-3 text-muted small">
+                            صفحه <strong>@Model.Products.PageNumber</strong> از <strong>@Model.Products.TotalPages</strong>
                         </span>
-                    }
-                </nav>
+
+                        @if (Model.Products.HasNextPage)
+                        {
+                            <a asp-route-page="@(Model.Products.PageNumber + 1)"
+                               asp-route-id="@Model.CurrentBrandId"
+                               asp-route-sortOrder="@Model.CurrentSortOrder"
+                               class="btn btn-outline-secondary btn-sm">
+                                بعدی
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="btn btn-outline-secondary btn-sm disabled">بعدی</span>
+                        }
+                    </nav>
+                }
             }
-        }
-        else
-        {
-            <div class="empty-state" style="text-align:center; padding:60px 20px; color:#666;">
-                <p style="font-size:1.1rem;">محصولی برای این برند یافت نشد.</p>
-            </div>
-        }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <p class="text-muted lead">محصولی از این برند یافت نشد.</p>
+                </div>
+            }
+        </section>
     </main>
 
-    @Html.Partial("_Footer")
-    @Html.Partial("_CommonScripts")
+    <partial name="_Footer" />
+    <partial name="_CommonScripts" />
+
+    <!-- اسکریپت نمایش بیشتر -->
+    @if (hasContent && isLongContent)
+    {
+        <script>
+            document.getElementById('readMoreBtn').addEventListener('click', function () {
+                const preview = document.getElementById('contentPreview');
+                const full = document.getElementById('contentFull');
+                const btn = this;
+                const icon = btn.querySelector('i');
+
+                if (full.style.display === 'none') {
+                    preview.style.display = 'none';
+                    full.style.display = 'block';
+                    btn.innerHTML = 'نمایش کمتر <i class="fas fa-chevron-up"></i>';
+                    btn.classList.add('expanded');
+                } else {
+                    preview.style.display = '-webkit-box';
+                    full.style.display = 'none';
+                    btn.innerHTML = 'نمایش بیشتر <i class="fas fa-chevron-down"></i>';
+                    btn.classList.remove('expanded');
+                }
+            });
+        </script>
+    }
 </body>
 </html>

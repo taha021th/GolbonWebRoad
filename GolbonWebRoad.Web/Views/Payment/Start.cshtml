@@ -1,0 +1,27 @@
+﻿@using GolbonWebRoad.Web.Models.Payments.Payping;
+
+@model CreatePaymentResultModel;
+
+
+
+
+<a href="@Model.PaymentUrl">رفتن به درگاه پرداخت</a>
+
+<h1>سود کسب و کار</h1>
+<p>@Model.BusinessWage</p>
+<br>
+<h1>مبلغ:</h1>
+<p>@Model.Amount</p>
+<br>
+<h1>مبلغ کل</h1>
+<p>@Model.GatewayAmount</p>
+<br>
+<h1>کارمزد پرداخت کننده</h1>
+<p>@Model.PayerWage</p>
+<br>
+<h1>کد تراکنش:</h1>
+<p>@Model.PaymentCode</p>
+
+
+
+

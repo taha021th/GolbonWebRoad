@@ -12,6 +12,9 @@ namespace GolbonWebRoad.Application.Features.Brands.Commands
     public class CreateBrandCommand : IRequest<Brand>
     {
         public string Name { get; set; }
+        public string? Slog { get; set; }
+        public string Content { get; set; }
+
         public IFormFile? Image { get; set; }
     }
 

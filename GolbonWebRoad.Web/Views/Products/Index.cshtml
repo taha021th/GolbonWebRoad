@@ -17,11 +17,175 @@
     <!-- اگر صفحه فیلتر شده باشد، برای جلوگیری از ایندکس شدن نتایج فیلترشده، noindex اعمال می‌شود -->
     @if (ViewBag.Noindex == true) { <meta name="robots" content="noindex,follow" /> }
 
+    @{
+        // Page-level URLs and OG/Twitter data
+        var request = Context.Request;
+        var pageUrl = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
+        var ogTitle = string.IsNullOrWhiteSpace(Model.MetaTitle) ? "همه محصولات" : Model.MetaTitle;
+        var ogDesc = string.IsNullOrWhiteSpace(Model.MetaDescription) ? "فهرست محصولات" : Model.MetaDescription;
+
+        var isFiltered = Model.CurrentCategoryId.HasValue || Model.CurrentBrandId.HasValue || !string.IsNullOrWhiteSpace(Model.SearchTerm);
+        var pageNumber = Model.Products?.PageNumber ?? 1;
+        var pageSize   = Model.Products?.PageSize   ?? (Model.Products?.Items?.Count ?? 0);
+
+        // Prefer category/brand image for filtered pages, otherwise first product image, else placeholder
+        string? ogImageCandidate = null;
+        if (Model.CurrentCategoryId.HasValue)
+        {
+            var cat = Model.Categories?.FirstOrDefault(c => c.Id == Model.CurrentCategoryId.Value);
+            ogImageCandidate = cat?.ImageUrl;
+        }
+        else if (Model.CurrentBrandId.HasValue)
+        {
+            var br = Model.Brands?.FirstOrDefault(b => b.Id == Model.CurrentBrandId.Value);
+            ogImageCandidate = br?.ImageUrl;
+        }
+        if (string.IsNullOrWhiteSpace(ogImageCandidate))
+        {
+            ogImageCandidate = Model.Products?.Items?.FirstOrDefault()?.ImageUrl;
+        }
+        var ogImage = !string.IsNullOrWhiteSpace(ogImageCandidate) ? ogImageCandidate : "https://placehold.co/1200x630/EFEFEF/AAAAAA?text=Products";
+
+        // Canonical for unfiltered listing (keep pagination canonical)
+        var canonicalBase = $"{request.Scheme}://{request.Host}/products";
+        var canonicalUrl = pageNumber > 1 ? $"{canonicalBase}?page={pageNumber}" : canonicalBase;
+
+        // Breadcrumbs JSON-LD (Home > Products [> Category/Brand optional])
+        var homeUrl = $"{request.Scheme}://{request.Host}/";
+        string? productsUrl = $"{request.Scheme}://{request.Host}/products";
+        var itemList = new List<Dictionary<string, object?>>
+        {
+            new Dictionary<string, object?>
+            {
+                ["@type"] = "ListItem",
+                ["position"] = 1,
+                ["name"] = "خانه",
+                ["item"] = homeUrl
+            },
+            new Dictionary<string, object?>
+            {
+                ["@type"] = "ListItem",
+                ["position"] = 2,
+                ["name"] = "همه محصولات",
+                ["item"] = productsUrl
+            }
+        };
+        if (Model.CurrentCategoryId.HasValue)
+        {
+            var cat = Model.Categories?.FirstOrDefault(c => c.Id == Model.CurrentCategoryId.Value);
+            var catUrl = $"{productsUrl}?categoryId={Model.CurrentCategoryId.Value}";
+            itemList.Add(new Dictionary<string, object?>
+            {
+                ["@type"] = "ListItem",
+                ["position"] = 3,
+                ["name"] = cat?.Name,
+                ["item"] = catUrl
+            });
+        }
+        else if (Model.CurrentBrandId.HasValue)
+        {
+            var br = Model.Brands?.FirstOrDefault(b => b.Id == Model.CurrentBrandId.Value);
+            var brUrl = $"{productsUrl}?brandId={Model.CurrentBrandId.Value}";
+            itemList.Add(new Dictionary<string, object?>
+            {
+                ["@type"] = "ListItem",
+                ["position"] = 3,
+                ["name"] = br?.Name,
+                ["item"] = brUrl
+            });
+        }
+        var breadcrumb = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "BreadcrumbList",
+            ["itemListElement"] = itemList
+        };
+
+        // CollectionPage + ItemList JSON-LD for listing page
+        var imagesForList = Model.Products?.Items?.Where(p => !string.IsNullOrWhiteSpace(p.ImageUrl)).Select(p => p.ImageUrl).Take(12).ToList() ?? new List<string>();
+        var collection = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "CollectionPage",
+            ["name"] = ogTitle,
+            ["description"] = ogDesc,
+            ["url"] = pageUrl,
+            ["inLanguage"] = "fa-IR"
+        };
+        var items = new List<Dictionary<string, object?>>();
+        if (Model.Products?.Items != null)
+        {
+            var position = ((pageNumber - 1) * pageSize) + 1;
+            foreach (var p in Model.Products.Items)
+            {
+                var pUrl = $"{request.Scheme}://{request.Host}/Products/Detail/{p.Id}";
+                items.Add(new Dictionary<string, object?>
+                {
+                    ["@type"] = "ListItem",
+                    ["position"] = position++,
+                    ["url"] = pUrl,
+                    ["name"] = p.Name,
+                    ["image"] = string.IsNullOrWhiteSpace(p.ImageUrl) ? null : p.ImageUrl,
+                    ["offers"] = new Dictionary<string, object?>
+                    {
+                        ["@type"] = "Offer",
+                        ["price"] = p.Price,
+                        ["priceCurrency"] = "IRR"
+                    }
+                });
+            }
+        }
+        var itemListSchema = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "ItemList",
+            ["itemListOrder"] = "https://schema.org/ItemListOrderAscending",
+            ["numberOfItems"] = Model.Products?.Items?.Count ?? 0,
+            ["itemListElement"] = items
+        };
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+    }
+
+    @if (!isFiltered)
+    {
+        <link rel="canonical" href="@canonicalUrl" />
+    }
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="@ogTitle" />
+    <meta property="og:description" content="@ogDesc" />
+    <meta property="og:url" content="@pageUrl" />
+    <meta property="og:site_name" content="@Context.Request.Host" />
+    <meta property="og:locale" content="fa_IR" />
+    <meta property="og:image" content="@ogImage" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@ogTitle" />
+    <meta name="twitter:description" content="@ogDesc" />
+    <meta name="twitter:image" content="@ogImage" />
+    <meta name="twitter:url" content="@pageUrl" />
+
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(breadcrumb, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(collection, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(itemListSchema, jsonOptions))
+    </script>
+
     <link rel="stylesheet" href="~/css/fonts.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/all.min.css">
     <!-- AOS library removed for performance -->
 
-    @Html.Partial("_CommonStyles")
+    <partial name="_CommonStyles" />
 
     <style>
         /* === Performance & Animation Styles === */
@@ -209,7 +373,7 @@
     </style>
 </head>
 <body>
-    @Html.Partial("_Header")
+    <partial name="_Header" />
     
     <main>
         <header class="page-header">
@@ -431,7 +595,7 @@
     
     
 
-    @Html.Partial("_CommonScripts")
+    <partial name="_CommonScripts" />
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {

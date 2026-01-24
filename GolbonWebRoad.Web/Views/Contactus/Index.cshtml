@@ -3,7 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تماس با ما - فروشگاه Tecture</title>    
+    <title>تماس با ما - فروشگاه گلبن</title>
+    <meta name="description" content="با ما در تماس باشید. آدرس، تلفن، ایمیل و راه‌های ارتباطی فروشگاه گلبن. پاسخگویی به سوالات شما در سریعترین زمان ممکن." />
+
+    @{
+        var request = Context.Request;
+        var pageUrl = $"{request.Scheme}://{request.Host}/contactus";
+        var ogImage = "https://placehold.co/1200x630/EFEFEF/AAAAAA?text=Contact+Us";
+
+        // Breadcrumb JSON-LD
+        var homeUrl = $"{request.Scheme}://{request.Host}/";
+        var breadcrumb = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "BreadcrumbList",
+            ["itemListElement"] = new List<Dictionary<string, object?>>
+            {
+                new Dictionary<string, object?> { ["@type"] = "ListItem", ["position"] = 1, ["name"] = "خانه", ["item"] = homeUrl },
+                new Dictionary<string, object?> { ["@type"] = "ListItem", ["position"] = 2, ["name"] = "تماس با ما", ["item"] = pageUrl }
+            }
+        };
+
+        // ContactPage JSON-LD
+        var contactPage = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "ContactPage",
+            ["name"] = "تماس با ما",
+            ["description"] = "راه‌های ارتباطی با فروشگاه گلبن",
+            ["url"] = pageUrl,
+            ["inLanguage"] = "fa-IR"
+        };
+
+        // Organization JSON-LD
+        var organization = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "Organization",
+            ["name"] = "فروشگاه گلبن",
+            ["url"] = homeUrl,
+            ["contactPoint"] = new Dictionary<string, object?>
+            {
+                ["@type"] = "ContactPoint",
+                ["telephone"] = "+98-21-12345678",
+                ["contactType"] = "customer service",
+                ["availableLanguage"] = "Persian"
+            },
+            ["address"] = new Dictionary<string, object?>
+            {
+                ["@type"] = "PostalAddress",
+                ["streetAddress"] = "خیابان ولیعصر، برج تجاری گلبن، طبقه ۵",
+                ["addressLocality"] = "تهران",
+                ["addressCountry"] = "IR"
+            },
+            ["email"] = "support@golbon.com"
+        };
+
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+    }
+
+    <link rel="canonical" href="@pageUrl" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="تماس با ما - فروشگاه گلبن" />
+    <meta property="og:description" content="با ما در تماس باشید. آدرس، تلفن، ایمیل و راه‌های ارتباطی فروشگاه گلبن." />
+    <meta property="og:url" content="@pageUrl" />
+    <meta property="og:site_name" content="@Context.Request.Host" />
+    <meta property="og:locale" content="fa_IR" />
+    <meta property="og:image" content="@ogImage" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="تماس با ما - فروشگاه گلبن" />
+    <meta name="twitter:description" content="با ما در تماس باشید. آدرس، تلفن، ایمیل و راه‌های ارتباطی فروشگاه گلبن." />
+    <meta name="twitter:image" content="@ogImage" />
+    <meta name="twitter:url" content="@pageUrl" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(breadcrumb, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(contactPage, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(organization, jsonOptions))
+    </script>
+
     <link rel="stylesheet" href="~/css/fonts.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/all.min.css" />
 
@@ -66,7 +157,7 @@
                         <i class="fas fa-map-marker-alt"></i>
                         <div class="info-item-text">
                             <h3>آدرس</h3>
-                            <p>تهران، خیابان ولیعصر، برج تجاری Tecture، طبقه ۵</p>
+                            <p>تهران، خیابان ولیعصر، برج تجاری گلبن، طبقه ۵</p>
                         </div>
                     </div>
                     <div class="info-item">
@@ -80,7 +171,7 @@
                         <i class="fas fa-envelope"></i>
                         <div class="info-item-text">
                             <h3>ایمیل</h3>
-                            <p>support@tecture.com</p>
+                            <p>support@golbon.com</p>
                         </div>
                     </div>
                     <div class="social-links">

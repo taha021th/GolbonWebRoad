@@ -25,9 +25,12 @@ namespace GolbonWebRoad.Domain.Entities
         public string? MetaDescription { get; set; }
         public string? CanonicalUrl { get; set; }
         public string? MainImageAltText { get; set; }
+        public string? H1Title { get; set; }
+        public string? MetaRobots { get; set; }
+
 
         public bool IsFeatured { get; set; }
-        public string? MainImageUrl { get; set; } // تصویر اصلی محصول برای نمایش در کارت‌ها
+        public string? MainImageUrl { get; set; } // تصویر اصلی محصول برای نمایش 
         public DateTime CreatedAt { get; set; }
 
         //Relations

@@ -24,6 +24,10 @@ namespace GolbonWebRoad.Infrastructure.Persistence
         public DbSet<ProductAttribute> ProductAttributes { get; set; }
         public DbSet<ProductAttributeValue> ProductAttributeValues { get; set; }
         public DbSet<ProductVariant> ProductVariants { get; set; }
+        public DbSet<Faq> Faqs { get; set; }
+        public DbSet<FaqCategory> FaqCategories { get; set; }
+        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<BlogCategory> BlogCategories { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -36,7 +40,30 @@ namespace GolbonWebRoad.Infrastructure.Persistence
                 entity.HasIndex(c => c.Slog).IsUnique();
             }
             );
+            modelBuilder.Entity<Brand>(entity =>
+            {
+                entity.HasIndex(b => b.Slog).IsUnique();
+            });
 
+            // FAQ Category Config
+            modelBuilder.Entity<FaqCategory>(entity =>
+            {
+                entity.HasIndex(c => c.Slog).IsUnique();
+                entity.Property(c => c.Name).IsRequired().HasMaxLength(200);
+            });
+
+            // FAQ Config
+            modelBuilder.Entity<Faq>(entity =>
+            {
+                entity.HasIndex(f => f.Slog).IsUnique();
+                entity.Property(f => f.Question).IsRequired();
+                entity.Property(f => f.Answer).IsRequired();
+                entity.Property(f => f.Tags).HasMaxLength(500);
+                entity.HasOne(f => f.Category)
+                      .WithMany(c => c.Faqs)
+                      .HasForeignKey(f => f.FaqCategoryId)
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
 
             modelBuilder.Entity<ProductColor>()
                 .HasKey(pc => new { pc.ProductId, pc.ColorId });

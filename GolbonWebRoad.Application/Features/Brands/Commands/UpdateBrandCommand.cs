@@ -13,6 +13,8 @@ namespace GolbonWebRoad.Application.Features.Brands.Commands
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string? Slog { get; set; }
+        public string Content { get; set; }
         public string? ExistingImage { get; set; }
         public IFormFile? NewImage { get; set; }
     }
@@ -52,6 +54,8 @@ namespace GolbonWebRoad.Application.Features.Brands.Commands
 
             var oldName = brand.Name;
             brand.Name = request.Name;
+            brand.Content=request.Content;
+            brand.Slog=request.Slog;
 
             if (request.NewImage != null)
             {

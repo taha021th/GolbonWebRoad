@@ -2,6 +2,7 @@
 using GolbonWebRoad.Application.Features.Products.Queries;
 using GolbonWebRoad.Application.Features.Reviews.Commands;
 using GolbonWebRoad.Application.Features.Reviews.Queries;
+using GolbonWebRoad.Web.Models.Categories;
 using GolbonWebRoad.Web.Models.Products;
 using GolbonWebRoad.Web.Services.Seo;
 using MediatR;
@@ -121,6 +122,8 @@ namespace GolbonWebRoad.Web.Controllers
                 viewModel.CanonicalUrl = productEntity.CanonicalUrl;
             }
             viewModel.MainImageAltText = productEntity.MainImageAltText;
+            viewModel.H1Title = !string.IsNullOrWhiteSpace(productEntity.H1Title) ? productEntity.H1Title : productEntity.Name;
+            viewModel.MetaRobots = productEntity.MetaRobots;
 
             // ۶. پردازش و آماده‌سازی ViewModel با اطلاعات دریافتی از کوئری‌ها
             viewModel.Reviews = _mapper.Map<List<ReviewViewModel>>(reviews);

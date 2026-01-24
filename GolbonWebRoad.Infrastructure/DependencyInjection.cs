@@ -49,6 +49,8 @@ namespace GolbonWebRoad.Infrastructure
             services.AddScoped<IProductAttributeValueRepository, ProductAttributeValueRepository>();
             services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
             services.AddScoped<IUserAddressRepository, UserAddressRepository>();
+            services.AddScoped<IFaqRepository, FaqRepository>();
+            services.AddScoped<IFaqCategoryRepository, FaqCategoryRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 

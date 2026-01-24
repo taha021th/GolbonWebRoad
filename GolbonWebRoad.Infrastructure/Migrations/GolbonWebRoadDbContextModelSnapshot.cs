@@ -99,6 +99,138 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Blog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AltTextMainImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("BlogId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CanonicalUrl")
+                        .HasColumnType("text");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("H1Title")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MainImageAltText")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MainImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MetaDescription")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("MetaKeywords")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MetaRobots")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("MetaTitle")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("PublishDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ReadTimeMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ShortDescription")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Slog")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Blogs");
+                });
+
+            modelBuilder.Entity("GolbonWebRoad.Domain.Entities.BlogCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AltTextImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("BlogId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CanonicalUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MetaDescription")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("MetaRobots")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("MetaTitle")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("ShortDescription")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Slog")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BlogCategories");
+                });
+
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Brand", b =>
                 {
                     b.Property<int>("Id")
@@ -107,15 +239,24 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("Content")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUrl")
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Slog")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Slog")
+                        .IsUnique();
 
                     b.ToTable("Brands");
                 });
@@ -200,6 +341,87 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Colors");
+                });
+
+            modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Faq", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("FaqCategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Slog")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FaqCategoryId");
+
+                    b.HasIndex("Slog")
+                        .IsUnique();
+
+                    b.ToTable("Faqs");
+                });
+
+            modelBuilder.Entity("GolbonWebRoad.Domain.Entities.FaqCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Slog")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slog")
+                        .IsUnique();
+
+                    b.ToTable("FaqCategories");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Log", b =>
@@ -332,6 +554,9 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("H1Title")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsFeatured")
                         .HasColumnType("boolean");
 
@@ -342,6 +567,9 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("MetaDescription")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MetaRobots")
                         .HasColumnType("text");
 
                     b.Property<string>("MetaTitle")
@@ -732,6 +960,21 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                     b.ToTable("ProductVariants");
                 });
 
+            modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Blog", b =>
+                {
+                    b.HasOne("GolbonWebRoad.Domain.Entities.BlogCategory", null)
+                        .WithMany("Blogs")
+                        .HasForeignKey("BlogId");
+
+                    b.HasOne("GolbonWebRoad.Domain.Entities.BlogCategory", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.CartItem", b =>
                 {
                     b.HasOne("GolbonWebRoad.Domain.Entities.Product", "Product")
@@ -749,6 +992,16 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Faq", b =>
+                {
+                    b.HasOne("GolbonWebRoad.Domain.Entities.FaqCategory", "Category")
+                        .WithMany("Faqs")
+                        .HasForeignKey("FaqCategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Order", b =>
@@ -942,6 +1195,11 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("GolbonWebRoad.Domain.Entities.BlogCategory", b =>
+                {
+                    b.Navigation("Blogs");
+                });
+
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Brand", b =>
                 {
                     b.Navigation("Products");
@@ -955,6 +1213,11 @@ namespace GolbonWebRoad.Infrastructure.Migrations
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Color", b =>
                 {
                     b.Navigation("ProductColors");
+                });
+
+            modelBuilder.Entity("GolbonWebRoad.Domain.Entities.FaqCategory", b =>
+                {
+                    b.Navigation("Faqs");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Order", b =>

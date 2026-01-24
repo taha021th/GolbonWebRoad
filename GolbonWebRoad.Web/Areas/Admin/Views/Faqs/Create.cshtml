@@ -1,0 +1,51 @@
+@model GolbonWebRoad.Web.Areas.Admin.Models.Faqs.CreateFaqViewModel
+@{
+    ViewData["Title"] = "افزودن سوال";
+}
+<h1 class="h4 mb-3">@ViewData["Title"]</h1>
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+    <div class="mb-3">
+        <label asp-for="Question" class="form-label"></label>
+        <input asp-for="Question" class="form-control" />
+        <span asp-validation-for="Question" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Answer" class="form-label"></label>
+        <textarea asp-for="Answer" class="form-control" rows="10"></textarea>
+        <span asp-validation-for="Answer" class="text-danger"></span>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="CategoryId" class="form-label"></label>
+            <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-select">
+                <option value="">- انتخاب دسته -</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Slog" class="form-label"></label>
+            <input asp-for="Slog" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Tags" class="form-label"></label>
+            <input asp-for="Tags" class="form-control" />
+        </div>
+    </div>
+    <div class="row g-3 mt-1">
+        <div class="col-md-4">
+            <label asp-for="SortOrder" class="form-label"></label>
+            <input asp-for="SortOrder" class="form-control" />
+        </div>
+        <div class="col-md-4 form-check mt-4">
+            <input asp-for="IsActive" class="form-check-input" />
+            <label asp-for="IsActive" class="form-check-label"></label>
+        </div>
+    </div>
+    <div class="mt-3 text-end">
+        <button type="submit" class="btn btn-primary">ذخیره</button>
+        <a asp-action="Index" class="btn btn-secondary">بازگشت</a>
+    </div>
+</form>
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -2,7 +2,11 @@
 @{
     ViewData["Title"] = "ایجاد دسته‌بندی جدید";
 }
-
+<html>
+<head>
+    <meta name="robots" content="noindex, nofollow" />
+</head>
+<body>    
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
         <div class="card shadow-sm">
@@ -10,7 +14,7 @@
                 <h3 class="mb-0">@ViewData["Title"]</h3>
             </div>
             <div class="card-body">
-                <form asp-controller="Products" asp-action="Create" method="post" enctype="multipart/form-data">
+                <form asp-controller="Categories" asp-action="Create" method="post" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
@@ -26,8 +30,15 @@
                         <span asp-validation-for="Slog" class="text-danger"></span>
                     </div>
 
+                    <!-- فیلد جدید: Content -->
                     <div class="mb-3">
-                        <label asp-for="Image" class="form-label"></label>
+                        <label asp-for="Content" class="form-label">محتوا</label>
+                        <textarea asp-for="Content" class="form-control" rows="6" placeholder="توضیحات کامل دسته‌بندی..."></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Image" class="form-label">تصویر</label>
                         <input asp-for="Image" type="file" class="form-control" accept="image/*" />
                         <span asp-validation-for="Image" class="text-danger"></span>
                     </div>
@@ -41,3 +52,9 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+</body>
+</html>

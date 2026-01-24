@@ -14,6 +14,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
         public int Id { get; set; }
         public string Name { get; set; }
         public string? Slog { get; set; }
+        public string Content { get; set; }
         public string? ExistingImage { get; set; }
         public IFormFile? NewImage { get; set; }
     }

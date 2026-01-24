@@ -1,7 +1,6 @@
 using AutoMapper;
-using GolbonWebRoad.Application.Features.Categories.Queries;
-using GolbonWebRoad.Application.Features.Products.Queries;
 using GolbonWebRoad.Web.Models;
+using GolbonWebRoad.Web.Models.Categories;
 using GolbonWebRoad.Web.Models.Products;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

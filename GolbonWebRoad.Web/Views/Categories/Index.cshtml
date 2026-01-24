@@ -9,10 +9,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فهرست دسته بندی ها</title>
+    <title>فهرست دسته بندی ها | فروشگاه گلبن</title>
+    <meta name="description" content="مشاهده و انتخاب از بین انواع دسته‌بندی‌های محصولات فروشگاه گلبن" />
+
+    @{
+        var request = Context.Request;
+        var pageUrl = $"{request.Scheme}://{request.Host}/categories";
+        var ogImage = Model?.FirstOrDefault()?.ImageUrl ?? "https://placehold.co/1200x630/EFEFEF/AAAAAA?text=Categories";
+
+        // Breadcrumb JSON-LD
+        var homeUrl = $"{request.Scheme}://{request.Host}/";
+        var breadcrumb = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "BreadcrumbList",
+            ["itemListElement"] = new List<Dictionary<string, object?>>
+            {
+                new Dictionary<string, object?> { ["@type"] = "ListItem", ["position"] = 1, ["name"] = "خانه", ["item"] = homeUrl },
+                new Dictionary<string, object?> { ["@type"] = "ListItem", ["position"] = 2, ["name"] = "دسته‌بندی‌ها", ["item"] = pageUrl }
+            }
+        };
+
+        // CollectionPage JSON-LD
+        var collection = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "CollectionPage",
+            ["name"] = "دسته‌بندی‌های محصولات",
+            ["description"] = "فهرست همه دسته‌بندی‌ها",
+            ["url"] = pageUrl,
+            ["inLanguage"] = "fa-IR"
+        };
+
+        // ItemList JSON-LD for categories
+        var items = new List<Dictionary<string, object?>>();
+        if (Model != null)
+        {
+            var position = 1;
+            foreach (var cat in Model)
+            {
+                var catUrl = $"{request.Scheme}://{request.Host}/category/{cat.Id}";
+                items.Add(new Dictionary<string, object?>
+                {
+                    ["@type"] = "ListItem",
+                    ["position"] = position++,
+                    ["url"] = catUrl,
+                    ["name"] = cat.Name,
+                    ["image"] = string.IsNullOrWhiteSpace(cat.ImageUrl) ? null : cat.ImageUrl
+                });
+            }
+        }
+        var itemListSchema = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "ItemList",
+            ["itemListOrder"] = "https://schema.org/ItemListOrderAscending",
+            ["numberOfItems"] = Model?.Count ?? 0,
+            ["itemListElement"] = items
+        };
+
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+    }
+
+    <link rel="canonical" href="@pageUrl" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="دسته‌بندی‌های محصولات | فروشگاه گلبن" />
+    <meta property="og:description" content="مشاهده و انتخاب از بین انواع دسته‌بندی‌های محصولات" />
+    <meta property="og:url" content="@pageUrl" />
+    <meta property="og:site_name" content="@Context.Request.Host" />
+    <meta property="og:locale" content="fa_IR" />
+    <meta property="og:image" content="@ogImage" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="دسته‌بندی‌های محصولات" />
+    <meta name="twitter:description" content="فهرست همه دسته‌بندی‌ها" />
+    <meta name="twitter:image" content="@ogImage" />
+    <meta name="twitter:url" content="@pageUrl" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(breadcrumb, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(collection, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(itemListSchema, jsonOptions))
+    </script>
+
     <link rel="stylesheet" href="~/css/fonts.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/all.min.css">
-    @Html.Partial("_CommonStyles")
+    <partial name="_CommonStyles" />
     <style>
         .cat-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:24px; }
         .cat-card { position:relative; overflow:hidden; border:1px solid var(--border-color); background: var(--card-bg-color); }
@@ -24,7 +118,7 @@
     </style>
 </head>
 <body>
-    @Html.Partial("_Header")
+    <partial name="_Header" />
     <main class="container" style="padding:40px 0;">
         <header class="page-header">
             <h1>دسته بندی ها</h1>
@@ -40,6 +134,7 @@
             }
         </section>
     </main>
-    @Html.Partial("_CommonScripts")
+    <partial name="_Footer" />
+    <partial name="_CommonScripts" />
 </body>
 </html>

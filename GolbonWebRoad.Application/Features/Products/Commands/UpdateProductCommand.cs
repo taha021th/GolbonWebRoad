@@ -25,6 +25,8 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         public int? BrandId { get; set; }
 
         // SEO Fields
+        public string? H1Title { get; set; }
+        public string? MetaRobots { get; set; }
         public string? MetaTitle { get; set; }
         public string? MetaDescription { get; set; }
         public string? CanonicalUrl { get; set; }

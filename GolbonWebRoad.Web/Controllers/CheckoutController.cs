@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
 using GolbonWebRoad.Application.Dtos.CartItems;
+using GolbonWebRoad.Application.Dtos.Logistics;
 using GolbonWebRoad.Application.Features.Orders.Commands;
 using GolbonWebRoad.Application.Features.Users.Queries;
 using GolbonWebRoad.Application.Interfaces.Services.Logistics;
+using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Web.Models.Cart;
 using GolbonWebRoad.Web.Models.Checkout;
-using GolbonWebRoad.Application.Dtos.Logistics;
-using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Web.Models.Transactions;
+using GolbonWebRoad.Web.Services.Payments;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,13 +23,19 @@ namespace GolbonWebRoad.Web.Controllers
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
         private readonly ILogisticsService _logisticsService;
+        private readonly PaypingSandboxGateway _payment;
+
         private const string CartSessionKey = "Cart";
 
         public CheckoutController(IMediator mediator, IMapper mapper, ILogisticsService logisticsService)
         {
+            var http = new HttpClient();
+            var option = new PaypingOptions();
+
             _mediator = mediator;
             _mapper = mapper;
             _logisticsService=logisticsService;
+            _payment=new PaypingSandboxGateway(http, option);
         }
 
         public async Task<IActionResult> Index()
@@ -45,7 +52,7 @@ namespace GolbonWebRoad.Web.Controllers
                 Price = ci.Price,
                 Product = _mapper.Map<ProductCartViewModel>(ci.Product)
             }).ToList();
-            
+
             var totalAmount = mapped.Sum(i => (long)(i.Price * i.Quantity));
             var viewModel = new CheckoutViewModel
             {
@@ -65,9 +72,9 @@ namespace GolbonWebRoad.Web.Controllers
                 {
                     try
                     {
-                        var defaultAddress = viewModel.UserAddresses.FirstOrDefault(a => a.IsDefault) 
+                        var defaultAddress = viewModel.UserAddresses.FirstOrDefault(a => a.IsDefault)
                                             ?? viewModel.UserAddresses.First();
-                        
+
                         viewModel.ShippingOptions = await GetShippingOptionsForCart(cart, defaultAddress);
                     }
                     catch (Exception ex)
@@ -91,7 +98,7 @@ namespace GolbonWebRoad.Web.Controllers
                 // در صورت خطای اعتبارسنجی، دوباره صفحه را با خطاها نمایش بده
                 var cart = GetCart();
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                
+
                 model.CartItems = cart.Select(ci => new CartItemViewModel
                 {
                     ProductId = ci.ProductId,
@@ -100,13 +107,13 @@ namespace GolbonWebRoad.Web.Controllers
                     Product = _mapper.Map<ProductCartViewModel>(ci.Product)
                 }).ToList();
                 model.TotalAmount = cart.Sum(i => (long)(i.Price * i.Quantity));
-                
+
                 if (!string.IsNullOrEmpty(userId))
                 {
                     var addresses = await _mediator.Send(new GetUserAddressesQuery { UserId = userId });
                     model.UserAddresses = addresses?.ToList() ?? new List<GolbonWebRoad.Domain.Entities.UserAddress>();
                 }
-                
+
                 return View("Index", model);
             }
 
@@ -117,14 +124,14 @@ namespace GolbonWebRoad.Web.Controllers
                 TempData["CheckoutError"] = "روش ارسال انتخاب شده معتبر نیست.";
                 return RedirectToAction(nameof(Index));
             }
-            
+
             var shippingMethod = shippingParts[0];
 
             // شبیه سازی پرداخت موفق (در اینجا فرض می کنیم پرداخت موفق بوده)
             // در پروژه واقعی، پس از بازگشت از درگاه پرداخت این متد فراخوانی می شود
             return await ProcessSuccessfulPayment(model, shippingMethod, shippingCost);
         }
-        
+
         private async Task<IActionResult> ProcessSuccessfulPayment(CheckoutViewModel model, string shippingMethod, decimal shippingCost)
         {
             var cart = GetCart();

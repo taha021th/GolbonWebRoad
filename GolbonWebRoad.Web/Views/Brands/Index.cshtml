@@ -9,37 +9,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فهرست برندها</title>
+    <title>فهرست برندها | فروشگاه گلبن</title>
+    <meta name="description" content="مشاهده و انتخاب از بین برندهای مختلف محصولات فروشگاه گلبن" />
+
+    @{
+        var request = Context.Request;
+        var pageUrl = $"{request.Scheme}://{request.Host}/brands";
+        var ogImage = Model?.FirstOrDefault()?.ImageUrl ?? "https://placehold.co/1200x630/EFEFEF/AAAAAA?text=Brands";
+
+        // Breadcrumb JSON-LD
+        var homeUrl = $"{request.Scheme}://{request.Host}/";
+        var breadcrumb = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "BreadcrumbList",
+            ["itemListElement"] = new List<Dictionary<string, object?>>
+            {
+                new Dictionary<string, object?> { ["@type"] = "ListItem", ["position"] = 1, ["name"] = "خانه", ["item"] = homeUrl },
+                new Dictionary<string, object?> { ["@type"] = "ListItem", ["position"] = 2, ["name"] = "برندها", ["item"] = pageUrl }
+            }
+        };
+
+        // CollectionPage JSON-LD
+        var collection = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "CollectionPage",
+            ["name"] = "برندهای محصولات",
+            ["description"] = "فهرست همه برندها",
+            ["url"] = pageUrl,
+            ["inLanguage"] = "fa-IR"
+        };
+
+        // ItemList JSON-LD for brands
+        var items = new List<Dictionary<string, object?>>();
+        if (Model != null)
+        {
+            var position = 1;
+            foreach (var brand in Model)
+            {
+                var brandUrl = $"{request.Scheme}://{request.Host}/brand/{brand.Id}";
+                items.Add(new Dictionary<string, object?>
+                {
+                    ["@type"] = "ListItem",
+                    ["position"] = position++,
+                    ["url"] = brandUrl,
+                    ["name"] = brand.Name,
+                    ["image"] = string.IsNullOrWhiteSpace(brand.ImageUrl) ? null : brand.ImageUrl
+                });
+            }
+        }
+        var itemListSchema = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "ItemList",
+            ["itemListOrder"] = "https://schema.org/ItemListOrderAscending",
+            ["numberOfItems"] = Model?.Count ?? 0,
+            ["itemListElement"] = items
+        };
+
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+    }
+
+    <link rel="canonical" href="@pageUrl" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="برندهای محصولات | فروشگاه گلبن" />
+    <meta property="og:description" content="مشاهده و انتخاب از بین برندهای مختلف" />
+    <meta property="og:url" content="@pageUrl" />
+    <meta property="og:site_name" content="@Context.Request.Host" />
+    <meta property="og:locale" content="fa_IR" />
+    <meta property="og:image" content="@ogImage" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="برندهای محصولات" />
+    <meta name="twitter:description" content="فهرست همه برندها" />
+    <meta name="twitter:image" content="@ogImage" />
+    <meta name="twitter:url" content="@pageUrl" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(breadcrumb, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(collection, jsonOptions))
+    </script>
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(itemListSchema, jsonOptions))
+    </script>
+
     <link rel="stylesheet" href="~/css/fonts.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/all.min.css">
-    @Html.Partial("_CommonStyles")
+    <partial name="_CommonStyles" />
     <style>
-        .grid { display:grid; grid-template-columns: repeat(6, 1fr); gap:20px; }
-        .brand-card { background: var(--card-bg-color); border:1px solid var(--border-color); text-align:center; padding:20px; transition: transform .2s ease, box-shadow .2s ease; }
-        .brand-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,.2); }
-        .brand-card img { width:100%; height:100px; object-fit:contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,.2)); background: var(--bg-color); }
-        .brand-card h3 { font-size: .95rem; margin-top:12px; }
-        @@media (max-width: 1200px){ .grid { grid-template-columns: repeat(4,1fr);} }
-        @@media (max-width: 768px){ .grid { grid-template-columns: repeat(2,1fr);} }
+        .brand-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:24px; }
+        .brand-card { position:relative; overflow:hidden; border:1px solid var(--border-color); background: var(--card-bg-color); }
+        .brand-card img { width:100%; height:200px; object-fit:cover; transition: transform .3s ease; }
+        .brand-card:hover img { transform: scale(1.05); }
+        .brand-card .title { position:absolute; bottom:0; right:0; left:0; background: linear-gradient(0deg, rgba(0,0,0,.7), rgba(0,0,0,0)); color:#fff; padding:12px 14px; font-weight:700; }
+        @@media (max-width: 992px){ .brand-grid { grid-template-columns: repeat(3,1fr);} }
+        @@media (max-width: 576px){ .brand-grid { grid-template-columns: repeat(2,1fr);} }
     </style>
 </head>
 <body>
-    @Html.Partial("_Header")
+    <partial name="_Header" />
     <main class="container" style="padding:40px 0;">
         <header class="page-header">
             <h1>برندها</h1>
         </header>
-
-        <section class="grid">
+        <section class="brand-grid">
             @foreach (var b in Model)
             {
-                <a class="brand-card card-like" asp-controller="Brands" asp-action="Detail" asp-route-id="@b.Id">
-                    <img loading="lazy" src="@(string.IsNullOrWhiteSpace(b.ImageUrl) ? "https://placehold.co/300x100?text=Brand" : b.ImageUrl)" alt="@b.Name" />
-                    <h3>@b.Name</h3>
+                <a class="brand-card" asp-controller="Brands" asp-action="Detail" asp-route-id="@b.Id">
+                    <img loading="lazy" src="@(string.IsNullOrWhiteSpace(b.ImageUrl) ? "https://placehold.co/600x400?text=Brand" : b.ImageUrl)" alt="@b.Name">
+                    <div class="title">@b.Name</div>
                 </a>
             }
         </section>
     </main>
-    @Html.Partial("_CommonScripts")
+    <partial name="_Footer" />
+    <partial name="_CommonScripts" />
 </body>
 </html>

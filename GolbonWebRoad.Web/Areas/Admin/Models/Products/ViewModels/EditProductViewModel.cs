@@ -29,6 +29,12 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
         public decimal BasePrice { get; set; }
 
         // SEO Fields
+        [Display(Name = "H1 Title")]
+        [MaxLength(255)]
+        public string? H1Title { get; set; }
+        [Display(Name = "Meta Robots")]
+        [MaxLength(255)]
+        public string? MetaRobots { get; set; }
         [Display(Name = "عنوان سئو (Meta Title)")]
         [MaxLength(255)]
         public string? MetaTitle { get; set; }
@@ -40,7 +46,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels
         [Display(Name = "آدرس کانونیکال (Canonical URL)")]
         [MaxLength(1000)]
         public string? CanonicalUrl { get; set; }
-        
+
         [Display(Name = "متن جایگزین تصویر اصلی (Alt Text)")]
         [MaxLength(255)]
         public string? MainImageAltText { get; set; }

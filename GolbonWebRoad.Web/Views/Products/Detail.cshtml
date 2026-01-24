@@ -15,10 +15,218 @@
     {
         <link rel="canonical" href="@Model.CanonicalUrl" />
     }
-    <meta name="description" content="@(string.IsNullOrEmpty(Model.MetaDescription) ? Model.ShortDescription : Model.MetaDescription)">
-    @if (!string.IsNullOrEmpty(Model.CanonicalUrl))
+    @if (!string.IsNullOrEmpty(Model.MetaRobots))
     {
-        <link rel="canonical" href="@Model.CanonicalUrl" />
+        <meta name="robots" content="@Model.MetaRobots" />
+    }
+
+    @{
+        // Build data for JSON-LD Product schema (best-practice: AggregateOffer + representative data)
+        var request = Context.Request;
+        var productUrl = !string.IsNullOrEmpty(Model.CanonicalUrl)
+            ? Model.CanonicalUrl
+            : $"{request.Scheme}://{request.Host}/Products/Detail/{Model.Id}";
+
+        var images = new List<string>();
+        if (!string.IsNullOrEmpty(Model.MainImageUrl)) images.Add(Model.MainImageUrl);
+        if (Model.Images != null && Model.Images.Any())
+        {
+            foreach (var img in Model.Images)
+            {
+                if (!string.IsNullOrEmpty(img.ImageUrl) && !images.Contains(img.ImageUrl))
+                {
+                    images.Add(img.ImageUrl);
+                }
+            }
+        }
+
+        var variants = Model.Variants ?? new List<VariantDisplayViewModel>();
+        var inStock = variants.Where(v => v.StockQuantity > 0).ToList();
+        var rep = inStock.FirstOrDefault() ?? variants.FirstOrDefault();
+        var lowPrice = variants.Any() ? variants.Min(v => v.Price) : 0m;
+        var highPrice = variants.Any() ? variants.Max(v => v.Price) : 0m;
+        var offerCount = inStock.Any() ? inStock.Count : variants.Count;
+
+        double? avgRating = null;
+        int reviewsCount = Model.Reviews?.Count ?? 0;
+        if (Model.Reviews != null && Model.Reviews.Any())
+        {
+            avgRating = Math.Round(Model.Reviews.Average(r => r.Rating), 1);
+        }
+
+        var brandName = Model.Brand?.Name;
+
+        // Compute GTIN key based on length (8/12/13) and prepare MPN
+        string? gtinRaw = rep?.Gtin?.Trim();
+        string? gtinDigits = string.IsNullOrWhiteSpace(gtinRaw) ? null : new string(gtinRaw.Where(char.IsDigit).ToArray());
+        string? mpnVal = rep?.Mpn;
+
+        // Prepare additionalProperty from attribute groups (aggregate display values)
+        var additionalProps = new List<Dictionary<string, object?>>();
+        if (Model.AttributeGroups != null)
+        {
+            foreach (var g in Model.AttributeGroups)
+            {
+                var vals = (g.Values != null && g.Values.Any()) ? string.Join(" / ", g.Values.Select(v => v.Value).Distinct()) : null;
+                if (!string.IsNullOrWhiteSpace(g.AttributeName) && !string.IsNullOrWhiteSpace(vals))
+                {
+                    additionalProps.Add(new Dictionary<string, object?>
+                    {
+                        ["@type"] = "PropertyValue",
+                        ["name"] = g.AttributeName,
+                        ["value"] = vals
+                    });
+                }
+            }
+        }
+
+        var schemaObj = new Dictionary<string, object?>();
+        schemaObj["@context"] = "https://schema.org";
+        schemaObj["@type"] = "Product";
+        schemaObj["name"] = string.IsNullOrWhiteSpace(Model.H1Title) ? Model.Name : Model.H1Title;
+        schemaObj["description"] = string.IsNullOrWhiteSpace(Model.ShortDescription) ? Model.Description : Model.ShortDescription;
+        if (!string.IsNullOrWhiteSpace(rep?.Sku)) schemaObj["sku"] = rep.Sku;
+        schemaObj["image"] = images;
+        schemaObj["url"] = productUrl;
+        schemaObj["inLanguage"] = "fa-IR";
+        if (!string.IsNullOrWhiteSpace(Model.Category?.Name)) schemaObj["category"] = Model.Category?.Name;
+        if (!string.IsNullOrWhiteSpace(brandName))
+        {
+            schemaObj["brand"] = new Dictionary<string, object?>
+            {
+                ["@type"] = "Brand",
+                ["name"] = brandName
+            };
+        }
+        if (!string.IsNullOrWhiteSpace(mpnVal)) schemaObj["mpn"] = mpnVal;
+        if (!string.IsNullOrWhiteSpace(gtinDigits))
+        {
+            if (gtinDigits!.Length == 13) schemaObj["gtin13"] = gtinDigits;
+            else if (gtinDigits.Length == 12) schemaObj["gtin12"] = gtinDigits;
+            else if (gtinDigits.Length == 8) schemaObj["gtin8"] = gtinDigits;
+            else schemaObj["gtin"] = gtinDigits;
+        }
+        if (additionalProps.Any()) schemaObj["additionalProperty"] = additionalProps;
+        if (avgRating.HasValue)
+        {
+            schemaObj["aggregateRating"] = new Dictionary<string, object?>
+            {
+                ["@type"] = "AggregateRating",
+                ["ratingValue"] = avgRating.Value,
+                ["reviewCount"] = reviewsCount
+            };
+        }
+        if (Model.Reviews != null && Model.Reviews.Any())
+        {
+            var reviewsList = new List<Dictionary<string, object?>>();
+            foreach (var r in Model.Reviews.Take(5))
+            {
+                reviewsList.Add(new Dictionary<string, object?>
+                {
+                    ["@type"] = "Review",
+                    ["author"] = new Dictionary<string, object?> { ["@type"] = "Person", ["name"] = r.UserName },
+                    ["datePublished"] = r.ReviewDate.ToString("yyyy-MM-dd"),
+                    ["reviewBody"] = r.ReviewText,
+                    ["reviewRating"] = new Dictionary<string, object?> { ["@type"] = "Rating", ["ratingValue"] = r.Rating, ["bestRating"] = 5, ["worstRating"] = 1 }
+                });
+            }
+            schemaObj["review"] = reviewsList;
+        }
+        schemaObj["offers"] = new Dictionary<string, object?>
+        {
+            ["@type"] = "AggregateOffer",
+            ["priceCurrency"] = "IRR", // نمایش در UI تومان است؛ برای ساختار داده باید ISO currency باشد
+            ["lowPrice"] = lowPrice,
+            ["highPrice"] = highPrice,
+            ["offerCount"] = offerCount,
+            ["availability"] = (rep?.StockQuantity ?? 0) > 0 ? "http://schema.org/InStock" : "http://schema.org/OutOfStock",
+            ["url"] = productUrl
+        };
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+    }
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(schemaObj, jsonOptions))
+    </script>
+
+    @{
+        // Breadcrumbs JSON-LD (Home > Category > Product)
+        var homeUrl = $"{request.Scheme}://{request.Host}/";
+        var categoryUrl = (Model.Category != null)
+            ? $"{request.Scheme}://{request.Host}/products?categoryId={Model.Category.Id}"
+            : null;
+        var breadcrumb = new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "BreadcrumbList",
+            ["itemListElement"] = new List<Dictionary<string, object?>>
+            {
+                new Dictionary<string, object?>
+                {
+                    ["@type"] = "ListItem",
+                    ["position"] = 1,
+                    ["name"] = "خانه",
+                    ["item"] = homeUrl
+                },
+                new Dictionary<string, object?>
+                {
+                    ["@type"] = "ListItem",
+                    ["position"] = 2,
+                    ["name"] = Model.Category?.Name,
+                    ["item"] = categoryUrl
+                },
+                new Dictionary<string, object?>
+                {
+                    ["@type"] = "ListItem",
+                    ["position"] = 3,
+                    ["name"] = Model.Name,
+                    ["item"] = productUrl
+                }
+            }
+        };
+    }
+    <script type="application/ld+json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(breadcrumb, jsonOptions))
+    </script>
+
+    @{
+        var ogTitle = string.IsNullOrWhiteSpace(Model.MetaTitle) ? Model.Name : Model.MetaTitle;
+        var ogDesc = string.IsNullOrWhiteSpace(Model.MetaDescription) ? Model.ShortDescription : Model.MetaDescription;
+        var ogImage = images.FirstOrDefault() ?? "https://placehold.co/1200x630/EFEFEF/AAAAAA?text=No+Image";
+        var availabilityVal = (rep?.StockQuantity ?? 0) > 0 ? "instock" : "oos";
+        var priceAmount = rep?.Price ?? lowPrice;
+    }
+    <meta property="og:type" content="product" />
+    <meta property="og:title" content="@ogTitle" />
+    <meta property="og:description" content="@ogDesc" />
+    <meta property="og:url" content="@productUrl" />
+    <meta property="og:site_name" content="@Context.Request.Host" />
+    <meta property="og:locale" content="fa_IR" />
+    <meta property="og:image" content="@ogImage" />
+    <meta property="og:image:alt" content="@(string.IsNullOrEmpty(Model.MainImageAltText) ? Model.Name : Model.MainImageAltText)" />
+    @if (images.Count > 1)
+    {
+        for (var i = 1; i < images.Count; i++)
+        {
+            <meta property="og:image" content="@images[i]" />
+        }
+    }
+    <meta property="product:availability" content="@((rep?.StockQuantity ?? 0) > 0 ? "in stock" : "out of stock")" />
+    <meta property="product:price:amount" content="@priceAmount" />
+    <meta property="product:price:currency" content="IRR" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@ogTitle" />
+    <meta name="twitter:description" content="@ogDesc" />
+    <meta name="twitter:image" content="@ogImage" />
+    <meta name="twitter:url" content="@productUrl" />
+    @if (!string.IsNullOrWhiteSpace(brandName))
+    {
+        <meta property="product:brand" content="@brandName" />
     }
 
     <script>
@@ -31,7 +239,7 @@
 
     <link rel="stylesheet" href="~/lib/swiper/swiper-bundle.min.css" />
 
-    @Html.Partial("_CommonStyles")
+    <partial name="_CommonStyles" />
 
     <style>
         /* FOUC fix: hide header while loading */
@@ -156,7 +364,7 @@
     </style>
 </head>
 <body>
-    @Html.Partial("_Header")
+    <partial name="_Header" />
     
     <main>
         <div class="container">
@@ -207,7 +415,7 @@
 
                 <!-- اطلاعات محصول -->
                 <div class="product-info-main" data-aos="fade-left">
-                    <h1>@Model.Name</h1>
+                    <h1>@(string.IsNullOrEmpty(Model.H1Title) ? Model.Name : Model.H1Title)</h1>
                     <div class="rating-reviews">
                         <span class="stars">
                             @{
@@ -228,9 +436,21 @@
                         </span>
                         <span>(@(Model.Reviews?.Count ?? 0) نظر)</span>
                     </div>
-                    <p class="price-tag">@Model.Variants[0].Price.ToString("N0") تومان</p>
+                    @{
+                        var firstAvailable = (Model.Variants != null && Model.Variants.Any())
+                            ? (Model.Variants.FirstOrDefault(v => v.StockQuantity > 0) ?? Model.Variants.First())
+                            : null;
+                    }
+                    <p class="price-tag">@((firstAvailable?.Price ?? 0).ToString("N0")) تومان</p>
                     <p class="stock-info" style="margin-top:8px; color: var(--secondary-text-color);">
-                        موجودی: <strong>@Model.Variants[0].StockQuantity</strong> عدد
+                        @if (firstAvailable?.StockQuantity > 0)
+                        {
+                            <text>موجودی: <strong>@firstAvailable.StockQuantity</strong> عدد</text>
+                        }
+                        else
+                        {
+                            <text>ناموجود</text>
+                        }
                     </p>
                     <p class="short-description">@Model.ShortDescription</p>
                     
@@ -282,10 +502,10 @@
                         <div class="actions">
                             <div class="quantity-selector">
                                 <button type="button" id="qtyMinus">-</button>
-                                <input id="qtyInput" name="quantity" type="number" value="1" min="1" max="@Model.Variants[0].StockQuantity">
+                                <input id="qtyInput" name="quantity" type="number" value="1" min="1" max="@(firstAvailable?.StockQuantity > 0 ? firstAvailable.StockQuantity : 0)">
                                 <button type="button" id="qtyPlus">+</button>
                             </div>
-                            <button type="submit" id="addToCartBtn" class="add-to-cart-btn" @(Model.Variants[0].StockQuantity <= 0 ? "disabled" : null)><i class="fas fa-shopping-bag"></i> افزودن به سبد خرید</button>
+                            <button type="submit" id="addToCartBtn" class="add-to-cart-btn" @((firstAvailable?.StockQuantity ?? 0) <= 0 ? "disabled" : null)><i class="fas fa-shopping-bag"></i> افزودن به سبد خرید</button>
                         </div>
                     </form>
                 </div>
@@ -455,8 +675,8 @@
     </main>
     
     
-    @Html.Partial("_Footer")
-    @Html.Partial("_CommonScripts")       
+    <partial name="_Footer" />
+    <partial name="_CommonScripts" />
     
     <script src="~/lib/swiper/swiper-bundle.min.js" defer></script>
     

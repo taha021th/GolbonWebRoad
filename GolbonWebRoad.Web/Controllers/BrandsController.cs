@@ -2,6 +2,7 @@
 using GolbonWebRoad.Application.Features.Brands.Queries;
 using GolbonWebRoad.Application.Features.Products.Queries;
 using GolbonWebRoad.Web.Models.Brands;
+using GolbonWebRoad.Web.Models.Categories;
 using GolbonWebRoad.Web.Models.Products;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -51,20 +52,21 @@ namespace GolbonWebRoad.Web.Controllers
                 PageSize = pageSize
             });
 
-            var viewModel = new ProductIndexViewModel
+            var viewModel = new BrandProductsIndexViewModel
             {
                 Products = _mapper.Map<PagedResult<ProductViewModel>>(productsData.Products),
                 Categories = _mapper.Map<List<CategoryViewModel>>(productsData.Categories),
-                Brands = _mapper.Map<List<BrandViewModel>>(productsData.Brands),
+                Brands = _mapper.Map<BrandViewModel>(brand),
                 CurrentCategoryId = null,
                 CurrentBrandId = id,
                 SearchTerm = null,
                 CurrentSortOrder = sortOrder ?? string.Empty,
-                MetaTitle = $"محصولات برند {brand.Name} | فروشگاه گل‌بان",
+                MetaTitle = $"محصولات برند {brand.Name} | فروشگاه گلبن",
                 MetaDescription = $"خرید و مشاهده تمام محصولات برند {brand.Name} با قیمت مناسب و ارسال سریع."
             };
 
-            ViewBag.Noindex = page > 1 || !string.IsNullOrEmpty(sortOrder);
+            // noindex فقط وقتی فیلتر فعال است (نه صرفاً صفحه‌بندی)
+            ViewBag.Noindex = !string.IsNullOrWhiteSpace(sortOrder);
             ViewBag.HidePagination = false;
 
             // ریدایرکت به slug درست (سئو)

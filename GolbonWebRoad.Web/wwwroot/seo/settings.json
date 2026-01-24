@@ -1,9 +1,9 @@
 {
-  "RobotsTxt": "User-agent: *\r\nAllow: /\r\n\r\n\r\n",
+  "RobotsTxt": "User-agent: *\r\nDisallow: /admin/",
   "SitemapEnabled": true,
   "DefaultMetaTitleTemplate": "{name} | \u0641\u0631\u0648\u0634\u06AF\u0627\u0647",
   "DefaultMetaDescriptionTemplate": "\u062E\u0631\u06CC\u062F {name} \u0628\u0627 \u0628\u0647\u062A\u0631\u06CC\u0646 \u0642\u06CC\u0645\u062A",
   "AutoCanonicalEnabled": true,
   "NoindexOnFilteredLists": true,
-  "LastUpdated": "2025-11-01T13:59:51.3018407Z"
+  "LastUpdated": "2025-11-06T10:27:41.3376398Z"
 }

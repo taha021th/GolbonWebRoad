@@ -24,7 +24,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             if (joinProduct==true)
                 query=query.Include(p => p.Products);
 
-            return await query.FirstOrDefaultAsync(id => id==id);
+            return await query.FirstOrDefaultAsync(i => i.Id==id);
 
 
 

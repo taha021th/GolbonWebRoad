@@ -28,7 +28,7 @@ namespace GolbonWebRoad.Web.Controllers
         }
 
         [HttpGet]
-        [Route("category/{id:int}/{slug?}", Name = "Category")]
+        [Route("category/{id:int}/{slug?}", Name = "CategoryDetail")]
         [Route("Categories/Detail/{id?}")] // backward-compat for conventional route
         public async Task<IActionResult> Detail(int id, string? sortOrder, int page = 1)
         {
@@ -45,11 +45,10 @@ namespace GolbonWebRoad.Web.Controllers
                 PageSize = 12
             });
 
-            var viewModel = new ProductIndexViewModel
+            var viewModel = new CategoryProductsIndexViewModel
             {
                 Products = _mapper.Map<PagedResult<ProductViewModel>>(data.Products),
-                Categories = _mapper.Map<List<GolbonWebRoad.Web.Models.Products.CategoryViewModel>>(data.Categories),
-                Brands = _mapper.Map<List<GolbonWebRoad.Web.Models.Products.BrandViewModel>>(data.Brands),
+                Category = _mapper.Map<CategoryViewModel>(category),
                 CurrentCategoryId = id,
                 CurrentBrandId = null,
                 SearchTerm = null,
@@ -57,7 +56,8 @@ namespace GolbonWebRoad.Web.Controllers
                 MetaTitle = $"محصولات دسته {category.Name}",
                 MetaDescription = $"خرید و مشاهده محصولات دسته {category.Name}"
             };
-            ViewBag.Noindex = true; // فهرست فیلتر شده
+            // noindex فقط وقتی فیلتر فعال است (نه صرفاً صفحه‌بندی)
+            ViewBag.Noindex = !string.IsNullOrWhiteSpace(sortOrder);
             ViewBag.HidePagination = false;
 
             return View(viewModel);

@@ -1,14 +1,13 @@
-﻿@model IEnumerable<GolbonWebRoad.Domain.Entities.Category>
+﻿@model IEnumerable<GolbonWebRoad.Web.Areas.Admin.Models.Categories.CategoryViewModel>
 @{
     ViewData["Title"] = "مدیریت دسته‌بندی‌ها";
 }
-
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
 </div>
 
 <div class="row g-4">
-    <!-- Add/Edit Category Form -->
+    <!-- Add Category Form (در Index) -->
     <div class="col-lg-5">
         <div class="card shadow-sm">
             <div class="card-header">
@@ -22,13 +21,21 @@
                     <div class="mb-3">
                         <label for="Name" class="form-label">نام دسته‌بندی</label>
                         <input name="Name" id="Name" class="form-control" required />
-                        <span name="Name" class="text-danger"></span>
+                        <span data-valmsg-for="Name" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
                         <label for="Slog" class="form-label">اسلاگ (آدرس)</label>
                         <input name="Slog" id="Slog" class="form-control" required />
-                        <span name="Slog" class="text-danger"></span>
+                        <span data-valmsg-for="Slog" class="text-danger"></span>
+                    </div>
+
+                    <!-- فیلد جدید: Content -->
+                    <div class="mb-3">
+                        <label for="Content" class="form-label">محتوا</label>
+                        <textarea name="Content" id="Content" class="form-control" rows="4"
+                                  placeholder="توضیحات کامل دسته‌بندی (اختیاری)"></textarea>
+                        <span data-valmsg-for="Content" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
@@ -56,8 +63,9 @@
                         <thead class="table-light">
                             <tr>
                                 <th class="py-3 px-4">تصویر</th>
-                                <th class="py-3 px-4">نام دسته‌بندی</th>
+                                <th class="py-3 px-4">نام</th>
                                 <th class="py-3 px-4">اسلاگ</th>
+                                <th class="py-3 px-4">محتوا</th>
                                 <th class="py-3 px-4 text-center">عملیات</th>
                             </tr>
                         </thead>
@@ -74,11 +82,14 @@
                                         </td>
                                         <td class="align-middle px-4">@item.Name</td>
                                         <td class="align-middle px-4">@item.Slog</td>
+                                        <td class="align-middle px-4 text-truncate" style="max-width: 150px;" title="@item.Content">
+                                            @(string.IsNullOrEmpty(item.Content) ? "<em>بدون محتوا</em>" : item.Content.Length > 50 ? item.Content.Substring(0, 50) + "..." : item.Content)
+                                        </td>
                                         <td class="align-middle text-center px-4">
-                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="ویرایش">
                                                 <i class="fas fa-pen"></i>
                                             </a>
-                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </td>
@@ -88,7 +99,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">هیچ دسته‌بندی یافت نشد.</td>
+                                    <td colspan="5" class="text-center py-4 text-muted">هیچ دسته‌بندی یافت نشد.</td>
                                 </tr>
                             }
                         </tbody>
@@ -98,3 +109,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
