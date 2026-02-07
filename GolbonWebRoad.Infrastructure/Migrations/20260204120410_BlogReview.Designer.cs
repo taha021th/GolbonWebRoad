@@ -3,6 +3,7 @@ using System;
 using GolbonWebRoad.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GolbonWebRoad.Infrastructure.Migrations
 {
     [DbContext(typeof(GolbonWebRoadDbContext))]
-    partial class GolbonWebRoadDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260204120410_BlogReview")]
+    partial class BlogReview
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,6 +109,9 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AltTextMainImageUrl")
+                        .HasColumnType("text");
 
                     b.Property<int?>("BlogId")
                         .HasColumnType("integer");
@@ -1000,13 +1006,13 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                         .WithMany("Blogs")
                         .HasForeignKey("BlogId");
 
-                    b.HasOne("GolbonWebRoad.Domain.Entities.BlogCategory", "BlogCategory")
+                    b.HasOne("GolbonWebRoad.Domain.Entities.BlogCategory", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("BlogCategory");
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.BlogReview", b =>

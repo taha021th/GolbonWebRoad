@@ -1,0 +1,56 @@
+﻿@model IEnumerable<GolbonWebRoad.Web.Areas.Admin.Models.BlogCategories.BlogCategoryListItemViewModel>
+@{
+    ViewData["Title"] = "مدیریت دسته‌بندی‌های وبلاگ";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> افزودن دسته جدید
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="py-3 px-4">تصویر</th>
+                        <th class="py-3 px-4">نام دسته‌بندی</th>
+                        <th class="py-3 px-4">اسلاگ (URL)</th>
+                        <th class="py-3 px-4 text-center">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="align-middle px-4" style="width:100px;">
+                                    <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://placehold.co/80x50" : item.ImageUrl)"
+                                         class="img-thumbnail" style="height:50px; width:80px; object-fit:cover;" />
+                                </td>
+                                <td class="align-middle px-4 fw-bold">@item.Name</td>
+                                <td class="align-middle px-4">@item.Slog</td>
+                                <td class="align-middle text-center px-4">
+                                    <div class="btn-group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary"><i class="fas fa-pen"></i></a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">هیچ دسته‌بندی یافت نشد.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

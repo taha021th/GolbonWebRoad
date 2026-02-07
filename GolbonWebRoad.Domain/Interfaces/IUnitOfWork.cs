@@ -17,6 +17,9 @@ namespace GolbonWebRoad.Domain.Interfaces
         IUserAddressRepository UserAddressRepository { get; }
         IFaqRepository FaqRepository { get; }
         IFaqCategoryRepository FaqCategoryRepository { get; }
+        IBlogRepository BlogRepository { get; }
+        IBlogCategoryRepository BlogCategoryRepository { get; }
+        IBlogReviewRepository BlogReviewRepository { get; }
         Task<int> CompleteAsync();
 
 

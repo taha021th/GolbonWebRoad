@@ -24,8 +24,11 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         public IUserAddressRepository UserAddressRepository { get; private set; }
         public IFaqRepository FaqRepository { get; private set; }
         public IFaqCategoryRepository FaqCategoryRepository { get; private set; }
+        public IBlogRepository BlogRepository { get; private set; }
+        public IBlogCategoryRepository BlogCategoryRepository { get; private set; }
+        public IBlogReviewRepository BlogReviewRepository { get; private set; }
 
-        public UnitOfWork(GolbonWebRoadDbContext context, ICartItemRepository cartItemRepository, IProductRepository productRepository, IOrderRepository orderRepository, ICategoryRepository categoryRepository, IColorRepository colorRepository, IBrandRepository brandRepository, IReviewsRepository reviewsRepository, IProductAttributeRepository productAttributeRepository, IProductAttributeValueRepository productAttributeValueRepository, IProductVariantRepository productVariantRepository, IUserAddressRepository userAddressRepository, IFaqRepository faqRepository, IFaqCategoryRepository faqCategoryRepository)
+        public UnitOfWork(GolbonWebRoadDbContext context, ICartItemRepository cartItemRepository, IProductRepository productRepository, IOrderRepository orderRepository, ICategoryRepository categoryRepository, IColorRepository colorRepository, IBrandRepository brandRepository, IReviewsRepository reviewsRepository, IProductAttributeRepository productAttributeRepository, IProductAttributeValueRepository productAttributeValueRepository, IProductVariantRepository productVariantRepository, IUserAddressRepository userAddressRepository, IFaqRepository faqRepository, IFaqCategoryRepository faqCategoryRepository, IBlogRepository blogRepository, IBlogCategoryRepository blogCategoryRepository, IBlogReviewRepository blogReviewRepository)
         {
             _context=context;
             CartItemRepository = cartItemRepository;
@@ -41,6 +44,10 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             UserAddressRepository=userAddressRepository;
             FaqRepository = faqRepository;
             FaqCategoryRepository = faqCategoryRepository;
+            BlogRepository=blogRepository;
+            BlogCategoryRepository=blogCategoryRepository;
+            BlogReviewRepository=blogReviewRepository;
+
         }
         public async Task<int> CompleteAsync()
         {

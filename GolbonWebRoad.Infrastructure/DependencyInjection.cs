@@ -51,6 +51,10 @@ namespace GolbonWebRoad.Infrastructure
             services.AddScoped<IUserAddressRepository, UserAddressRepository>();
             services.AddScoped<IFaqRepository, FaqRepository>();
             services.AddScoped<IFaqCategoryRepository, FaqCategoryRepository>();
+            services.AddScoped<IBlogRepository, BlogRepository>();
+            services.AddScoped<IBlogCategoryRepository, BlogCategoryRepository>();
+            services.AddScoped<IBlogReviewRepository, BlogReviewRepository>();
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 

@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using GolbonWebRoad.Domain.Entities;
+﻿using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace GolbonWebRoad.Application.Features.Brands.Queries
 {
@@ -13,15 +13,17 @@ namespace GolbonWebRoad.Application.Features.Brands.Queries
     public class GetBrandByIdQueryHandler : IRequestHandler<GetBrandByIdQuery, Brand>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+        private readonly ILogger<GetBrandByIdQueryHandler> _logger;
 
-        public GetBrandByIdQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public GetBrandByIdQueryHandler(IUnitOfWork unitOfWork, ILogger<GetBrandByIdQueryHandler> logger)
         {
             _unitOfWork=unitOfWork;
-            _mapper=mapper;
+            _logger=logger;
+
         }
         public async Task<Brand> Handle(GetBrandByIdQuery request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("شروع دریافت برند با شناسه {BrandId}", request.Id);
             return await _unitOfWork.BrandRepository.GetByIdAsync(request.Id, request.joinProduct);
         }
     }

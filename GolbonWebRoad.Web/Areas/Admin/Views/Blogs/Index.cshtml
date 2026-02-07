@@ -1,0 +1,94 @@
+﻿@model IEnumerable<GolbonWebRoad.Web.Areas.Admin.Models.Blogs.BlogViewModel>
+@{
+    ViewData["Title"] = "مدیریت وبلاگ‌ها";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+    <a asp-area="Admin" asp-controller="Blogs" asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> نوشتن مطلب جدید
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <h6 class="m-0 font-weight-bold text-primary">لیست مقالات وبلاگ</h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="py-3 px-4">تصویر شاخص</th>
+                        <th class="py-3 px-4">عنوان مقاله</th>
+                        <th class="py-3 px-4">تاریخ انتشار</th>
+                        <th class="py-3 px-4 text-center">وضعیت</th>
+                        <th class="py-3 px-4 text-center">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="align-middle px-4" style="width:120px;">
+                                    @if (!string.IsNullOrWhiteSpace(item.MainImageUrl))
+                                    {
+                                        <img src="@item.MainImageUrl" alt="@item.Title" class="img-thumbnail" style="height:60px; width:100px; object-fit:cover;" />
+                                    }
+                                    else
+                                    {
+                                        <img src="https://placehold.co/100x60?text=No+Image" class="img-thumbnail" alt="No image" />
+                                    }
+                                </td>
+                                <td class="align-middle px-4">
+                                    <div class="fw-bold">@item.Title</div>
+                                    <small class="text-muted">/@item.Slug</small>
+                                </td>
+                                <td class="align-middle px-4">
+                                    @item.CreateDate.ToShortDateString() @* می‌توانید از مبدل تاریخ شمسی استفاده کنید *@
+                                </td>
+                                <td class="align-middle text-center px-4">
+                                    @if (item.IsPublished)
+                                    {
+                                        <span class="badge bg-success">منتشر شده</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">پیش‌نویس</span>
+                                    }
+                                </td>
+                                <td class="align-middle text-center px-4">
+                                    <div class="btn-group" role="group">
+                                        <a asp-area="Admin" asp-controller="Blogs" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="ویرایش">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        <a asp-area="Admin" asp-controller="Blogs" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف" onclick="return confirm('آیا از حذف این مقاله اطمینان دارید؟')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="fas fa-blog fa-3x mb-3 d-block"></i>
+                                هنوز هیچ مقاله‌ای منتشر نشده است.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // در صورت نیاز به کدهای جاوااسکریپت برای فیلتر یا سرچ
+    </script>
+}

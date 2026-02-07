@@ -1,0 +1,132 @@
+﻿@model GolbonWebRoad.Web.Areas.Admin.Models.BlogCategories.BlogCategoryFromViewModel
+@{
+    ViewData["Title"] = "ویرایش دسته‌بندی: " + Model.Name;
+}
+
+<form asp-area="Admin" asp-controller="BlogCategories" asp-action="Update" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    @* فیلدهای مخفی برای حفظ مقادیر قبلی *@
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ImageUrl" />
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary me-2">بازگشت به لیست</a>
+            <button type="submit" class="btn btn-primary">بروزرسانی تغییرات</button>
+        </div>
+    </div>
+
+    <div class="row">
+        @* ستون سمت چپ: محتوا و سئو *@
+        <div class="col-lg-8">
+
+            @* بخش اطلاعات اصلی *@
+            <div class="card shadow-sm mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">اطلاعات محتوایی</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">نام دسته‌بندی</label>
+                        <input asp-for="Name" class="form-control" placeholder="نام را وارد کنید..." />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ShortDescription" class="form-label">توضیحات کوتاه</label>
+                        <textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Content" class="form-label">محتوای کامل (توضیحات صفحه دسته)</label>
+                        <textarea asp-for="Content" id="cat-editor" class="form-control">@Model.Content</textarea>
+                    </div>
+                </div>
+            </div>
+
+            @* بخش سئو (SEO) *@
+            <div class="card shadow-sm mb-4">
+                <div class="card-header py-3 bg-light d-flex align-items-center">
+                    <i class="fas fa-search me-2 text-primary"></i>
+                    <h6 class="m-0 font-weight-bold text-primary">تنظیمات سئو (SEO)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Slog" class="form-label">اسلاگ (URL)</label>
+                            <input asp-for="Slog" class="form-control" dir="ltr" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="MetaTitle" class="form-label">Meta Title</label>
+                            <input asp-for="MetaTitle" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="MetaDescription" class="form-label">Meta Description</label>
+                            <textarea asp-for="MetaDescription" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CanonicalUrl" class="form-label">Canonical URL</label>
+                            <input asp-for="CanonicalUrl" class="form-control" dir="ltr" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="MetaRobots" class="form-label">Meta Robots</label>
+                            <select asp-for="MetaRobots" class="form-select">
+                                <option value="index, follow">index, follow</option>
+                                <option value="noindex, nofollow">noindex, nofollow</option>
+                                <option value="index, nofollow">index, nofollow</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* ستون سمت راست: تصویر *@
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">تصویر دسته‌بندی</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <label class="form-label d-block text-start">تصویر فعلی:</label>
+                        <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/admin/img/no-image.png" : Model.ImageUrl)"
+                             class="img-fluid rounded border mb-3"
+                             style="max-height: 200px; width: 100%; object-fit: cover;" />
+
+                        <label class="form-label d-block text-start">تغییر تصویر:</label>
+                        <input type="file" asp-for="Image" class="form-control" accept="image/*" />
+                    </div>
+                    <hr />
+                    <div class="mb-3">
+                        <label asp-for="AltTextImageUrl" class="form-label d-block text-start">متن جایگزین (Alt)</label>
+                        <input asp-for="AltTextImageUrl" class="form-control" placeholder="توضیح تصویر برای سئو..." />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <script>
+        CKEDITOR.replace('cat-editor', {
+            language: 'fa',
+            contentsLangDirection: 'rtl'
+        });
+
+        // تولید خودکار اسلاگ در صورت خالی بودن
+        document.getElementById('Name').addEventListener('blur', function () {
+            let slugInput = document.getElementById('Slog');
+            if (slugInput.value === '') {
+                slugInput.value = this.value.trim()
+                    .replace(/\s+/g, '-')
+                    .toLowerCase();
+            }
+        });
+    </script>
+}

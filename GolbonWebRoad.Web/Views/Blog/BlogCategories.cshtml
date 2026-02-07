@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دسته‌بندی‌های وبلاگ | گلبن‌وب</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
+
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #f39c12;
+            --border-color: #333;
+        }
+
+        .light-mode {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --accent: #e67e22;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            margin: 0;
+        }
+
+        /* Category Card Styles */
+        .category-card {
+            position: relative;
+            height: 280px;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            cursor: pointer;
+        }
+
+        .category-card img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+            z-index: 1;
+        }
+
+        .category-card:hover img {
+            transform: scale(1.1);
+        }
+
+        /* Dynamic Overlay */
+        .card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.1) 100%);
+            z-index: 2;
+            transition: opacity 0.3s ease;
+        }
+
+        .category-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px -10px var(--accent);
+            transform: translateY(-8px);
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 3;
+            padding: 1.5rem;
+            color: white !important; /* Always white for contrast on images */
+        }
+
+        /* Stats Badge */
+        .stats-badge {
+            position: absolute;
+            top: 1.25rem;
+            left: 1.25rem;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            z-index: 4;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 shadow-lg" style="background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color);">
+        <div class="container mx-auto px-4 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <h1 class="text-2xl font-bold text-[var(--accent)]">گلبن‌وب</h1>
+                <nav class="hidden md:flex gap-6 text-sm">
+                    <a href="index.html" class="hover:text-[var(--accent)] transition">خانه</a>
+                    <a href="blog.html" class="hover:text-[var(--accent)] transition">وبلاگ</a>
+                    <a href="#" class="text-[var(--accent)] font-bold">دسته‌بندی‌ها</a>
+                </nav>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="toggleTheme()" class="theme-toggle" id="theme-btn">
+                    <i data-lucide="moon" class="w-5 h-5"></i>
+                </button>
+                <div class="hidden md:flex items-center gap-2 border-r pr-4 border-[var(--border-color)]">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                    <span class="text-sm">حساب کاربری</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16">
+
+        <!-- Page Title Section -->
+        <div class="max-w-3xl mx-auto text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">دسته‌بندی مقالات</h2>
+            <p style="color: var(--text-secondary);" class="text-lg">دنیای آموزش‌های گلبن‌وب را بر اساس موضوعات مورد علاقه خود کشف کنید.</p>
+            <div class="w-20 h-1.5 bg-[var(--accent)] mx-auto mt-6 rounded-full"></div>
+        </div>
+
+        <!-- Categories Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+
+            <!-- Category Item 1 -->
+            <div class="category-card group">
+                <span class="stats-badge">۱۲ مقاله</span>
+                <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800" alt="برنامه‌نویسی">
+                <div class="card-overlay"></div>
+                <div class="card-content">
+                    <h3 class="text-xl font-bold mb-1">توسعه و کدنویسی</h3>
+                    <p class="text-xs opacity-70">Frontend, Backend & Tools</p>
+                </div>
+            </div>
+
+            <!-- Category Item 2 -->
+            <div class="category-card group">
+                <span class="stats-badge">۸ مقاله</span>
+                <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&q=80&w=800" alt="طراحی">
+                <div class="card-overlay"></div>
+                <div class="card-content">
+                    <h3 class="text-xl font-bold mb-1">رابط کاربری (UI)</h3>
+                    <p class="text-xs opacity-70">اصول طراحی مدرن و تجربه کاربری</p>
+                </div>
+            </div>
+
+            <!-- Category Item 3 -->
+            <div class="category-card group">
+                <span class="stats-badge">۱۵ مقاله</span>
+                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800" alt="سئو">
+                <div class="card-overlay"></div>
+                <div class="card-content">
+                    <h3 class="text-xl font-bold mb-1">سئو و مارکتینگ</h3>
+                    <p class="text-xs opacity-70">بهینه‌سازی برای موتورهای جستجو</p>
+                </div>
+            </div>
+
+            <!-- Category Item 4 -->
+            <div class="category-card group">
+                <span class="stats-badge">۲۱ مقاله</span>
+                <img src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&q=80&w=800" alt="وردپرس">
+                <div class="card-overlay"></div>
+                <div class="card-content">
+                    <h3 class="text-xl font-bold mb-1">دنیای وردپرس</h3>
+                    <p class="text-xs opacity-70">قالب‌ها، افزونه‌ها و مدیریت محتوا</p>
+                </div>
+            </div>
+
+            <!-- Category Item 5 -->
+            <div class="category-card group">
+                <span class="stats-badge">۶ مقاله</span>
+                <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800" alt="امنیت">
+                <div class="card-overlay"></div>
+                <div class="card-content">
+                    <h3 class="text-xl font-bold mb-1">امنیت و شبکه</h3>
+                    <p class="text-xs opacity-70">راهکارهای حفظ امنیت وب‌سایت</p>
+                </div>
+            </div>
+
+            <!-- Category Item 6 -->
+            <div class="category-card group">
+                <span class="stats-badge">۹ مقاله</span>
+                <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800" alt="هوش مصنوعی">
+                <div class="card-overlay"></div>
+                <div class="card-content">
+                    <h3 class="text-xl font-bold mb-1">هوش مصنوعی</h3>
+                    <p class="text-xs opacity-70">تکنولوژی‌های نوظهور و آینده</p>
+                </div>
+            </div>
+
+            <!-- Category Item 7 -->
+            <div class="category-card group">
+                <span class="stats-badge">۱۴ مقاله</span>
+                <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=800" alt="موبایل">
+                <div class="card-overlay"></div>
+                <div class="card-content">
+                    <h3 class="text-xl font-bold mb-1">اپلیکیشن موبایل</h3>
+                    <p class="text-xs opacity-70">طراحی و توسعه اپ‌های موبایلی</p>
+                </div>
+            </div>
+
+            <!-- Category Item 8 -->
+            <div class="category-card group">
+                <span class="stats-badge">۵ مقاله</span>
+                <img src="https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&q=80&w=800" alt="محتوا">
+                <div class="card-overlay"></div>
+                <div class="card-content">
+                    <h3 class="text-xl font-bold mb-1">تولید محتوا</h3>
+                    <p class="text-xs opacity-70">استراتژی و مدیریت محتوای متنی</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Call to Action -->
+        <div class="mt-20 p-8 md:p-12 rounded-[2rem] text-center border border-[var(--border-color)]"
+             style="background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(243, 156, 18, 0.05) 100%);">
+            <h3 class="text-2xl font-bold mb-4">آیا به دنبال موضوع خاصی هستید؟</h3>
+            <p class="opacity-70 mb-8 max-w-xl mx-auto">اگر دسته‌بندی مورد نظر خود را در لیست بالا مشاهده نکردید، می‌توانید از طریق بخش پشتیبانی با ما در میان بگذارید.</p>
+            <button class="bg-[var(--accent)] text-white px-10 py-3.5 rounded-2xl font-bold hover:scale-105 transition-transform active:scale-95 shadow-lg shadow-[var(--accent)]/20">
+                ارسال پیشنهاد موضوع
+            </button>
+        </div>
+    </main>
+
+    <footer class="py-10 border-t border-[var(--border-color)] text-center text-sm" style="background-color: var(--bg-secondary);">
+        <p>© ۱۴۰۲ تمام حقوق برای گلبن‌وب محفوظ است.</p>
+    </footer>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Theme Toggle
+        let isDarkMode = true;
+        const themeBtn = document.getElementById('theme-btn');
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.documentElement.classList.toggle('light-mode');
+
+            // Update Icon
+            const icon = themeBtn.querySelector('i');
+            if (isDarkMode) {
+                icon.setAttribute('data-lucide', 'moon');
+            } else {
+                icon.setAttribute('data-lucide', 'sun');
+            }
+            lucide.createIcons();
+
+            localStorage.setItem('golbon_theme', isDarkMode ? 'dark' : 'light');
+        }
+
+        // Apply saved preference
+        if (localStorage.getItem('golbon_theme') === 'light') {
+            toggleTheme();
+        }
+    </script>
+</body>
+</html>

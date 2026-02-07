@@ -1,0 +1,243 @@
+﻿@using GolbonWebRoad.Web.Models.Blogs
+@model IEnumerable<BlogSummaryViewModel>
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @* چون لیست داریم، عنوان ثابت می‌گذاریم یا از اولین آیتم می‌گیریم *@
+    <title>وبلاگ گلبن‌وب | مقالات آموزشی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
+
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #f39c12;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            --border-color: #333;
+        }
+
+        .light-mode {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --accent: #e67e22;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: var(--card-shadow);
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+                border-color: var(--accent);
+            }
+
+        .theme-toggle {
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .category-pill {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            .category-pill:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+    </style>
+</head>
+<body>
+
+    <header class="sticky top-0 z-50 shadow-lg" style="background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color);">
+        <div class="container mx-auto px-4 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <h1 class="text-2xl font-bold text-[var(--accent)]">گلبن‌وب</h1>
+                <nav class="hidden md:flex gap-6 text-sm">
+                    <a href="/" class="hover:text-[var(--accent)] transition">خانه</a>
+                    <a href="/blogs" class="hover:text-[var(--accent)] transition text-[var(--accent)]">وبلاگ</a>
+                    <a href="#" class="hover:text-[var(--accent)] transition">محصولات</a>
+                    <a href="#" class="hover:text-[var(--accent)] transition">تماس با ما</a>
+                </nav>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="toggleTheme()" class="theme-toggle" id="theme-btn">
+                    <i data-lucide="moon" class="w-5 h-5"></i>
+                </button>
+                <div class="hidden md:flex items-center gap-2 border-r pr-4 border-[var(--border-color)]">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                    <span class="text-sm">حساب کاربری</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-10">
+
+        <div class="mb-12 text-center">
+            <h2 class="text-4xl font-bold mb-4">مجله آموزشی گلبن</h2>
+            <p style="color: var(--text-secondary);">آخرین مقالات، اخبار تکنولوژی و آموزش‌های تخصصی</p>
+            <div class="w-24 h-1 bg-[var(--accent)] mx-auto mt-4 rounded-full"></div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+
+            <aside class="w-full lg:w-1/4 order-2 lg:order-1">
+                <div class="sticky top-24 p-6 rounded-2xl" style="background-color: var(--bg-secondary); border: 1px solid var(--border-color);">
+                    <div class="mb-8">
+                        <h3 class="font-bold mb-4 flex items-center gap-2">
+                            <i data-lucide="search" class="w-4 h-4"></i> جستجو
+                        </h3>
+                        <div class="relative">
+                            <input type="text" placeholder="چیزی بنویسید..."
+                                   class="w-full p-3 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] focus:outline-none focus:border-[var(--accent)] text-sm">
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="font-bold mb-4 flex items-center gap-2">
+                            <i data-lucide="layout-grid" class="w-4 h-4"></i> دسته‌بندی
+                        </h3>
+                        <div class="flex flex-wrap gap-2">
+                            @* در اینجا می‌توانید لیست دسته‌بندی‌ها را نمایش دهید *@
+                            <span class="category-pill">همه مقالات</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="w-full lg:w-3/4 order-1 lg:order-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                    @foreach (var item in Model)
+                    {
+                        <article class="card group">
+                            <div class="relative h-56 overflow-hidden">
+                                <img src="@(string.IsNullOrEmpty(item.MainImageUrl) ? "https://picsum.photos/600/400" : item.MainImageUrl)"
+                                     alt="@item.Title"
+                                     class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+
+                                @if (item.BlogCategory != null)
+                                {
+                                    <div class="absolute top-4 right-4 bg-[var(--accent)] text-white text-xs px-3 py-1 rounded-full">
+                                        @item.BlogCategory.Name
+                                    </div>
+                                }
+                            </div>
+                            <div class="p-6">
+                                <div class="flex items-center gap-4 text-xs mb-3" style="color: var(--text-secondary);">
+                                    <span class="flex items-center gap-1">
+                                        <i data-lucide="calendar" class="w-3 h-3"></i>
+                                        @item.PublishDate.ToString("yyyy/MM/dd")
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        <i data-lucide="clock" class="w-3 h-3"></i>
+                                        @item.ReadTimeMinutes دقیقه مطالعه
+                                    </span>
+                                    @if (!item.IsPublished)
+                                    {
+                                        <span class="text-red-500 text-[10px] font-bold">(پیش‌نویس)</span>
+                                    }
+                                </div>
+
+                                <h3 class="text-xl font-bold mb-3 leading-8 group-hover:text-[var(--accent)] transition">
+                                    @item.Title
+                                </h3>
+
+                                <p class="text-sm mb-6 leading-7 line-clamp-3" style="color: var(--text-secondary);">
+                                    @item.ShordDescription
+                                </p>
+
+                                <div class="flex justify-between items-center border-t pt-4 border-[var(--border-color)]">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-full bg-slate-500 flex items-center justify-center text-[10px] text-white">GW</div>
+                                        <span class="text-xs">گلبن‌وب</span>
+                                    </div>
+                                    @* اصلاح نام Slog به Slug اگر در مدل شما Slug است *@
+                                    <a href="/blog/@item.Slog" class="text-sm font-bold text-[var(--accent)] flex items-center gap-1">
+                                        ادامه مطلب <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    }
+
+                </div>
+
+                @* بخش صفحه بندی *@
+                <div class="mt-12 flex justify-center gap-2">
+                    <button class="w-10 h-10 rounded-lg flex items-center justify-center border border-[var(--border-color)] hover:border-[var(--accent)]">
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                    <button class="w-10 h-10 rounded-lg flex items-center justify-center bg-[var(--accent)] text-white">۱</button>
+                    <button class="w-10 h-10 rounded-lg flex items-center justify-center border border-[var(--border-color)] hover:border-[var(--accent)]">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="mt-20 py-10 border-t border-[var(--border-color)] text-center text-sm" style="background-color: var(--bg-secondary);">
+        <p>© @DateTime.Now.Year تمام حقوق برای گلبن‌وب محفوظ است.</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        let isDarkMode = true;
+        const themeBtn = document.getElementById('theme-btn');
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.documentElement.classList.toggle('light-mode');
+
+            const icon = themeBtn.querySelector('i');
+            if (isDarkMode) {
+                icon.setAttribute('data-lucide', 'moon');
+            } else {
+                icon.setAttribute('data-lucide', 'sun');
+            }
+            lucide.createIcons();
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            toggleTheme();
+        }
+    </script>
+</body>
+</html>

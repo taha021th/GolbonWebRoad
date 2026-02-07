@@ -28,6 +28,7 @@ namespace GolbonWebRoad.Infrastructure.Persistence
         public DbSet<FaqCategory> FaqCategories { get; set; }
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<BlogCategory> BlogCategories { get; set; }
+        public DbSet<BlogReview> BlogReviews { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

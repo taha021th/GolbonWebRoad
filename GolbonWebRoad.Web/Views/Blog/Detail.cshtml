@@ -1,0 +1,283 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جزئیات مقاله | گلبن‌وب</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
+
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #f39c12;
+            --border-color: #333;
+            --selection-bg: rgba(243, 156, 18, 0.3);
+        }
+
+        .light-mode {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --accent: #e67e22;
+            --border-color: #e0e0e0;
+            --selection-bg: rgba(230, 126, 34, 0.2);
+        }
+
+        ::selection { background-color: var(--selection-bg); color: var(--accent); }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            line-height: 1.8;
+        }
+
+        /* Reading Progress Bar */
+        #progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: transparent;
+            z-index: 100;
+        }
+        #progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .content-area img {
+            border-radius: 1rem;
+            margin: 2rem 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .content-area h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        .content-area p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .comment-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+        }
+
+        .share-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+        .share-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="progress-container"><div id="progress-bar"></div></div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 shadow-lg" style="background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color);">
+        <div class="container mx-auto px-4 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <h1 class="text-2xl font-bold text-[var(--accent)]">گلبن‌وب</h1>
+                <nav class="hidden md:flex gap-6 text-sm">
+                    <a href="blog.html" class="hover:text-[var(--accent)] transition">برگشت به وبلاگ</a>
+                </nav>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="toggleTheme()" class="theme-toggle" id="theme-btn">
+                    <i data-lucide="moon" class="w-5 h-5"></i>
+                </button>
+                <div class="hidden md:flex items-center gap-2 border-r pr-4 border-[var(--border-color)]">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                    <span class="text-sm">حساب کاربری</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-10 max-w-5xl">
+
+        <!-- Breadcrumb -->
+        <nav class="flex gap-2 text-xs mb-8" style="color: var(--text-secondary);">
+            <a href="#">خانه</a> / <a href="#">وبلاگ</a> / <span class="text-[var(--accent)]">جزئیات مقاله</span>
+        </nav>
+
+        <article>
+            <!-- Post Header -->
+            <header class="mb-10 text-center">
+                <div class="inline-block bg-[var(--accent)] text-white text-xs px-4 py-1 rounded-full mb-4">تکنولوژی و طراحی</div>
+                <h1 class="text-3xl md:text-5xl font-bold mb-6 leading-tight">بهترین ابزارهای طراحی رابط کاربری در سال ۲۰۲۴</h1>
+
+                <div class="flex items-center justify-center gap-6 text-sm" style="color: var(--text-secondary);">
+                    <span class="flex items-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> علی علوی</span>
+                    <span class="flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4"></i> ۱۰ بهمن ۱۴۰۲</span>
+                    <span class="flex items-center gap-2"><i data-lucide="message-circle" class="w-4 h-4"></i> ۱۲ دیدگاه</span>
+                </div>
+            </header>
+
+            <!-- Featured Image -->
+            <div class="rounded-3xl overflow-hidden mb-12 shadow-2xl border border-[var(--border-color)]">
+                <img src="https://picsum.photos/1200/600?random=5" alt="Featured" class="w-full object-cover">
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-12">
+
+                <!-- Sidebar Tools (Social Share) -->
+                <aside class="lg:w-16 flex lg:flex-col gap-4 order-2 lg:order-1 justify-center lg:justify-start">
+                    <div class="sticky top-32 space-y-4">
+                        <button class="share-btn"><i data-lucide="share-2" class="w-5 h-5"></i></button>
+                        <button class="share-btn"><i data-lucide="twitter" class="w-5 h-5"></i></button>
+                        <button class="share-btn"><i data-lucide="linkedin" class="w-5 h-5"></i></button>
+                        <button class="share-btn"><i data-lucide="bookmark" class="w-5 h-5"></i></button>
+                    </div>
+                </aside>
+
+                <!-- Article Content -->
+                <div class="lg:w-full order-1 lg:order-2 content-area">
+                    <p>
+                        طراحی رابط کاربری (UI) با سرعتی باورنکردنی در حال تکامل است. در سال جاری، شاهد ورود ابزارهای مبتنی بر هوش مصنوعی بوده‌ایم که فرآیند طراحی را برای طراحان بسیار ساده‌تر و سریع‌تر کرده‌اند. در این مقاله قصد داریم به بررسی عمیق ابزارهایی بپردازیم که در سال ۲۰۲۴ استاندارد جدیدی را برای صنعت وب تعریف کرده‌اند.
+                    </p>
+
+                    <h2>۱. فیگما (Figma) و قدرت هوش مصنوعی</h2>
+                    <p>
+                        فیگما همچنان پادشاه بلامنازع دنیای طراحی است. اما چیزی که امسال فیگما را متمایز کرده، ادغام قابلیت‌های AI برای تولید پروتوتایپ‌های سریع و ابزارهای Dev Mode است که فاصله بین طراح و برنامه‌نویس را به حداقل رسانده است.
+                    </p>
+
+                    <img src="https://picsum.photos/1000/500?random=8" alt="Figma Tools">
+
+                    <p>
+                        استفاده از سیستم‌های طراحی (Design Systems) در فیگما اکنون هوشمندتر شده است. شما می‌توانید با استفاده از متغیرها (Variables) تم‌های دارک و لایت خود را در چند ثانیه مدیریت کنید، دقیقاً مشابه کاری که ما در این پروژه انجام داده‌ایم.
+                    </p>
+
+                    <blockquote class="border-r-4 border-[var(--accent)] bg-[var(--bg-secondary)] p-6 my-8 italic rounded-l-lg text-lg">
+                        "طراحی خوب نه تنها به ظاهر محصول، بلکه به نحوه عملکرد و احساسی که به کاربر منتقل می‌کند بستگی دارد."
+                    </blockquote>
+
+                    <h2>۲. ابزارهای انیمیشن و تعامل</h2>
+                    <p>
+                        دیگر داشتن یک طرح ایستا کافی نیست. کاربران انتظار دارند با المان‌های سایت تعامل داشته باشند. ابزارهایی مثل Framer اکنون به طراحان اجازه می‌دهند بدون نوشتن حتی یک خط کد، انیمیشن‌های پیچیده و خیره‌کننده‌ای ایجاد کنند.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="mt-12 pt-6 border-t border-[var(--border-color)] flex flex-wrap gap-2">
+                <span style="color: var(--text-secondary);" class="ml-2">برچسب‌ها:</span>
+                <a href="#" class="px-3 py-1 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-xs hover:border-[var(--accent)]">رابط کاربری</a>
+                <a href="#" class="px-3 py-1 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-xs hover:border-[var(--accent)]">تکنولوژی</a>
+                <a href="#" class="px-3 py-1 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-xs hover:border-[var(--accent)]">آموزش</a>
+            </div>
+
+            <!-- Comment Section -->
+            <section class="mt-20">
+                <h3 class="text-2xl font-bold mb-8 flex items-center gap-2">
+                    <i data-lucide="messages-square" class="w-6 h-6 text-[var(--accent)]"></i> دیدگاه‌ها (۲)
+                </h3>
+
+                <!-- Comment Form -->
+                <div class="comment-box p-6 mb-10 shadow-lg">
+                    <h4 class="font-bold mb-4">دیدگاه خود را بنویسید</h4>
+                    <form class="space-y-4">
+                        <textarea placeholder="متن پیام شما..." class="w-full p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] focus:outline-none focus:border-[var(--accent)] h-32"></textarea>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" placeholder="نام و نام خانوادگی" class="p-3 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] focus:outline-none focus:border-[var(--accent)]">
+                            <input type="email" placeholder="ایمیل" class="p-3 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] focus:outline-none focus:border-[var(--accent)]">
+                        </div>
+                        <button type="button" class="bg-[var(--accent)] text-white px-8 py-3 rounded-xl font-bold hover:opacity-90 transition">ارسال دیدگاه</button>
+                    </form>
+                </div>
+
+                <!-- Sample Comments -->
+                <div class="space-y-6">
+                    <div class="flex gap-4 p-6 border-b border-[var(--border-color)]">
+                        <div class="w-12 h-12 rounded-full bg-blue-500 shrink-0"></div>
+                        <div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="font-bold">سارا محمدی</span>
+                                <span class="text-xs opacity-50">۲ ساعت قبل</span>
+                            </div>
+                            <p class="text-sm opacity-80">بسیار عالی و کاربردی بود. مخصوصاً بخش مربوط به فیگما خیلی به من کمک کرد.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </article>
+    </main>
+
+    <footer class="mt-20 py-10 border-t border-[var(--border-color)] text-center text-sm" style="background-color: var(--bg-secondary);">
+        <p>© ۱۴۰۲ تمام حقوق برای گلبن‌وب محفوظ است.</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // Progress Bar Logic
+        window.onscroll = function() {
+            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrolled = (winScroll / height) * 100;
+            document.getElementById("progress-bar").style.width = scrolled + "%";
+        };
+
+        // Theme Toggle Logic
+        let isDarkMode = true;
+        const themeBtn = document.getElementById('theme-btn');
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.documentElement.classList.toggle('light-mode');
+            const icon = themeBtn.querySelector('i');
+            if (isDarkMode) {
+                icon.setAttribute('data-lucide', 'moon');
+            } else {
+                icon.setAttribute('data-lucide', 'sun');
+            }
+            lucide.createIcons();
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') { toggleTheme(); }
+    </script>
+</body>
+</html>

@@ -1,17 +1,23 @@
 ﻿using AutoMapper;
 using GolbonWebRoad.Application.Dtos.Users;
+using GolbonWebRoad.Application.Features.BlogCategories.Commands;
+using GolbonWebRoad.Application.Features.Blogs.Commands;
 using GolbonWebRoad.Application.Features.Brands.Commands;
 using GolbonWebRoad.Application.Features.Categories.Commands;
 using GolbonWebRoad.Application.Features.Dashboard.Queries;
 using GolbonWebRoad.Application.Features.Products.Commands;
 using GolbonWebRoad.Application.Features.Users.Commands;
 using GolbonWebRoad.Domain.Entities;
+using GolbonWebRoad.Web.Areas.Admin.Models.BlogCategories;
+using GolbonWebRoad.Web.Areas.Admin.Models.Blogs;
 using GolbonWebRoad.Web.Areas.Admin.Models.Brands;
 using GolbonWebRoad.Web.Areas.Admin.Models.Categories;
 using GolbonWebRoad.Web.Areas.Admin.Models.Dashboard;
 using GolbonWebRoad.Web.Areas.Admin.Models.Orders;
 using GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels;
 using GolbonWebRoad.Web.Areas.Admin.Models.Users;
+using GolbonWebRoad.Web.Models.BlogCategories;
+using GolbonWebRoad.Web.Models.Blogs;
 using CategoryViewModel = GolbonWebRoad.Web.Models.Categories.CategoryViewModel;
 
 namespace GolbonWebRoad.Web.Mapping
@@ -247,6 +253,24 @@ namespace GolbonWebRoad.Web.Mapping
             // مپ کردن DTO آمار روزانه به ویومدل آن
             CreateMap<DailySalesDto, DailySalesViewModel>()
                 .ForMember(dest => dest.DayName, opt => opt.MapFrom(src => GetPersianDayName(src.Date)));
+            #endregion
+            #region BlogCategory
+            CreateMap<CreateBlogCategoryCommand, BlogCategoryFromViewModel>().ReverseMap();
+            CreateMap<UpdateBlogCategoryCommand, BlogCategoryFromViewModel>().ReverseMap();
+            CreateMap<BlogCategory, BlogCategoryListItemViewModel>().ReverseMap();
+            CreateMap<BlogCategoryFromViewModel, BlogCategory>().ReverseMap();
+            #endregion
+            #region Blog
+            #region Admin
+            CreateMap<CreateBlogViewModel, CreateBlogCommand>();
+            CreateMap<Blog, GolbonWebRoad.Web.Areas.Admin.Models.Blogs.BlogViewModel>();
+            CreateMap<Blog, EditBlogViewModel>();
+            CreateMap<EditBlogViewModel, UpdateBlogCommand>();
+            #endregion
+            #region Web
+            CreateMap<Blog, BlogSummaryViewModel>();
+            CreateMap<BlogCategory, BlogCategorySummaryViewModel>();
+            #endregion
             #endregion
 
         }

@@ -1,0 +1,92 @@
+﻿@model GolbonWebRoad.Web.Areas.Admin.Models.BlogCategories.BlogCategoryFromViewModel
+@{
+    
+    ViewData["Title"] = "ایجاد دسته جدید وبلاگ";
+}
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+        <button type="submit" class="btn btn-success">ذخیره دسته‌بندی</button>
+    </div>
+
+    <div class="row">
+        @* محتوای اصلی *@
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header py-3">اطلاعات محتوایی</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">نام دسته</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ShortDescription" class="form-label">توضیحات کوتاه</label>
+                        <textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Content" class="form-label">محتوای کامل (توضیحات صفحه دسته)</label>
+                        <textarea asp-for="Content" id="cat-editor" class="form-control"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            @* بخش سئو *@
+            <div class="card shadow-sm mb-4">
+                <div class="card-header py-3 bg-light">تنظیمات سئو (SEO)</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Slog" class="form-label">اسلاگ (Slug)</label>
+                            <input asp-for="Slog" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="MetaTitle" class="form-label">Meta Title</label>
+                            <input asp-for="MetaTitle" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="MetaDescription" class="form-label">Meta Description</label>
+                            <textarea asp-for="MetaDescription" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CanonicalUrl" class="form-label">Canonical URL</label>
+                            <input asp-for="CanonicalUrl" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="MetaRobots" class="form-label">Meta Robots</label>
+                            <input asp-for="MetaRobots" class="form-control" placeholder="index, follow" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* ستون کناری *@
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header py-3">تصویر شاخص دسته</div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <input type="file" asp-for="Image" class="form-control" accept="image/*" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="AltTextImageUrl" class="form-label text-start d-block">متن جایگزین (Alt)</label>
+                        <input asp-for="AltTextImageUrl" class="form-control" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <script>
+        CKEDITOR.replace('cat-editor');
+    </script>
+}

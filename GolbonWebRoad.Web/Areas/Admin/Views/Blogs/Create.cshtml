@@ -1,0 +1,194 @@
+﻿@model GolbonWebRoad.Web.Areas.Admin.Models.Blogs.CreateBlogViewModel
+@{
+    ViewData["Title"] = "ایجاد مقاله جدید";
+}
+
+<form asp-area="Admin" asp-controller="Blogs" asp-action="Create" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+        <button type="submit" class="btn btn-success px-4">انتشار مقاله</button>
+    </div>
+
+    <div class="row">
+        @* ستون اصلی: محتوا *@
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header py-3">اطلاعات محتوایی</div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <label asp-for="Title" class="form-label fw-bold">عنوان مقاله</label>
+                        <input asp-for="Title" class="form-control form-control-lg" placeholder="عنوان جذاب مقاله را وارد کنید..." required />
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ShortDescription" class="form-label fw-bold">توضیحات کوتاه (خلاصه)</label>
+                        <textarea asp-for="ShortDescription" class="form-control" rows="3" placeholder="خلاصه‌ای ۱-۲ خطی برای نمایش در لیست و کارت‌ها..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Content" class="form-label fw-bold">متن اصلی مقاله</label>
+                        <textarea asp-for="Content" id="editor" class="form-control"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            @* بخش سئو *@
+            <div class="card shadow-sm mb-4">
+                <a href="#seoCollapse" class="d-block card-header py-3 text-decoration-none" data-bs-toggle="collapse" role="button">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-search me-2"></i>تنظیمات سئو (SEO)</h6>
+                </a>
+                <div class="collapse show" id="seoCollapse">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Slog" class="form-label">اسلاگ (URL)</label>
+                                <input asp-for="Slog" class="form-control" placeholder="blog-title-in-english" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="H1Title" class="form-label">عنوان H1</label>
+                                <input asp-for="H1Title" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="MetaTitle" class="form-label">Meta Title</label>
+                                <input asp-for="MetaTitle" class="form-control" placeholder="حداکثر ۶۰ کاراکتر پیشنهاد می‌شود" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="CanonicalUrl" class="form-label">Canonical URL</label>
+                                <input asp-for="CanonicalUrl" class="form-control" />
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="MetaDescription" class="form-label">Meta Description</label>
+                                <textarea asp-for="MetaDescription" class="form-control" rows="2" placeholder="حداکثر ۱۶۰ کاراکتر..."></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="MetaKeywords" class="form-label">کلمات کلیدی (با کاما جدا کنید)</label>
+                                <input asp-for="MetaKeywords" class="form-control" placeholder="مقاله, بلاگ, آموزش, ..." />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="MetaRobots" class="form-label">Meta Robots</label>
+                                <select asp-for="MetaRobots" class="form-select">
+                                    <option value="index, follow">index, follow</option>
+                                    <option value="noindex, nofollow">noindex, nofollow</option>
+                                    <option value="noindex, follow">noindex, follow</option>
+                                    <option value="index, nofollow">index, nofollow</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* ستون کناری: تنظیمات جانبی *@
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header py-3">تنظیمات انتشار</div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <label asp-for="CategoryId" class="form-label fw-bold">دسته‌بندی مقاله</label>
+                        <select asp-for="CategoryId" class="form-select js-select2-category"
+                                data-placeholder="یک دسته‌بندی انتخاب کنید..."
+                                data-allow-clear="true">
+                            <option value="">یک دسته بندی انتخاب کنید</option>
+                            @foreach (var cat in Model.BlogCategoryListItemViewModels)
+                            {
+                                <option value="@cat.Id">@cat.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ReadTimeMinutes" class="form-label fw-bold">زمان مطالعه (دقیقه)</label>
+                        <input asp-for="ReadTimeMinutes" type="number" min="1" class="form-control" placeholder="مثال: ۵" />
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input asp-for="IsPublished" class="form-check-input" type="checkbox" role="switch">
+                        <label asp-for="IsPublished" class="form-check-label fw-bold">منتشر شود؟</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header py-3">تصویر شاخص</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <input type="file" asp-for="Image" class="form-control" accept="image/*" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MainImageAltText" class="form-label fw-bold">متن جایگزین (Alt)</label>
+                        <input asp-for="MainImageAltText" class="form-control" placeholder="توضیح تصویر برای سئو" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Styles {
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+    <style>
+        .select2-container--bootstrap-5 .select2-selection--single {
+            height: calc(1.5em + 0.75rem + 2px) !important;
+            padding: 0.375rem 0.75rem !important;
+        }
+
+            .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+                line-height: 1.5 !important;
+                color: #495057;
+            }
+
+            .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+                height: 100% !important;
+            }
+
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            padding-right: 30px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__clear {
+            font-size: 1.2rem;
+            color: #dc3545;
+        }
+    </style>
+}
+
+@section Scripts {
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- CKEditor -->
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+
+    <script>
+        // Select2 برای دسته‌بندی
+        $(document).ready(function () {
+            $('.js-select2-category').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: "یک دسته‌بندی انتخاب کنید...",
+                allowClear: true,
+                language: {
+                    noResults: function () {
+                        return "دسته‌بندی یافت نشد";
+                    }
+                }
+            });
+
+            // اگر می‌خوای موقع باز شدن صفحه فوکوس کنه روی عنوان
+            $('input[asp-for="Title"]').focus();
+        });
+
+        // CKEditor
+        CKEDITOR.replace('editor', {
+            language: 'fa',
+            contentsLangDirection: 'rtl',
+            height: 400
+        });
+    </script>
+}

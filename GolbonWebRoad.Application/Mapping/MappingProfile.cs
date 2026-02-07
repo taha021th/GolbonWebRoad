@@ -3,20 +3,22 @@ using GolbonWebRoad.Application.Dtos.Brands;
 using GolbonWebRoad.Application.Dtos.CartItems;
 using GolbonWebRoad.Application.Dtos.Categories;
 using GolbonWebRoad.Application.Dtos.Colors;
+using GolbonWebRoad.Application.Dtos.Faqs;
 using GolbonWebRoad.Application.Dtos.Logs;
 using GolbonWebRoad.Application.Dtos.Orders;
 using GolbonWebRoad.Application.Dtos.ProductColors;
 using GolbonWebRoad.Application.Dtos.ProductImages;
 using GolbonWebRoad.Application.Dtos.Products;
-using GolbonWebRoad.Application.Dtos.Faqs;
+using GolbonWebRoad.Application.Features.BlogCategories.Commands;
+using GolbonWebRoad.Application.Features.Blogs.Commands;
 using GolbonWebRoad.Application.Features.Brands.Commands;
 using GolbonWebRoad.Application.Features.CartItems.Commands;
 using GolbonWebRoad.Application.Features.Categories.Commands;
 using GolbonWebRoad.Application.Features.Categories.Queries;
+using GolbonWebRoad.Application.Features.Faqs.Commands;
 using GolbonWebRoad.Application.Features.Orders.Commands;
 using GolbonWebRoad.Application.Features.Products.Commands;
 using GolbonWebRoad.Application.Features.Reviews.Commands;
-using GolbonWebRoad.Application.Features.Faqs.Commands;
 using GolbonWebRoad.Domain.Entities;
 
 namespace GolbonWebRoad.Application.Mapping
@@ -132,6 +134,16 @@ namespace GolbonWebRoad.Application.Mapping
             CreateMap<CreateFaqCommand, Faq>();
             CreateMap<UpdateFaqCommand, Faq>();
             CreateMap<FaqCategory, FaqCategoryDto>();
+            #endregion
+
+            #region BlogCategory
+            CreateMap<BlogCategory, CreateBlogCategoryCommand>().ReverseMap();
+            CreateMap<BlogCategory, UpdateBlogCategoryCommand>().ReverseMap();
+            #endregion
+
+            #region Blog
+            CreateMap<CreateBlogCommand, Blog>();
+            CreateMap<UpdateBlogCommand, Blog>();
             #endregion
         }
     }
