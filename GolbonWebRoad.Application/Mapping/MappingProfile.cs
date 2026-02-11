@@ -10,6 +10,7 @@ using GolbonWebRoad.Application.Dtos.ProductColors;
 using GolbonWebRoad.Application.Dtos.ProductImages;
 using GolbonWebRoad.Application.Dtos.Products;
 using GolbonWebRoad.Application.Features.BlogCategories.Commands;
+using GolbonWebRoad.Application.Features.BlogReviews.Commands;
 using GolbonWebRoad.Application.Features.Blogs.Commands;
 using GolbonWebRoad.Application.Features.Brands.Commands;
 using GolbonWebRoad.Application.Features.CartItems.Commands;
@@ -144,6 +145,10 @@ namespace GolbonWebRoad.Application.Mapping
             #region Blog
             CreateMap<CreateBlogCommand, Blog>();
             CreateMap<UpdateBlogCommand, Blog>();
+            #endregion
+
+            #region BlogReview
+            CreateMap<CreateBlogReviewCommand, BlogReview>();
             #endregion
         }
     }

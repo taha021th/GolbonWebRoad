@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GolbonWebRoad.Application.Dtos.Users;
 using GolbonWebRoad.Application.Features.BlogCategories.Commands;
+using GolbonWebRoad.Application.Features.BlogReviews.Commands;
 using GolbonWebRoad.Application.Features.Blogs.Commands;
 using GolbonWebRoad.Application.Features.Brands.Commands;
 using GolbonWebRoad.Application.Features.Categories.Commands;
@@ -17,6 +18,7 @@ using GolbonWebRoad.Web.Areas.Admin.Models.Orders;
 using GolbonWebRoad.Web.Areas.Admin.Models.Products.ViewModels;
 using GolbonWebRoad.Web.Areas.Admin.Models.Users;
 using GolbonWebRoad.Web.Models.BlogCategories;
+using GolbonWebRoad.Web.Models.BlogReviews;
 using GolbonWebRoad.Web.Models.Blogs;
 using CategoryViewModel = GolbonWebRoad.Web.Models.Categories.CategoryViewModel;
 
@@ -255,10 +257,17 @@ namespace GolbonWebRoad.Web.Mapping
                 .ForMember(dest => dest.DayName, opt => opt.MapFrom(src => GetPersianDayName(src.Date)));
             #endregion
             #region BlogCategory
+            #region Admin
             CreateMap<CreateBlogCategoryCommand, BlogCategoryFromViewModel>().ReverseMap();
             CreateMap<UpdateBlogCategoryCommand, BlogCategoryFromViewModel>().ReverseMap();
             CreateMap<BlogCategory, BlogCategoryListItemViewModel>().ReverseMap();
             CreateMap<BlogCategoryFromViewModel, BlogCategory>().ReverseMap();
+            CreateMap<BlogCategory, BlogCategorySummaryViewModel>();
+            #endregion
+            #region Web
+            CreateMap<BlogCategory, BlogCategorySummaryViewModel>();
+            CreateMap<BlogCategory, BlogCategoryViewModel>();
+            #endregion
             #endregion
             #region Blog
             #region Admin
@@ -269,8 +278,17 @@ namespace GolbonWebRoad.Web.Mapping
             #endregion
             #region Web
             CreateMap<Blog, BlogSummaryViewModel>();
-            CreateMap<BlogCategory, BlogCategorySummaryViewModel>();
+            CreateMap<Blog, GolbonWebRoad.Web.Models.Blogs.BlogViewModel>();
+
             #endregion
+            #endregion
+
+            #region BlogReview
+            #region Admin 
+            CreateMap<BlogReview, GolbonWebRoad.Web.Areas.Admin.Models.BlogReviews.BlogReviewViewModel>();
+            #endregion
+            CreateMap<BlogReview, BlogReviewViewModel>();
+            CreateMap<BlogReviewViewModel, CreateBlogReviewCommand>();
             #endregion
 
         }

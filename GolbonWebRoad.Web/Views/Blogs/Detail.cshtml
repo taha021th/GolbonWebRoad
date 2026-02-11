@@ -1,0 +1,359 @@
+﻿@using GolbonWebRoad.Web.Models.Blogs
+@model BlogViewModel
+@{
+    // محاسبه منطق امتیازات در ابتدای صفحه
+    var activeReviews = Model.BlogReviews?.Where(r => r.Status).ToList() ?? new List<GolbonWebRoad.Web.Models.BlogReviews.BlogReviewViewModel>();
+    double averageRating = activeReviews.Any() ? activeReviews.Average(r => r.Rating) : 0;
+    int reviewCount = activeReviews.Count;
+
+    ViewData["Title"] = Model.MetaTtitle ?? Model.Title;
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+
+    <meta name="description" content="@Model.MetaDescription">
+    <meta name="keywords" content="@Model.MetaKeywords">
+    <meta name="robots" content="@(Model.MetaRobots ?? "index, follow")">
+    @if (!string.IsNullOrEmpty(Model.CanonicalUrl))
+    {
+        <link rel="canonical" href="@Model.CanonicalUrl" />
+    }
+
+    <script type="application/ld+json">
+        {
+          "@@context": "https://schema.org",
+          "@@type": "Article",
+          "headline": "@Model.Title",
+          "image": "@Model.MainImageUrl",
+          "datePublished": "@Model.PublishDate.ToString("yyyy-MM-dd")",
+          @if (reviewCount > 0)
+          {
+                <text>
+                "aggregateRating": {
+                  "@@type": "AggregateRating",
+                  "ratingValue": "@averageRating.ToString("0.0")",
+                  "reviewCount": "@reviewCount"
+                },
+                </text>
+          }
+          "author": {
+            "@@type": "Organization",
+            "name": "گلبن وب"
+          }
+        }
+    </script>
+
+    <link rel="stylesheet" href="~/css/fonts.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/all.min.css">
+    <partial name="_CommonStyles" />
+
+    <style>
+        :root {
+            --star-color: #f1c40f;
+        }
+
+        .blog-detail-container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        /* Header Section */
+        .blog-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .blog-category-link {
+            color: var(--accent-color);
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .blog-header h1 {
+            font-size: 2.2rem;
+            margin: 15px 0;
+            line-height: 1.4;
+            color: var(--primary-text-color);
+        }
+
+        .blog-meta-top {
+            color: var(--secondary-text-color);
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Rating Badge */
+        .average-rating-display {
+            display: flex;
+            align-items: center;
+            background: rgba(241, 196, 15, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(241, 196, 15, 0.2);
+        }
+
+        .rating-number {
+            font-weight: bold;
+            color: #d4af37;
+            margin-left: 5px;
+        }
+
+        /* Main Image */
+        .featured-image-container {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+            .featured-image-container img {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+
+        /* Content Area */
+        .blog-content {
+            line-height: 1.9;
+            font-size: 1.15rem;
+            color: var(--primary-text-color);
+            text-align: justify;
+        }
+
+            .blog-content h2, .blog-content h3 {
+                margin-top: 40px;
+                margin-bottom: 20px;
+                color: var(--accent-color);
+            }
+
+            .blog-content img {
+                max-width: 100%;
+                border-radius: 8px;
+            }
+
+        /* Reviews Section */
+        .reviews-section {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .review-card {
+            background: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Comment Form */
+        .comment-form-container {
+            background: var(--card-bg-color);
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-top: 40px;
+        }
+
+            .comment-form-container textarea {
+                width: 100%;
+                padding: 15px;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                background: var(--bg-color);
+                color: var(--primary-text-color);
+                margin-bottom: 15px;
+                resize: vertical;
+            }
+
+        .submit-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+            .submit-btn:hover {
+                opacity: 0.9;
+                transform: translateY(-2px);
+            }
+
+        .star-rating-input i {
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #ccc;
+            transition: 0.2s;
+        }
+
+            .star-rating-input i.active {
+                color: var(--star-color);
+            }
+
+        @@media (max-width: 768px) {
+            .blog-header h1 {
+                font-size: 1.6rem;
+            }
+
+            .blog-meta-top {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <partial name="_Header" />
+
+    <article class="blog-detail-container">
+        <nav class="breadcrumb" style="margin-bottom: 20px; font-size: 0.85rem;">
+            <a asp-action="Index" asp-controller="Home">خانه</a> /
+            <a asp-action="Index" asp-controller="Blog">وبلاگ</a> /
+            <span>@Model.Title</span>
+        </nav>
+
+        <header class="blog-header">
+            <a href="#" class="blog-category-link">@Model.BlogCategory?.Name</a>
+            <h1>@(string.IsNullOrEmpty(Model.H1Title) ? Model.Title : Model.H1Title)</h1>
+
+            <div class="blog-meta-top">
+                <span><i class="far fa-calendar-alt"></i> @Model.PublishDate.ToString("yyyy/MM/dd")</span>
+                <span><i class="far fa-clock"></i> @Model.ReadTimeMinutes دقیقه</span>
+
+                <div class="average-rating-display">
+                    <span class="rating-number">@averageRating.ToString("0.0")</span>
+                    <div style="margin-right: 5px;">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="@(i <= Math.Round(averageRating) ? "fas" : "far") fa-star" style="color: var(--star-color);"></i>
+                        }
+                    </div>
+                    <span style="font-size: 0.75rem; margin-right: 5px;">(@reviewCount نظر)</span>
+                </div>
+            </div>
+        </header>
+
+        @if (!string.IsNullOrEmpty(Model.MainImageUrl))
+        {
+            <div class="featured-image-container">
+                <img src="@Model.MainImageUrl" alt="@(Model.MainImageAltText ?? Model.Title)">
+            </div>
+        }
+
+        <section class="blog-content">
+            @if (!string.IsNullOrEmpty(Model.ShortDescription))
+            {
+                <p style="font-weight: bold; font-size: 1.2rem; color: var(--secondary-text-color); margin-bottom: 30px; border-right: 4px solid var(--accent-color); padding-right: 15px;">
+                    @Model.ShortDescription
+                </p>
+            }
+
+            @Html.Raw(Model.Content)
+        </section>
+
+        <section class="reviews-section">
+            <h3>دیدگاه کاربران (@reviewCount)</h3>
+
+            @if (activeReviews.Any())
+            {
+                @foreach (var review in activeReviews)
+                {
+                    <div class="review-card card-like">
+                        <div class="review-header">
+                            <div class="user-info">
+                                <i class="fas fa-user-circle fa-2x"></i>
+                                <span>@(review.User?.UserName ?? "کاربر گلبن")</span>
+                            </div>
+                            <div style="color: var(--star-color);">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="@(i <= review.Rating ? "fas" : "far") fa-star"></i>
+                                }
+                            </div>
+                        </div>
+                        <p style="margin-top: 15px; line-height: 1.6;">@review.ReviewText</p>
+                        <small style="color: var(--secondary-text-color);">@review.ReviewDate.ToString("yyyy/MM/dd")</small>
+                    </div>
+                }
+            }
+
+            <div class="comment-form-container card-like">
+                <h4>ثبت دیدگاه جدید</h4>
+                <form asp-controller="Blogs" asp-action="AddReview" method="post">
+                    <input type="hidden" name="BlogId" value="@Model.Id" />
+
+                    <div style="margin-bottom: 20px;">
+                        <label>امتیاز شما:</label>
+                        <div class="star-rating-input" id="star-input-container">
+                            <i class="fas fa-star active" data-value="1"></i>
+                            <i class="fas fa-star active" data-value="2"></i>
+                            <i class="fas fa-star active" data-value="3"></i>
+                            <i class="fas fa-star active" data-value="4"></i>
+                            <i class="fas fa-star active" data-value="5"></i>
+                            <input type="hidden" name="Rating" id="rating-input" value="5" />
+                        </div>
+                    </div>
+
+                    <textarea name="ReviewText" rows="5" placeholder="متن پیام شما..." required></textarea>
+                    <button type="submit" class="submit-btn">ارسال نظر</button>
+                </form>
+            </div>
+        </section>
+    </article>
+
+    <partial name="_Footer" />
+    <partial name="_CommonScripts" />
+
+    <script>
+        // هندل کردن انتخاب ستاره‌ها در فرم
+        const starContainer = document.getElementById('star-input-container');
+        const stars = starContainer.querySelectorAll('i');
+        const ratingInput = document.getElementById('rating-input');
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const val = this.getAttribute('data-value');
+                ratingInput.value = val;
+
+                stars.forEach(s => {
+                    if(s.getAttribute('data-value') <= val) {
+                        s.classList.add('active', 'fas');
+                        s.classList.remove('far');
+                    } else {
+                        s.classList.remove('active', 'fas');
+                        s.classList.add('far');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -23,7 +23,7 @@ namespace GolbonWebRoad.Application.Features.Blogs.Queries
         public async Task<Blog> Handle(GetByIdBlogQuery request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("شروع دریافت وبلاگ با شناسه {BlogId}.", request.Id);
-            return await _unitOfWork.BlogRepository.GetByIdAsync(request.Id, false, false);
+            return await _unitOfWork.BlogRepository.GetByIdAsync(request.Id, true, true, true);
         }
     }
 

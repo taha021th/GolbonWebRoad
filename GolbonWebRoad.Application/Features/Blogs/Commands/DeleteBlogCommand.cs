@@ -23,7 +23,7 @@ namespace GolbonWebRoad.Application.Features.Blogs.Commands
         public async Task Handle(DeleteBlogCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("دریافت بلاگ با شناسه {BlogId} برای حذف.", request.Id);
-            var blogEntity = await _unitOfWork.BlogRepository.GetByIdAsync(request.Id, false, false);
+            var blogEntity = await _unitOfWork.BlogRepository.GetByIdAsync(request.Id, false, false, false);
             _logger.LogInformation("حذف بلاگ با شناسه {BlogId}", request.Id);
             _unitOfWork.BlogRepository.Delete(blogEntity);
             _logger.LogInformation("حذف تصویر بلاگ با شناسه {BlogId}", request.Id);

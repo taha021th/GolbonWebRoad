@@ -21,7 +21,7 @@ namespace GolbonWebRoad.Application.Features.BlogCategories.Queries
         public async Task<BlogCategory> Handle(GetByIdBlogCategoryQuery request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("شروع دریافت دسته بندی بلاگ با شناسه {BlogCategoryId}", request.Id);
-            return await _unitOfWork.BlogCategoryRepository.GetByIdAsync(request.Id);
+            return await _unitOfWork.BlogCategoryRepository.GetByIdAsync(request.Id, false);
         }
     }
 }

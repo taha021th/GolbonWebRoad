@@ -45,7 +45,7 @@ namespace GolbonWebRoad.Application.Features.Blogs.Commands
         public async Task<Blog> Handle(UpdateBlogCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("شروع بروزرسانی بلاگ با شناسه {BlogId}", request.Id);
-            var entity = await _unitOfWork.BlogRepository.GetByIdAsync(request.Id, false, false);
+            var entity = await _unitOfWork.BlogRepository.GetByIdAsync(request.Id, false, false, false);
             if (entity == null)
             {
                 _logger.LogInformation("بلاگ با شناسه {BlogId} یافت نشد.", request.Id);

@@ -23,9 +23,27 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             _context.BlogReviews.Remove(blogReview);
         }
 
-        public async Task<IEnumerable<BlogReview>> GetAllAsync()
+        public async Task<IEnumerable<BlogReview>> GetAllAsync(bool filterByStatus)
         {
-            return await _context.BlogReviews.ToListAsync();
+            var query = _context.BlogReviews.AsQueryable();
+            if (filterByStatus==true)
+                query=query.Where(b => b.Status==true);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<ICollection<BlogReview>> GetBlogReviewsWithDetailAsync(bool? status = null)
+        {
+
+            var query = _context.BlogReviews
+                .Include(r => r.User)
+                .Include(r => r.Blogs)
+                .AsQueryable();
+            if (status.HasValue)
+            {
+                query=query.Where(r => r.Status==status.Value);
+            }
+            return await query.OrderByDescending(r => r.ReviewDate).ToListAsync();
         }
 
         public async Task<BlogReview> GetByIdAsync(int id)

@@ -41,7 +41,7 @@ namespace GolbonWebRoad.Application.Features.BlogCategories.Commands
         public async Task<BlogCategory> Handle(UpdateBlogCategoryCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("شروع بروزرسانی دسته بندی بلاگ {BlogCategory}", request.Id);
-            var entity = await _unitOfWork.BlogCategoryRepository.GetByIdAsync(request.Id);
+            var entity = await _unitOfWork.BlogCategoryRepository.GetByIdAsync(request.Id, false);
             if (entity==null)
             {
                 _logger.LogWarning("دسته بندی بلاگ {BlogCategoryId} پیدا نشد", request.Id);

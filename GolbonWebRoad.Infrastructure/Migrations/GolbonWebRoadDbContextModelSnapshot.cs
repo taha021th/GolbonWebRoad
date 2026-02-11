@@ -174,7 +174,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Blogs");
+                    b.ToTable("Blogs", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.BlogCategory", b =>
@@ -225,7 +225,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BlogCategories");
+                    b.ToTable("BlogCategories", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.BlogReview", b =>
@@ -262,7 +262,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BlogReviews");
+                    b.ToTable("BlogReviews", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Brand", b =>
@@ -292,7 +292,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                     b.HasIndex("Slog")
                         .IsUnique();
 
-                    b.ToTable("Brands");
+                    b.ToTable("Brands", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.CartItem", b =>
@@ -319,7 +319,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CartItems");
+                    b.ToTable("CartItems", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Category", b =>
@@ -353,7 +353,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                     b.HasIndex("Slog")
                         .IsUnique();
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Color", b =>
@@ -374,7 +374,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Colors");
+                    b.ToTable("Colors", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Faq", b =>
@@ -424,7 +424,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                     b.HasIndex("Slog")
                         .IsUnique();
 
-                    b.ToTable("Faqs");
+                    b.ToTable("Faqs", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.FaqCategory", b =>
@@ -455,7 +455,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                     b.HasIndex("Slog")
                         .IsUnique();
 
-                    b.ToTable("FaqCategories");
+                    b.ToTable("FaqCategories", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Log", b =>
@@ -486,7 +486,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Logs");
+                    b.ToTable("Logs", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Order", b =>
@@ -529,7 +529,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.OrderItem", b =>
@@ -558,7 +558,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("ProductVariantId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Product", b =>
@@ -629,7 +629,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
                     b.HasIndex("Slog")
                         .IsUnique();
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.ProductAttribute", b =>
@@ -646,7 +646,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductAttributes");
+                    b.ToTable("ProductAttributes", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.ProductAttributeValue", b =>
@@ -668,7 +668,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("AttributeId");
 
-                    b.ToTable("ProductAttributeValues");
+                    b.ToTable("ProductAttributeValues", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.ProductColor", b =>
@@ -683,7 +683,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("ColorId");
 
-                    b.ToTable("ProductColor");
+                    b.ToTable("ProductColor", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.ProductImage", b =>
@@ -708,7 +708,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImage");
+                    b.ToTable("ProductImage", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Review", b =>
@@ -745,7 +745,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.UserAddress", b =>
@@ -795,7 +795,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserAddresses");
+                    b.ToTable("UserAddresses", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -942,7 +942,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("VariantsId");
 
-                    b.ToTable("ProductAttributeValueProductVariant");
+                    b.ToTable("ProductAttributeValueProductVariant", (string)null);
                 });
 
             modelBuilder.Entity("ProductVariant", b =>
@@ -991,7 +991,7 @@ namespace GolbonWebRoad.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductVariants");
+                    b.ToTable("ProductVariants", (string)null);
                 });
 
             modelBuilder.Entity("GolbonWebRoad.Domain.Entities.Blog", b =>

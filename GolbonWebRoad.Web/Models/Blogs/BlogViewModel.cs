@@ -1,4 +1,7 @@
-﻿namespace GolbonWebRoad.Web.Models.Blogs
+﻿using GolbonWebRoad.Web.Models.BlogCategories;
+using GolbonWebRoad.Web.Models.BlogReviews;
+
+namespace GolbonWebRoad.Web.Models.Blogs
 {
     public class BlogViewModel
     {
@@ -19,5 +22,8 @@
         public string? CanonicalUrl { get; set; }
         public string? H1Title { get; set; }
         public string? MetaRobots { get; set; }
+        public BlogCategorySummaryViewModel BlogCategory { get; set; }
+        public List<BlogReviewViewModel> BlogReviews { get; set; }
+
     }
 }

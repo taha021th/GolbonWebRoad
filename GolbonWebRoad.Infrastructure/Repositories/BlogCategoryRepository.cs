@@ -28,10 +28,11 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             return await _context.BlogCategories.ToListAsync();
         }
 
-        public async Task<BlogCategory> GetByIdAsync(int id)
+        public async Task<BlogCategory> GetByIdAsync(int id, bool? joinBlogs)
         {
             var query = _context.BlogCategories.AsQueryable();
-
+            if (joinBlogs==true)
+                query.Include(b => b.Blogs);
             return await query.AsNoTracking().FirstOrDefaultAsync(bc => bc.Id==id);
         }
 

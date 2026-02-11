@@ -1,0 +1,221 @@
+﻿@using GolbonWebRoad.Web.Models.Blogs
+@model IEnumerable<BlogSummaryViewModel>
+@{
+    ViewData["Title"] = "وبلاگ گلبن";
+    Layout = null;
+
+    // دریافت پارامترهای کوئری برای هندل کردن فیلترها در صورت نیاز
+    var queryParams = Context.Request.Query.ToDictionary(q => q.Key, q => q.Value.ToString());
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="~/css/fonts.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/all.min.css">
+    <partial name="_CommonStyles" />
+
+    <style>
+        .blog-card-fade-in {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+        }
+
+            .blog-card-fade-in.is-visible {
+                opacity: 1;
+            }
+
+        .main-content {
+            display: flex;
+            gap: 30px;
+            padding: 50px 0;
+        }
+
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        /* استایل گرید مشابه محصولات */
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .blog-card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+            .blog-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+            .image-container img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .blog-info {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .category-tag {
+            color: var(--accent-color);
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            display: block;
+            font-weight: bold;
+        }
+
+        .blog-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+            .blog-info h4 a {
+                color: var(--primary-text-color);
+                text-decoration: none;
+            }
+
+        .short-desc {
+            font-size: 0.9rem;
+            color: var(--secondary-text-color);
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .blog-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--secondary-text-color);
+        }
+
+        @@media (max-width: 992px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .blog-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <partial name="_Header" />
+
+    <main>
+        <header class="page-header" style="text-align: center; padding: 40px 0; background: var(--card-bg-color);">
+            <h1>آخرین نوشته‌های وبلاگ</h1>
+            <div class="breadcrumb">
+                <a asp-action="Index" asp-controller="Home">خانه</a> / <span>وبلاگ</span>
+            </div>
+        </header>
+
+        <div class="container main-content">
+            <aside class="sidebar card-like">
+                <div class="filter-group card-like" style="padding: 20px;">
+                    <h3>دسته‌بندی‌ها</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        @* از آنجایی که لیست بلاگ‌ها را داریم، می‌توانیم دسته‌بندی‌های یکتا را نمایش دهیم *@
+                        @foreach (var cat in Model.Select(b => b.BlogCategory).GroupBy(c => c.Id).Select(g => g.First()))
+                        {
+                            <li style="margin-top: 10px;">
+                                <a asp-controller="Blog" asp-action="Category" asp-route-id="@cat.Id" style="color: var(--primary-text-color);">
+                                    @cat.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </aside>
+
+            <section class="products-area" style="flex-grow: 1;">
+                <div class="blog-grid">
+                    @foreach (var blog in Model)
+                    {
+                        <article class="blog-card card-like blog-card-fade-in">
+                            <div class="image-container">
+                                <a asp-controller="Blog" asp-action="Detail" asp-route-id="@blog.Id">
+                                    <img loading="lazy"
+                                         src="@(string.IsNullOrEmpty(blog.MainImageUrl) ? "https://placehold.co/400x250?text=No+Image" : blog.MainImageUrl)"
+                                         alt="@blog.Title">
+                                </a>
+                            </div>
+
+                            <div class="blog-info">
+                                <span class="category-tag">@blog.BlogCategory.Name</span>
+                                <h4>
+                                    <a asp-controller="Blog" asp-action="Detail" asp-route-id="@blog.Id">@blog.Title</a>
+                                </h4>
+
+                                <p class="short-desc">@blog.ShordDescription</p>
+
+                                <div class="blog-footer">
+                                    <span><i class="far fa-calendar-alt"></i> @blog.PublishDate.ToString("yyyy/MM/dd")</span>
+                                    <span><i class="far fa-clock"></i> @blog.ReadTimeMinutes دقیقه</span>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <partial name="_CommonScripts" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            const cards = document.querySelectorAll('.blog-card-fade-in');
+            cards.forEach(card => observer.observe(card));
+        });
+    </script>
+</body>
+</html>

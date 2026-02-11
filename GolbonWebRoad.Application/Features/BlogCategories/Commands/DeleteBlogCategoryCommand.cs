@@ -23,7 +23,7 @@ namespace GolbonWebRoad.Application.Features.BlogCategories.Commands
         public async Task Handle(DeleteBlogCategoryCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("حذف دسته بندی بلاگ با شناسه {BlogCategoryId}", request.Id);
-            var blogCategory = await _unitOfWork.BlogCategoryRepository.GetByIdAsync(request.Id);
+            var blogCategory = await _unitOfWork.BlogCategoryRepository.GetByIdAsync(request.Id, false);
             _unitOfWork.BlogCategoryRepository.DeleteAsync(blogCategory);
             await _fileStorageService.DeleteFileAsync(blogCategory.ImageUrl, "blogCategories");
             await _unitOfWork.CompleteAsync();
