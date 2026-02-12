@@ -91,6 +91,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
                 _unitOfWork.CategoryRepository.Update(categoryToUpdate);
                 await _unitOfWork.CompleteAsync();
                 _cache.Remove("home:data:v1");
+                _cache.Remove("products:categories:all");
             }
             catch (Exception ex) when (ex is not NotFoundException)
             {

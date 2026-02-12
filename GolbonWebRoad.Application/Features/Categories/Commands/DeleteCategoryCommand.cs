@@ -58,6 +58,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
                 await _unitOfWork.CategoryRepository.DeleteAsync(request.Id);
                 await _unitOfWork.CompleteAsync();
                 _cache.Remove("home:data:v1");
+                _cache.Remove("products:categories:all");
 
 
                 _logger.LogInformation("دسته‌بندی با شناسه {CategoryId} و نام '{CategoryName}' با موفقیت حذف شد.",

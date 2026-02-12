@@ -67,6 +67,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
                 _logger.LogInformation("دسته‌بندی '{CategoryName}' با شناسه {CategoryId} با موفقیت در دیتابیس ایجاد شد.",
                     newCategory.Name, newCategory.Id);
                 _cache.Remove("home:data:v1");
+                _cache.Remove("products:categories:all");
                 return newCategory;
 
 

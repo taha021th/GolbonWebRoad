@@ -62,6 +62,8 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
 
                 _logger.LogInformation("محصول با شناسه {ProductId} از دیتابیس با موفقیت حذف شد.", request.Id);
                 _cache.Remove("home:data:v1");
+                _cache.Remove("products:list:default:p=1:ps=6");
+                _cache.Remove("products:list:default:p=1:ps=9");
 
                 // ۵. حالا که حذف از دیتابیس موفقیت‌آمیز بود، فایل‌های فیزیکی را پاک کن
                 foreach (var imageUrl in imagesToDelete)

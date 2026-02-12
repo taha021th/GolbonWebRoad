@@ -175,6 +175,8 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
                 // --- فاز ۵: حذف فایل‌های قدیمی (پس از موفقیت تراکنش) ---
                 _logger.LogInformation("محصول {ProductId} با موفقیت در DB آپدیت شد. شروع حذف فایل‌های قدیمی.", request.Id);
                 _cache.Remove("home:data:v1");
+                _cache.Remove("products:list:default:p=1:ps=6");
+                _cache.Remove("products:list:default:p=1:ps=9");
                 foreach (var fileName in filesToDeleteOnCommit)
                 {
                     await DeleteFileSilentlyAsync(fileName, FileDirectory);

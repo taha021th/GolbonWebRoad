@@ -134,6 +134,8 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
 
                 _logger.LogInformation("محصول '{ProductName}' با شناسه {ProductId} با موفقیت ایجاد شد.", product.Name, product.Id);
                 _cache.Remove("home:data:v1");
+                _cache.Remove("products:list:default:p=1:ps=6");
+                _cache.Remove("products:list:default:p=1:ps=9");
                 return product.Id;
             }
             catch (Exception ex)

@@ -63,24 +63,56 @@ namespace GolbonWebRoad.Application.Features.Products.Queries
                 });
             }
 
-            // 2) Optionally cache product lists per-filter for a short time
-            var productsKey = $"products:list:cat={request.CategoryId?.ToString() ?? "-"}:brand={request.BrandId?.ToString() ?? "-"}:q={request.SearchTerm ?? "-"}:sort={request.SortOrder ?? "-"}:p={request.PageNumber}:ps={request.PageSize}";
-            if (!_cache.TryGetValue(productsKey, out PagedResult<Product> pagedProducts))
-            {
-                pagedProducts = await _productRepository.GetPagedProductsAsync(
-                    request.PageNumber,
-                    request.PageSize,
-                    request.SearchTerm,
-                    request.CategoryId,
-                    request.BrandId,
-                    request.SortOrder);
+            // 2) Cache ONLY if no filters/search/sort are applied
+            var isFiltered = !string.IsNullOrEmpty(request.SearchTerm) ||
+                             request.CategoryId.HasValue ||
+                             request.BrandId.HasValue ||
+                             !string.IsNullOrEmpty(request.SortOrder);
 
-                _cache.Set(productsKey, pagedProducts, new MemoryCacheEntryOptions
+            if (!isFiltered)
+            {
+                var productsKey = $"products:list:default:p={request.PageNumber}:ps={request.PageSize}";
+                if (!_cache.TryGetValue(productsKey, out PagedResult<Product> pagedProducts))
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2),
-                    SlidingExpiration = TimeSpan.FromMinutes(1),
-                    Priority = CacheItemPriority.Normal
-                });
+                    pagedProducts = await _productRepository.GetPagedProductsAsync(
+                        request.PageNumber,
+                        request.PageSize,
+                        request.SearchTerm,
+                        request.CategoryId,
+                        request.BrandId,
+                        request.SortOrder);
+
+                    _cache.Set(productsKey, pagedProducts, new MemoryCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2),
+                        SlidingExpiration = TimeSpan.FromMinutes(1),
+                        Priority = CacheItemPriority.Normal
+                    });
+                }
+                return new ProductsPageDataDto
+                {
+                    Products = pagedProducts,
+                    Categories = categories,
+                    Brands = brands
+                };
+            }
+            else
+            {
+                // No caching for filtered results
+                var pagedProducts = await _productRepository.GetPagedProductsAsync(
+                        request.PageNumber,
+                        request.PageSize,
+                        request.SearchTerm,
+                        request.CategoryId,
+                        request.BrandId,
+                        request.SortOrder);
+
+                return new ProductsPageDataDto
+                {
+                    Products = pagedProducts,
+                    Categories = categories,
+                    Brands = brands
+                };
             }
 
             return new ProductsPageDataDto
