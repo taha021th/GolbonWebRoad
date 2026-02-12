@@ -35,6 +35,8 @@ namespace GolbonWebRoad.Domain.Entities
         [MaxLength(50)]
         public string? MetaRobots { get; set; }
 
+        public bool IsShowHomePage { get; set; }
+
         public int CategoryId { get; set; }
         [ForeignKey(nameof(CategoryId))]
         public virtual BlogCategory BlogCategory { get; set; }

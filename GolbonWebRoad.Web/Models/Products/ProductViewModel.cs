@@ -7,6 +7,8 @@ namespace GolbonWebRoad.Web.Models.Products
         public IEnumerable<ProductViewModel> Products { get; set; }
         public ProductViewModel ProductIsFeatured { get; set; }
         public IEnumerable<CategoryViewModel> Categories { get; set; }
+        public IEnumerable<GolbonWebRoad.Web.Models.Blogs.BlogSummaryViewModel> Blogs { get; set; }
+        public IEnumerable<ReviewViewModel> Reviews { get; set; }
     }
 
     public class ProductViewModel

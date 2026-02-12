@@ -5,6 +5,7 @@ using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GolbonWebRoad.Application.Features.Blogs.Commands
 {
@@ -17,6 +18,7 @@ namespace GolbonWebRoad.Application.Features.Blogs.Commands
         public string? MainImageUrl { get; set; }
         public IFormFile? Image { get; set; }
         public bool IsPublished { get; set; } // وضعیت انتشار
+        public bool IsShowHomePage { get; set; }
         public string? ShortDescription { get; set; }
 
         public string? Slog { get; set; }
@@ -39,13 +41,15 @@ namespace GolbonWebRoad.Application.Features.Blogs.Commands
         private readonly ILogger<CreateBlogCommandHandler> _logger;
         private readonly IMapper _mapper;
         private readonly IFileStorageService _fileStorageService;
+        private readonly IMemoryCache _cache;
 
-        public CreateBlogCommandHandler(IUnitOfWork unitOfWork, ILogger<CreateBlogCommandHandler> logger, IMapper mapper, IFileStorageService fileStorageService)
+        public CreateBlogCommandHandler(IUnitOfWork unitOfWork, ILogger<CreateBlogCommandHandler> logger, IMapper mapper, IFileStorageService fileStorageService, IMemoryCache cache)
         {
             _unitOfWork=unitOfWork;
             _logger=logger;
             _mapper=mapper;
             _fileStorageService=fileStorageService;
+            _cache = cache;
         }
 
         public async Task Handle(CreateBlogCommand request, CancellationToken cancellationToken)
@@ -58,6 +62,7 @@ namespace GolbonWebRoad.Application.Features.Blogs.Commands
             var resultSaveImage = await _fileStorageService.SaveFileAsync(request.Image, "blogs");
             entity.MainImageUrl=resultSaveImage.Url;
             await _unitOfWork.CompleteAsync();
+            _cache.Remove("home:data:v1");
         }
     }
 }

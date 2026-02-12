@@ -121,7 +121,8 @@ namespace GolbonWebRoad.Web.Mapping
                     src.Product != null && src.Product.Images != null && src.Product.Images.Any()
                         ? src.Product.Images.Where(i => i.IsMainImage).Select(i => i.ImageUrl).FirstOrDefault()
                             ?? src.Product.Images.Select(i => i.ImageUrl).FirstOrDefault()
-                        : null));
+                        : null))
+                .ForMember(dest => dest.IsShowHomePage, opt => opt.MapFrom(src => src.IsShowHomePage));
 
             // Cart view models
             CreateMap<Product, GolbonWebRoad.Web.Models.Cart.ProductCartViewModel>()

@@ -1,4 +1,5 @@
 ﻿using GolbonWebRoad.Application.Dtos.HomePage;
+using GolbonWebRoad.Domain.Interfaces;
 using GolbonWebRoad.Domain.Interfaces.Repositories;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
@@ -12,13 +13,15 @@ namespace GolbonWebRoad.Application.Features.HomePage.Queries
     {
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMemoryCache _cache;
 
-        public GetHomePageDataQueryHandler(IProductRepository productRepository, ICategoryRepository categoryRepository, IMemoryCache cache)
+        public GetHomePageDataQueryHandler(IProductRepository productRepository, ICategoryRepository categoryRepository, IMemoryCache cache, IUnitOfWork unitOfWork)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
             _cache = cache;
+            _unitOfWork = unitOfWork;
         }
         public async Task<HomePageDataDto> Handle(GetHomePageDataQuery request, CancellationToken cancellationToken)
         {
@@ -30,17 +33,21 @@ namespace GolbonWebRoad.Application.Features.HomePage.Queries
                 return cached;
             }
 
-            var products = await _productRepository.GetAllAsync(sortOrder: "price_desc", joinImages: true, joinBrand: true, count: 8);
-            var featured = await _productRepository.GetProductByIsFeaturedAsync();
-            var categories = await _categoryRepository.GetAllAsync(take: 9);
+            var products = await _unitOfWork.ProductRepository.GetAllAsync(sortOrder: "price_desc", joinImages: true, joinBrand: true, count: 8);
+            var featuredProduct = await _unitOfWork.ProductRepository.GetProductByIsFeaturedAsync();
+            var categories = await _unitOfWork.CategoryRepository.GetAllAsync(take: 9);
+            var blogs = await _unitOfWork.BlogRepository.GetByActiveIsShowHomePage();
+            var reviews = await _unitOfWork.ReviewsRepository.GetByActiveIsShowHomePage();
 
 
 
             var data = new HomePageDataDto
             {
                 Products = products,
-                ProductIsFeatured = featured,
-                Categories = categories
+                ProductIsFeatured = featuredProduct,
+                Categories = categories,
+                Blogs=blogs,
+                Reviews=reviews
             };
 
             var options = new MemoryCacheEntryOptions

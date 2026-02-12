@@ -26,7 +26,9 @@ namespace GolbonWebRoad.Web.Controllers
             {
                 Products = _mapper.Map<List<ProductViewModel>>(data.Products),
                 ProductIsFeatured = _mapper.Map<ProductViewModel>(data.ProductIsFeatured),
-                Categories = _mapper.Map<List<CategoryViewModel>>(data.Categories)
+                Categories = _mapper.Map<List<CategoryViewModel>>(data.Categories),
+                Blogs = _mapper.Map<List<GolbonWebRoad.Web.Models.Blogs.BlogSummaryViewModel>>(data.Blogs),
+                Reviews=_mapper.Map<List<ReviewViewModel>>(data.Reviews),
             };
 
             return View(viewModel);

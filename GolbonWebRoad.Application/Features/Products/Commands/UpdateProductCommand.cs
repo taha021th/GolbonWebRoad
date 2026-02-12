@@ -7,6 +7,7 @@ using GolbonWebRoad.Domain.Entities;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
 
 namespace GolbonWebRoad.Application.Features.Products.Commands
@@ -74,14 +75,16 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         private readonly IMapper _mapper;
         private readonly IFileStorageService _fileStorageService;
         private readonly ILogger<UpdateProductCommandHandler> _logger;
+        private readonly IMemoryCache _cache;
         private const string FileDirectory = "products"; // <--- ثابت برای مسیر
 
-        public UpdateProductCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<UpdateProductCommandHandler> logger, IFileStorageService fileStorageService)
+        public UpdateProductCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<UpdateProductCommandHandler> logger, IFileStorageService fileStorageService, IMemoryCache cache)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _fileStorageService = fileStorageService;
             _logger = logger;
+            _cache = cache;
         }
 
         public async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
@@ -171,6 +174,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
 
                 // --- فاز ۵: حذف فایل‌های قدیمی (پس از موفقیت تراکنش) ---
                 _logger.LogInformation("محصول {ProductId} با موفقیت در DB آپدیت شد. شروع حذف فایل‌های قدیمی.", request.Id);
+                _cache.Remove("home:data:v1");
                 foreach (var fileName in filesToDeleteOnCommit)
                 {
                     await DeleteFileSilentlyAsync(fileName, FileDirectory);

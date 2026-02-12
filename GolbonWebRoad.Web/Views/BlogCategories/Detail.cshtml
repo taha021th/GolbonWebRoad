@@ -1,0 +1,225 @@
+@using GolbonWebRoad.Web.Models.BlogCategories
+@model BlogCategoryViewModel
+@{
+    ViewData["Title"] = Model.MetaTtitle ?? Model.Name;
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    
+    <meta name="description" content="@Model.MetaDescription">
+    <meta name="robots" content="@(Model.MetaRobots ?? "index, follow")">
+    @if (!string.IsNullOrEmpty(Model.CanonicalUrl))
+    {
+        <link rel="canonical" href="@Model.CanonicalUrl" />
+    }
+
+    <link rel="stylesheet" href="~/css/fonts.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/all.min.css">
+    <partial name="_CommonStyles" />
+
+    <style>
+        .category-detail-header {
+            position: relative;
+            padding: 100px 0;
+            background-color: var(--card-bg-color);
+            border-bottom: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .category-bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.15;
+            filter: blur(5px);
+            z-index: 0;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .header-content h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 25px;
+            color: var(--primary-text-color);
+        }
+
+        .header-content .description {
+            font-size: 1.2rem;
+            color: var(--secondary-text-color);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .blog-list-section {
+            padding: 80px 0;
+        }
+
+        .blogs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 40px;
+        }
+
+        .blog-card {
+            background: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-color);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        }
+
+        .blog-card-img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+        }
+
+        .blog-card-body {
+            padding: 30px;
+        }
+
+        .blog-card-meta {
+            display: flex;
+            font-size: 0.85rem;
+            color: var(--secondary-text-color);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .blog-card-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .blog-card-excerpt {
+            color: var(--secondary-text-color);
+            font-size: 1rem;
+            margin-bottom: 25px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .blog-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .read-more {
+            color: var(--accent-color);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* SEO/Content Section */
+        .category-content-rich {
+            margin-top: 60px;
+            padding: 40px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            line-height: 2;
+        }
+
+        @@media (max-width: 768px) {
+            .header-content h1 { font-size: 2.5rem; }
+            .blogs-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <partial name="_Header" />
+
+    <header class="category-detail-header">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="@Model.AltTextImageUrl" class="category-bg-image">
+        }
+        <div class="container header-content">
+            <nav class="breadcrumb" style="margin-bottom: 30px;">
+                <a asp-action="Index" asp-controller="Home">خانه</a> /
+                <a asp-action="Index" asp-controller="BlogCategories">دسته‌بندی‌ها</a> /
+                <span>@Model.Name</span>
+            </nav>
+            <h1>@Model.Name</h1>
+            @if (!string.IsNullOrEmpty(Model.ShortDescription))
+            {
+                <div class="description">@Model.ShortDescription</div>
+            }
+        </div>
+    </header>
+
+    <main class="container blog-list-section">
+        <div class="blogs-grid">
+            @if (Model.Blogs != null && Model.Blogs.Any())
+            {
+                @foreach (var blog in Model.Blogs)
+                {
+                    <article class="blog-card">
+                        <img src="@(string.IsNullOrEmpty(blog.MainImageUrl) ? "/images/default-blog.jpg" : blog.MainImageUrl)" alt="@blog.Title" class="blog-card-img">
+                        <div class="blog-card-body">
+                            <div class="blog-card-meta">
+                                <span><i class="far fa-calendar-alt"></i> @blog.PublishDate.ToString("yyyy/MM/dd")</span>
+                                <span><i class="far fa-clock"></i> @blog.ReadTimeMinutes دقیقه مطالعه</span>
+                            </div>
+                            <h2 class="blog-card-title">@blog.Title</h2>
+                            <p class="blog-card-excerpt">@blog.ShordDescription</p>
+                            <div class="blog-card-footer">
+                                <a asp-action="Detail" asp-controller="Blogs" asp-route-id="@blog.Id" class="read-more">
+                                    مطالعه مقاله <i class="fas fa-arrow-left"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                }
+            }
+            else
+            {
+                <div style="grid-column: 1/-1; text-align: center; padding: 100px 0;">
+                    <i class="fas fa-folder-open fa-4x" style="color: var(--border-color); margin-bottom: 20px;"></i>
+                    <h3>هنوز مقاله‌ای در این دسته‌بندی منتشر نشده است.</h3>
+                    <a asp-action="Index" class="btn" style="margin-top: 20px;">بازگشت به دسته‌بندی‌ها</a>
+                </div>
+            }
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Content))
+        {
+            <section class="category-content-rich">
+                @Html.Raw(Model.Content)
+            </section>
+        }
+    </main>
+
+    <partial name="_Footer" />
+    <partial name="_CommonScripts" />
+</body>
+</html>

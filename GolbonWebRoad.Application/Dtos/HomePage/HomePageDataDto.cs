@@ -7,5 +7,7 @@ namespace GolbonWebRoad.Application.Dtos.HomePage
         public ICollection<Product> Products { get; set; }
         public Product ProductIsFeatured { get; set; }
         public IEnumerable<Category> Categories { get; set; }
+        public IEnumerable<Blog> Blogs { get; set; }
+        public IEnumerable<Review> Reviews { get; set; }
     }
 }

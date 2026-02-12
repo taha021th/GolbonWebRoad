@@ -4,6 +4,7 @@ namespace GolbonWebRoad.Domain.Interfaces.Repositories
 {
     public interface IReviewsRepository
     {
+        Task<IEnumerable<Review>> GetByActiveIsShowHomePage();
         Task<ICollection<Review>> GetAllAsync(bool? joinProducts = false, int take = 0);
         Task<Review?> GetByIdAsync(int id, bool? joinProduct = false);
         Task<ICollection<Review>> GetByProductIdAsync(int productId, bool? joinUser = false);

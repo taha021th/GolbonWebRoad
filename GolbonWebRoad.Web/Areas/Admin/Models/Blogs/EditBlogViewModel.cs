@@ -12,6 +12,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Blogs
         public IFormFile? Image { get; set; }
         public int ReadTimeMinutes { get; set; }
         public bool IsPublished { get; set; } = false;
+        public bool IsShowHomePage { get; set; }
         public string? Slog { get; set; }
         public string? MetaDescription { get; set; }
         public string? MetaKeywords { get; set; }

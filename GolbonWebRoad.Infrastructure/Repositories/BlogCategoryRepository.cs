@@ -32,7 +32,7 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         {
             var query = _context.BlogCategories.AsQueryable();
             if (joinBlogs==true)
-                query.Include(b => b.Blogs);
+                query = query.Include(b => b.Blogs);
             return await query.AsNoTracking().FirstOrDefaultAsync(bc => bc.Id==id);
         }
 

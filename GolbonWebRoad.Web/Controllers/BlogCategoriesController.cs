@@ -18,8 +18,8 @@ namespace GolbonWebRoad.Web.Controllers
         public async Task<IActionResult> Index()
         {
             var blogsEntity = await _mediator.Send(new GetAllBlogCategoryQuery());
-            var blogCategoryViewModel = _mapper.Map<BlogCategorySummaryViewModel>(blogsEntity);
-            return View();
+            var viewModel = _mapper.Map<List<BlogCategorySummaryViewModel>>(blogsEntity);
+            return View(viewModel);
         }
         [HttpGet("blogcategory")]
         public async Task<IActionResult> Detail(int id)

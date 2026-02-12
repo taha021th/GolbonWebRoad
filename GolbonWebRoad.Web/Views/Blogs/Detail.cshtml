@@ -308,6 +308,13 @@
             <div class="comment-form-container card-like">
                 <h4>ثبت دیدگاه جدید</h4>
                 <form asp-controller="Blogs" asp-action="AddReview" method="post">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger" role="alert" style="border-radius: 8px; background-color: rgba(220, 53, 69, 0.1); border: 1px solid #dc3545; color: #dc3545; padding: 15px; margin-bottom: 20px;">
+                            <h5 style="margin-bottom: 10px; font-weight: bold;"><i class="fas fa-exclamation-triangle"></i> لطفا خطا های زیر را برطرف کنید:</h5>
+                            <div asp-validation-summary="All" class="text-danger" style="list-style-type: none; padding-right: 0;"></div>
+                        </div>
+                    }
                     <input type="hidden" name="BlogId" value="@Model.Id" />
 
                     <div style="margin-bottom: 20px;">
@@ -322,7 +329,7 @@
                         </div>
                     </div>
 
-                    <textarea name="ReviewText" rows="5" placeholder="متن پیام شما..." required></textarea>
+                    <textarea name="ReviewText" rows="5" placeholder="متن پیام شما..."></textarea>
                     <button type="submit" class="submit-btn">ارسال نظر</button>
                 </form>
             </div>

@@ -24,15 +24,22 @@ namespace GolbonWebRoad.Infrastructure.Repositories
         {
             _context.Blogs.Remove(blog);
         }
+        public async Task<IEnumerable<Blog>> GetByActiveIsShowHomePage()
+        {
+            return await _context.Blogs.AsNoTracking().Where(b => b.IsShowHomePage==true).ToListAsync();
+        }
 
-        public async Task<IEnumerable<Blog>> GetAllAsync(bool? joinBlogCategory)
+        public async Task<IEnumerable<Blog>> GetAllAsync(bool? joinBlogCategory, int take = 0)
         {
             var query = _context.Blogs.AsQueryable();
+            if (take > 0)
+                query=query.Take(take);
+
             if (joinBlogCategory == true)
                 query=query.Include(bc => bc.BlogCategory);
 
 
-            return await query.ToListAsync();
+            return await query.OrderByDescending(b => b.Id).ToListAsync();
         }
 
         public async Task<Blog> GetByIdAsync(int id, bool? joinBlogCategory, bool? joinBlogReview, bool? filterByStatusBlogReview)

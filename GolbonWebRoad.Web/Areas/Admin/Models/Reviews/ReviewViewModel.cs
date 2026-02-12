@@ -14,6 +14,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Reviews
         public string ProductName { get; set; }
         public int ProductId { get; set; }
         public string ProductImageUrl { get; set; }
+        public bool IsShowHomePage { get; set; }
     }
 
     public class ReviewIndexViewModel

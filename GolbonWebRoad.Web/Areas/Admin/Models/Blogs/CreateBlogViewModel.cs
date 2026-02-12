@@ -11,6 +11,7 @@ namespace GolbonWebRoad.Web.Areas.Admin.Models.Blogs
         public string? MainImageUrl { get; set; }
         public IFormFile? Image { get; set; }
         public bool IsPublished { get; set; } // وضعیت انتشار
+        public bool IsShowHomePage { get; set; }
         public string? ShortDescription { get; set; }
 
         public string? Slog { get; set; }

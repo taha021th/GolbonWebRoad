@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GolbonWebRoad.Application.Features.Reviews.Commands
 {
@@ -11,10 +12,12 @@ namespace GolbonWebRoad.Application.Features.Reviews.Commands
     public class UpdateReviewStatusCommandHandler : IRequestHandler<UpdateReviewStatusCommand>
     {
         private readonly GolbonWebRoad.Domain.Interfaces.IUnitOfWork _unitOfWork;
+        private readonly IMemoryCache _cache;
 
-        public UpdateReviewStatusCommandHandler(GolbonWebRoad.Domain.Interfaces.IUnitOfWork unitOfWork)
+        public UpdateReviewStatusCommandHandler(GolbonWebRoad.Domain.Interfaces.IUnitOfWork unitOfWork, IMemoryCache cache)
         {
             _unitOfWork = unitOfWork;
+            _cache = cache;
         }
 
         public async Task Handle(UpdateReviewStatusCommand request, CancellationToken cancellationToken)
@@ -26,6 +29,7 @@ namespace GolbonWebRoad.Application.Features.Reviews.Commands
             review.Status = request.Status;
             _unitOfWork.ReviewsRepository.Update(review);
             await _unitOfWork.CompleteAsync();
+            _cache.Remove("home:data:v1");
         }
     }
 }

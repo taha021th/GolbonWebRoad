@@ -37,12 +37,15 @@ namespace GolbonWebRoad.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> AddReview(BlogReviewViewModel viewModel)
         {
+            ModelState.Remove("User");
+            ModelState.Remove("UserId");
 
-            //if (!ModelState.IsValid)
-            //{
-            //    TempData["Error"]="لطفا تمام فیلد هارا به درستی پر کنید.";
-            //    return RedirectToAction("Detail", new { id = viewModel.BlogId });
-            //}
+            if (!ModelState.IsValid)
+            {
+                var blogEntity = await _mediator.Send(new GetByIdBlogQuery { Id = viewModel.BlogId });
+                var blogViewModel = _mapper.Map<BlogViewModel>(blogEntity);
+                return View("Detail", blogViewModel);
+            }
 
             var command = _mapper.Map<CreateBlogReviewCommand>(viewModel);
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

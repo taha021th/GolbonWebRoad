@@ -1,0 +1,159 @@
+@using GolbonWebRoad.Web.Models.BlogCategories
+@model List<BlogCategorySummaryViewModel>
+@{
+    ViewData["Title"] = "دسته‌بندی‌های وبلاگ";
+    Layout = null; // Assuming a clean slate as per site identity or using a base if preferred
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    
+    <link rel="stylesheet" href="~/css/fonts.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/all.min.css">
+    <partial name="_CommonStyles" />
+
+    <style>
+        .categories-hero {
+            padding: 80px 0;
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.1) 0%, rgba(18, 18, 18, 0.2) 100%);
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 60px;
+        }
+
+        .categories-hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(to left, var(--accent-color), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .categories-hero p {
+            color: var(--secondary-text-color);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .category-card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent-color);
+        }
+
+        .category-image-wrapper {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .category-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .category-card:hover .category-image-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .category-card-content {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .category-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-text-color);
+        }
+
+        .category-card p {
+            color: var(--secondary-text-color);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .category-card .btn-view {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-color);
+            font-weight: 700;
+            transition: gap 0.3s ease;
+        }
+
+        .category-card:hover .btn-view {
+            gap: 15px;
+        }
+
+        @@media (max-width: 768px) {
+            .categories-hero h1 { font-size: 2.5rem; }
+            .categories-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <partial name="_Header" />
+
+    <section class="categories-hero">
+        <div class="container">
+            <h1>دسته‌بندی‌های وبلاگ</h1>
+            <p>در دنیای دانش و تجربه ما غرق شوید. هر دسته‌بندی داستانی متفاوت برای گفتن دارد.</p>
+        </div>
+    </section>
+
+    <main class="container">
+        <div class="categories-grid">
+            @foreach (var category in Model)
+            {
+                <div class="category-card">
+                    <div class="category-image-wrapper">
+                        <img src="@(string.IsNullOrEmpty(category.ImageUrl) ? "/images/default-category.jpg" : category.ImageUrl)" alt="@category.AltTextImageUrl">
+                    </div>
+                    <div class="category-card-content">
+                        <h3>@category.Name</h3>
+                        <p>@category.ShortDescription</p>
+                        <a asp-action="Detail" asp-route-id="@category.Id" class="btn-view">
+                            مشاهده وبلاگ‌ها <i class="fas fa-arrow-left"></i>
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </main>
+
+    <partial name="_Footer" />
+    <partial name="_CommonScripts" />
+</body>
+</html>

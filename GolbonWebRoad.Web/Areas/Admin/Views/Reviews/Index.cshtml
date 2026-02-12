@@ -228,24 +228,33 @@
                                         }
                                     </td>
                                     <td>
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            @if (!review.Status)
-                                            {
-                                                <button type="button" class="btn btn-success" 
-                                                        onclick="updateStatus(@review.Id, true)" title="تایید">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            }
-                                            else
-                                            {
-                                                <button type="button" class="btn btn-warning" 
-                                                        onclick="updateStatus(@review.Id, false)" title="رد">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            }
-                                            <a href="@Url.Action("Detail", "Products", new { area = "", id=review.ProductId })" target="_blank" class="btn btn-info" title="مشاهده محصول">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
+                                        <div class="d-flex align-items-center gap-1">
+                                            <div class="form-check form-switch" title="نمایش در صفحه اصلی">
+                                                <input class="form-check-input" type="checkbox" role="switch" 
+                                                       id="showHome_@review.Id" 
+                                                       @(review.IsShowHomePage ? "checked" : "")
+                                                       onchange="toggleShowHomePage(@review.Id, this.checked)">
+                                            </div>
+
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                @if (!review.Status)
+                                                {
+                                                    <button type="button" class="btn btn-success" 
+                                                            onclick="updateStatus(@review.Id, true)" title="تایید">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-warning" 
+                                                            onclick="updateStatus(@review.Id, false)" title="رد">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                }
+                                                <a href="@Url.Action("Detail", "Products", new { area = "", id=review.ProductId })" target="_blank" class="btn btn-info" title="مشاهده محصول">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -363,6 +372,27 @@
                     location.reload();
                 } else {
                     alert('خطایی در به‌روزرسانی دسته‌ای رخ داد.');
+                }
+            });
+        }
+
+        // Toggle Show Home Page
+        function toggleShowHomePage(reviewId, isShow) {
+            fetch('@Url.Action("ToggleShowHomePage")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: `reviewId=${reviewId}&isShowHomePage=${isShow}`
+            })
+            .then(response => {
+                if (response.ok) {
+                    showNotification('وضعیت نمایش در صفحه اصلی به‌روز شد.', 'success');
+                } else {
+                    alert('خطایی در به‌روزرسانی وضعیت رخ داد.');
+                    // Revert checkbox state
+                    document.getElementById(`showHome_${reviewId}`).checked = !isShow;
                 }
             });
         }

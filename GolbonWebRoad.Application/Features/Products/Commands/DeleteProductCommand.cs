@@ -3,6 +3,7 @@ using GolbonWebRoad.Application.Exceptions; // using برای NotFoundException
 using GolbonWebRoad.Application.Interfaces.Services;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
 
 namespace GolbonWebRoad.Application.Features.Products.Commands
@@ -25,13 +26,15 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<DeleteProductCommandHandler> _logger; // ۲. ILogger را تعریف کنید
         private readonly IFileStorageService _fileStorageService;
+        private readonly IMemoryCache _cache;
 
         // ۳. ILogger را از طریق سازنده تزریق کنید
-        public DeleteProductCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteProductCommandHandler> logger, IFileStorageService fileStorageService)
+        public DeleteProductCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteProductCommandHandler> logger, IFileStorageService fileStorageService, IMemoryCache cache)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _fileStorageService=fileStorageService;
+            _cache = cache;
         }
 
         public async Task Handle(DeleteProductCommand request, CancellationToken cancellationToken)
@@ -58,6 +61,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
                 await _unitOfWork.CompleteAsync();
 
                 _logger.LogInformation("محصول با شناسه {ProductId} از دیتابیس با موفقیت حذف شد.", request.Id);
+                _cache.Remove("home:data:v1");
 
                 // ۵. حالا که حذف از دیتابیس موفقیت‌آمیز بود، فایل‌های فیزیکی را پاک کن
                 foreach (var imageUrl in imagesToDelete)

@@ -7,6 +7,7 @@ using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GolbonWebRoad.Application.Features.Products.Commands
 {
@@ -67,15 +68,17 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
         private readonly IMapper _mapper;
         private readonly IFileStorageService _fileStorageService;
         private readonly ILogger<CreateProductCommandHandler> _logger; // ۲. ILogger را تعریف کنید
+        private readonly IMemoryCache _cache;
         private const string FileDirectory = "products";
 
         // ۳. ILogger را از طریق سازنده تزریق کنید
-        public CreateProductCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CreateProductCommandHandler> logger, IFileStorageService fileStorageService)
+        public CreateProductCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CreateProductCommandHandler> logger, IFileStorageService fileStorageService, IMemoryCache cache)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _fileStorageService=fileStorageService;
+            _cache = cache;
         }
 
         public async Task<int> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -130,6 +133,7 @@ namespace GolbonWebRoad.Application.Features.Products.Commands
                 await _unitOfWork.CompleteAsync();
 
                 _logger.LogInformation("محصول '{ProductName}' با شناسه {ProductId} با موفقیت ایجاد شد.", product.Name, product.Id);
+                _cache.Remove("home:data:v1");
                 return product.Id;
             }
             catch (Exception ex)

@@ -944,9 +944,53 @@
 
         <section id="about" class="about-section fade-in-section"><div class="container"><div class="about-layout"><div class="about-text"><h2 class="section-title">داستان ما: عشق به طراحی و کیفیت</h2><p>ما در Tecture معتقدیم که خانه، قلب زندگی است. جایی برای آرامش، خاطره‌سازی و ابراز شخصیت. به همین دلیل، با وسواس و علاقه، مجموعه‌ای از بهترین و باکیفیت‌ترین محصولات دکوراسیون داخلی را گرد هم آورده‌ایم تا به شما کمک کنیم فضایی منحصربه‌فرد و الهام‌بخش خلق کنید.</p><br><p>هدف ما فراتر از فروش یک محصول است؛ ما می‌خواهیم همراه شما در مسیر زیباسازی خانه‌تان باشیم.</p></div><div class="about-image"><img loading="lazy" src="/images/hero-background.jpg" alt="Minimalist Interior" width="500" height="600"></div></div></div></section>
 
-        <section id="testimonials" class="testimonials-section fade-in-section"><div class="container"><h2 class="section-title">نظرات مشتریان ما</h2><div class="grid-3-col"><div class="testimonial-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Brenda Gregory" width="80" height="80"><p>"کیفیت محصولات عالی بود و بسته‌بندی بسیار حرفه‌ای انجام شده بود. قطعاً دوباره از شما خرید می‌کنم."</p><h4 class="author">سارا محمدی</h4><span class="role">خریدار</span></div><div class="testimonial-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Edward Monroe" width="80" height="80"><p>"پشتیبانی بسیار خوب و پاسخگو بود. محصول زودتر از موعد به دستم رسید. ممنونم از تیم خوبتون."</p><h4 class="author">علی رضایی</h4><span class="role">خریدار</span></div><div class="testimonial-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Alisa Bro" width="80" height="80"><p>"تنوع محصولات و ایده‌های چیدمان در سایت شما بی‌نظیره. برای خرید جهیزیه خیلی بهم کمک کرد."</p><h4 class="author">مریم احمدی</h4><span class="role">خریدار</span></div></div></div></section>
+        <section id="testimonials" class="testimonials-section fade-in-section">
+            <div class="container">
+                <h2 class="section-title">نظرات مشتریان ما</h2>
+                <div class="grid-3-col">
+                    @if (Model.Reviews != null && Model.Reviews.Any())
+                    {
+                        @foreach (var review in Model.Reviews)
+                        {
+                            <div class="testimonial-card">
+                                <img loading="lazy" src="https://placehold.co/80x80/EFEFEF/AAAAAA?text=@(review.UserName.Length > 0 ? review.UserName[0] : 'U')" alt="@review.UserName" width="80" height="80">
+                                <p>"@review.ReviewText"</p>
+                                <h4 class="author">@review.UserName</h4>
+                                <span class="role">خریدار</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="testimonial-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Brenda Gregory" width="80" height="80"><p>"کیفیت محصولات عالی بود و بسته‌بندی بسیار حرفه‌ای انجام شده بود. قطعاً دوباره از شما خرید می‌کنم."</p><h4 class="author">سارا محمدی</h4><span class="role">خریدار</span></div><div class="testimonial-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Edward Monroe" width="80" height="80"><p>"پشتیبانی بسیار خوب و پاسخگو بود. محصول زودتر از موعد به دستم رسید. ممنونم از تیم خوبتون."</p><h4 class="author">علی رضایی</h4><span class="role">خریدار</span></div><div class="testimonial-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Alisa Bro" width="80" height="80"><p>"تنوع محصولات و ایده‌های چیدمان در سایت شما بی‌نظیره. برای خرید جهیزیه خیلی بهم کمک کرد."</p><h4 class="author">مریم احمدی</h4><span class="role">خریدار</span></div>
+                    }
+                </div>
+            </div>
+        </section>
 
-        <section id="blog" class="blog-section fade-in-section"><div class="container"><h2 class="section-title">جدیدترین مقالات و ایده‌ها</h2><div class="grid-3-col"><div class="blog-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Blog Post 1" width="400" height="300"><div class="blog-card-content"><h3>چگونه رنگ مناسب برای دیوارها انتخاب کنیم؟</h3><a href="#">بیشتر بخوانید ←</a></div></div><div class="blog-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Blog Post 2" width="400" height="300"><div class="blog-card-content"><h3>۵ نکته کلیدی برای چیدمان فضاهای کوچک</h3><a href="#">بیشتر بخوانید ←</a></div></div><div class="blog-card"><img loading="lazy" src="/images/hero-background.jpg" alt="Blog Post 3" width="400" height="300"><div class="blog-card-content"><h3>نورپردازی در دکوراسیون: جادویی که نباید نادیده گرفت</h3><a href="#">بیشتر بخوانید ←</a></div></div></div></div></section>
+        <section id="blog" class="blog-section fade-in-section">
+            <div class="container">
+                <h2 class="section-title">جدیدترین مقالات و ایده‌ها</h2>
+                <div class="grid-3-col">
+                    @if (Model.Blogs != null && Model.Blogs.Any())
+                    {
+                        @foreach (var blog in Model.Blogs)
+                        {
+                            <div class="blog-card">
+                                <a asp-controller="Blogs" asp-action="Detail" asp-route-id="@blog.Id">
+                                    <img loading="lazy" src="@(string.IsNullOrEmpty(blog.MainImageUrl) ? "/images/hero-background.jpg" : blog.MainImageUrl)" alt="@blog.Title" width="400" height="300">
+                                </a>
+                                <div class="blog-card-content">
+                                    <h3><a asp-controller="Blogs" asp-action="Detail" asp-route-id="@blog.Id">@blog.Title</a></h3>
+                                    <p>@blog.ShordDescription</p>
+                                    <a asp-controller="Blogs" asp-action="Detail" asp-route-id="@blog.Id">بیشتر بخوانید ←</a>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </section>
     </main>
     
 

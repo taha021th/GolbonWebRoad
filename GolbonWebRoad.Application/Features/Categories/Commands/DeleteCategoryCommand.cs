@@ -4,6 +4,7 @@ using GolbonWebRoad.Application.Interfaces.Services;
 using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GolbonWebRoad.Application.Features.Categories.Commands
 {
@@ -23,12 +24,14 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<DeleteCategoryCommandHandler> _logger; // ۲. ILogger را تعریف کنید
         private readonly IFileStorageService _fileStorageService;
+        private readonly IMemoryCache _cache;
         // ۳. ILogger را تزریق کرده و وابستگی اضافی به IMapper را حذف کنید
-        public DeleteCategoryCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteCategoryCommandHandler> logger, IFileStorageService fileStorageService)
+        public DeleteCategoryCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteCategoryCommandHandler> logger, IFileStorageService fileStorageService, IMemoryCache cache)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _fileStorageService = fileStorageService;
+            _cache = cache;
         }
 
         public async Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
@@ -54,6 +57,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
 
                 await _unitOfWork.CategoryRepository.DeleteAsync(request.Id);
                 await _unitOfWork.CompleteAsync();
+                _cache.Remove("home:data:v1");
 
 
                 _logger.LogInformation("دسته‌بندی با شناسه {CategoryId} و نام '{CategoryName}' با موفقیت حذف شد.",

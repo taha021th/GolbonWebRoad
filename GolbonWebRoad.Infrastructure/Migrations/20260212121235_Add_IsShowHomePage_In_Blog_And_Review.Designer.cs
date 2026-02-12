@@ -3,6 +3,7 @@ using System;
 using GolbonWebRoad.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GolbonWebRoad.Infrastructure.Migrations
 {
     [DbContext(typeof(GolbonWebRoadDbContext))]
-    partial class GolbonWebRoadDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260212121235_Add_IsShowHomePage_In_Blog_And_Review")]
+    partial class Add_IsShowHomePage_In_Blog_And_Review
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -6,6 +6,7 @@ using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GolbonWebRoad.Application.Features.Blogs.Commands
 {
@@ -20,6 +21,7 @@ namespace GolbonWebRoad.Application.Features.Blogs.Commands
         public string? MainImageAltText { get; set; }
         public int ReadTimeMinutes { get; set; }
         public bool IsPublished { get; set; } = false;
+        public bool IsShowHomePage { get; set; }
         public string? Slog { get; set; }
         public string? MetaDescription { get; set; }
         public string? MetaKeywords { get; set; }
@@ -34,12 +36,14 @@ namespace GolbonWebRoad.Application.Features.Blogs.Commands
         private readonly IMapper _mapper;
         private readonly ILogger<UpdateBlogCommandHandler> _logger;
         private readonly IFileStorageService _fileStorageService;
-        public UpdateBlogCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<UpdateBlogCommandHandler> logger, IFileStorageService fileStorageService)
+        private readonly IMemoryCache _cache;
+        public UpdateBlogCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<UpdateBlogCommandHandler> logger, IFileStorageService fileStorageService, IMemoryCache cache)
         {
             _unitOfWork=unitOfWork;
             _mapper=mapper;
             _logger=logger;
             _fileStorageService=fileStorageService;
+            _cache = cache;
         }
 
         public async Task<Blog> Handle(UpdateBlogCommand request, CancellationToken cancellationToken)
@@ -68,6 +72,7 @@ namespace GolbonWebRoad.Application.Features.Blogs.Commands
 
             _unitOfWork.BlogRepository.Update(entity);
             await _unitOfWork.CompleteAsync();
+            _cache.Remove("home:data:v1");
             _logger.LogInformation("بلاگ با عنوان {BlogTitle} و با شناسه {BlogId} ایجاد شد.", entity.Title, entity.Id);
             return entity;
         }

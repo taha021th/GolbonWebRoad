@@ -15,5 +15,6 @@ namespace GolbonWebRoad.Domain.Entities
         public virtual ApplicationUser User { get; set; }
 
         public bool Status { get; set; } = false;
+        public bool IsShowHomePage { get; set; }
     }
 }

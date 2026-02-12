@@ -29,6 +29,11 @@ namespace GolbonWebRoad.Infrastructure.Repositories
             _context.Reviews.Remove(review);
         }
 
+        public async Task<IEnumerable<Review>> GetByActiveIsShowHomePage()
+        {
+            return await _context.Reviews.Include(r => r.User).Where(r => r.IsShowHomePage==true).AsNoTracking().ToListAsync();
+        }
+
         public async Task<ICollection<Review>> GetAllAsync(bool? joinProducts = false, int take = 0)
         {
             var query = _context.Reviews.AsQueryable();

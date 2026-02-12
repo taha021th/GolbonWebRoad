@@ -6,6 +6,7 @@ using GolbonWebRoad.Domain.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging; // ۱. این using را برای دسترسی به ILogger اضافه کنید
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GolbonWebRoad.Application.Features.Categories.Commands
 {
@@ -33,13 +34,15 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
         private readonly IMapper _mapper;
         private readonly ILogger<CreateCategoryCommandHandler> _logger;
         private readonly IFileStorageService _fileStorageService;
+        private readonly IMemoryCache _cache;
 
-        public CreateCategoryCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CreateCategoryCommandHandler> logger, IFileStorageService fileStorageService)
+        public CreateCategoryCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CreateCategoryCommandHandler> logger, IFileStorageService fileStorageService, IMemoryCache cache)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _fileStorageService=fileStorageService;
+            _cache = cache;
         }
 
         public async Task<Category> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
@@ -63,6 +66,7 @@ namespace GolbonWebRoad.Application.Features.Categories.Commands
 
                 _logger.LogInformation("دسته‌بندی '{CategoryName}' با شناسه {CategoryId} با موفقیت در دیتابیس ایجاد شد.",
                     newCategory.Name, newCategory.Id);
+                _cache.Remove("home:data:v1");
                 return newCategory;
 
 

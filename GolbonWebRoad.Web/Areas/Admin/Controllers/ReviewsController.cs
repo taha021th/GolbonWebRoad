@@ -98,5 +98,24 @@ namespace GolbonWebRoad.Web.Areas.Admin.Controllers
 
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleShowHomePage(int reviewId, bool isShowHomePage)
+        {
+            try
+            {
+                await _mediator.Send(new ToggleReviewShowHomePageCommand
+                {
+                    ReviewId = reviewId,
+                    IsShowHomePage = isShowHomePage
+                });
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
     }
 }
